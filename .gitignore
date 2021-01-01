@@ -45,5 +45,10 @@ testem.log
 .DS_Store
 Thumbs.db
 
-#secrets
+# Firebase Emulator Debug Logs
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Secrets
 /projects/public/src/environments/firebase-config.ts
