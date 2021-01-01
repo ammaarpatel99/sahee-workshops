@@ -8,13 +8,13 @@ import {NavContainerModule} from './nav-container/nav-container.module';
 import {AngularFireModule} from '@angular/fire';
 import {environment} from '../environments/environment';
 import {AngularFireAnalyticsModule, ScreenTrackingService, UserTrackingService} from '@angular/fire/analytics';
-import {AngularFireAuthModule, USE_EMULATOR as USE_AUTH_EMULATOR} from '@angular/fire/auth';
-import {AngularFirestoreModule, USE_EMULATOR as USE_FIRESTORE_EMULATOR} from '@angular/fire/firestore';
+import {AngularFireAuthModule} from '@angular/fire/auth';
+import {AngularFirestoreModule} from '@angular/fire/firestore';
 import {AngularFireStorageModule} from '@angular/fire/storage';
-import {AngularFireFunctionsModule, USE_EMULATOR as USE_FUNCTIONS_EMULATOR} from '@angular/fire/functions';
+import {AngularFireFunctionsModule} from '@angular/fire/functions';
+import {AngularFirePerformanceModule, PerformanceMonitoringService} from '@angular/fire/performance';
 
 import './firebase-initialisation/firebase-initialisation';
-import {AngularFirePerformanceModule, PerformanceMonitoringService} from '@angular/fire/performance';
 
 const productionModules = [];
 const ProductionProviders = [];
@@ -47,10 +47,7 @@ if (environment.production) {
     AngularFireFunctionsModule
   ],
   providers: [
-    ...ProductionProviders,
-    { provide: USE_AUTH_EMULATOR, useValue: !environment.production ? ['localhost', 9099] : undefined },
-    { provide: USE_FIRESTORE_EMULATOR, useValue: !environment.production ? ['localhost', 8080] : undefined },
-    { provide: USE_FUNCTIONS_EMULATOR, useValue: !environment.production ? ['localhost', 5001] : undefined }
+    ...ProductionProviders
   ],
   bootstrap: [AppComponent]
 })
