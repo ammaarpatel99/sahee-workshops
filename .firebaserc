@@ -1,0 +1,11 @@
+{
+  "targets": {
+    "sahee-workshop-signup": {
+      "hosting": {
+        "public": [
+          "sahee-workshop-signup"
+        ]
+      }
+    }
+  }
+}

@@ -123,9 +123,14 @@
               "devServerTarget": "public:serve:production"
             }
           }
+        },
+        "deploy": {
+          "builder": "@angular/fire:deploy",
+          "options": {}
         }
       }
-    }},
+    }
+  },
   "cli": {
     "analytics": "2eda1eb3-eca5-4bdf-bd6e-e9618e622f79"
   },
