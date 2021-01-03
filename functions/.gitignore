@@ -11,7 +11,10 @@ typings/
 # Node.js dependency directory
 node_modules/
 
-/.idea
+.idea
 
 #secret
 src/email/password.secret.ts
+
+#output
+lib/
