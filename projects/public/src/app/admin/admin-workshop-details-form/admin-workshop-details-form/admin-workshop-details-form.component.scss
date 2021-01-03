@@ -1,0 +1,12 @@
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-actions {
+  display: flex;
+  * {
+    flex-grow: 1;
+    margin: 0 1em;
+  }
+}

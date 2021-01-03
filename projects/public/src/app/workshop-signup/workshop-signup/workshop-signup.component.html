@@ -1,0 +1,19 @@
+<div class="register-container">
+  <ng-container *ngIf="(emailConsent$|async) === undefined; else registerTmp">
+    <p>To Register for this workshop, please sign in:</p>
+    <button mat-raised-button color="primary">Sign In</button>
+  </ng-container>
+</div>
+
+
+<ng-template #registerTmp >
+  <ng-container *ngIf="(emailConsent$|async) === null">
+    <mat-slide-toggle [(ngModel)]="relatedEmailConsent" >
+      Consent to emails regarding <strong>other</strong> workshops
+    </mat-slide-toggle>
+  </ng-container>
+  <mat-slide-toggle [(ngModel)]="thisEmailConsent">
+    Consent to emails regarding <strong>this</strong> workshop
+  </mat-slide-toggle>
+  <button mat-raised-button color="primary" (click)="register()">Register for this workshop</button>
+</ng-template>

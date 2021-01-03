@@ -1,0 +1,9 @@
+<h4>This is an email that will be sent to all current users who have consented to general emails but aren't signed up
+  for this workshop. Be careful as this may result in a lot of emails.</h4>
+<div class="promotionTab">
+  <mat-form-field appearance="outline">
+    <mat-label>Promotion Email</mat-label>
+    <textarea matInput [(ngModel)]="promotionEmail" ></textarea>
+  </mat-form-field>
+  <button mat-raised-button color="primary" (click)="sendPromotionEmail()">Send</button>
+</div>

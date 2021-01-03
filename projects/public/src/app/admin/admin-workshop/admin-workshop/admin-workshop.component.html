@@ -1,0 +1,36 @@
+<div class="container">
+  <ng-container *ngIf="(workshop$ | async) === undefined; else workshopTabs">
+    <mat-card class="inner-container">
+      <ng-container *ngTemplateOutlet="detailsForm"></ng-container>
+    </mat-card>
+  </ng-container>
+</div>
+
+<ng-template #detailsForm>
+  <app-admin-workshop-details-form [workshop$]="workshop$"></app-admin-workshop-details-form>
+</ng-template>
+
+<ng-template #workshopTabs>
+  <mat-tab-group mat-stretch-tabs dynamicHeight [class]="innerContainerClass" class="mat-elevation-z4">
+    <mat-tab label="Details">
+      <div class="tab">
+        <ng-container *ngTemplateOutlet="detailsForm"></ng-container>
+      </div>
+    </mat-tab>
+    <mat-tab label="Poster">
+      <div class="tab">
+        <app-admin-workshop-change-poster [workshop$]="workshop$"></app-admin-workshop-change-poster>
+      </div>
+    </mat-tab>
+    <mat-tab label="Promotion">
+      <div class="tab">
+        <app-admin-workshop-promotion [workshop$]="workshop$"></app-admin-workshop-promotion>
+      </div>
+    </mat-tab>
+    <mat-tab label="Email">
+      <div class="tab">
+        <app-admin-workshop-message [workshop$]="workshop$"></app-admin-workshop-message>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</ng-template>

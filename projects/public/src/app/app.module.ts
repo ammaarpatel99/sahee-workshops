@@ -13,8 +13,11 @@ import {AngularFirestoreModule} from '@angular/fire/firestore';
 import {AngularFireStorageModule} from '@angular/fire/storage';
 import {AngularFireFunctionsModule} from '@angular/fire/functions';
 import {AngularFirePerformanceModule, PerformanceMonitoringService} from '@angular/fire/performance';
+import {WorkshopsDashboardModule} from './workshops-dashboard/workshops-dashboard.module';
+import {PublicWorkshopModule} from './public-workshop/public-workshop.module';
 
 import './firebase-initialisation/firebase-initialisation';
+import {LoginModule} from './login/login.module';
 
 const productionModules = [];
 const ProductionProviders = [];
@@ -44,7 +47,10 @@ if (environment.production) {
     AngularFireAuthModule,
     AngularFirestoreModule,
     AngularFireStorageModule,
-    AngularFireFunctionsModule
+    AngularFireFunctionsModule,
+    WorkshopsDashboardModule,
+    PublicWorkshopModule,
+    LoginModule
   ],
   providers: [
     ...ProductionProviders

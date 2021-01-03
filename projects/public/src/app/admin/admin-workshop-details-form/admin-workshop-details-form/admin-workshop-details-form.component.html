@@ -1,0 +1,24 @@
+<form [formGroup]="workshopDetailsForm" (ngSubmit)="submit()" class="form">
+  <h1>{{(workshop$ | async) === undefined ? 'Create Workshop' : 'Edit Details'}}</h1>
+  <mat-form-field *ngFor="let field of displayFields" [appearance]="getFormFieldAppearance(field.name)">
+    <mat-label>{{field.title}}</mat-label>
+    <ng-container *ngIf="field.type === 'text-area'; else fieldInput">
+      <textarea matInput [formControl]="getFormControl(field.name)" [required]="field.required"></textarea>
+    </ng-container>
+    <ng-template #fieldInput>
+      <input matInput [formControl]="getFormControl(field.name)" [required]="field.required" [type]="field.type" autocomplete="off">
+    </ng-template>
+    <mat-error *ngIf="getFormControl(field.name).invalid">{{getFieldErrorMessage(field.name)}}</mat-error>
+    <mat-icon matSuffix [matTooltip]="field.tooltip" matTooltipPosition="after" >info_outline</mat-icon>
+  </mat-form-field>
+  <div class="form-actions">
+    <button mat-stroked-button color="primary" *ngIf="!(editing$ | async); else formActions" (click)="edit()">Edit</button>
+  </div>
+</form>
+
+
+<ng-template #formActions>
+  <button mat-stroked-button color="warn" type="reset" (click)="resetWorkshopDetailsForm()">Reset</button>
+  <button mat-raised-button color="primary" type="submit">Submit</button>
+</ng-template>
+

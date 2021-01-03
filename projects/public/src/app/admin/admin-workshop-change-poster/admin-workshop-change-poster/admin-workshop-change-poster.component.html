@@ -1,0 +1,10 @@
+<div class="select-poster">
+  <input type="file" accept="image/*" #posterInput (change)="getPosterFile($event)" hidden>
+  <button mat-raised-button (click)="posterInput.click()">Choose Poster</button>
+  <mat-label>{{posterFile?.name || 'No file chosen'}}</mat-label>
+</div>
+<img [src]="posterUrl" *ngIf="posterUrl" class="preview-poster">
+<ng-container *ngIf="posterEdited">
+  <button mat-stroked-button color="warn" (click)="resetPoster(); posterInput.value = ''">Reset</button>
+  <button mat-raised-button color="primary" (click)="submitPoster()">Submit</button>
+</ng-container>

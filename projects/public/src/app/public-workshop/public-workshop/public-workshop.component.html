@@ -1,0 +1,47 @@
+<div class="container" [class]="containerClass$|async" >
+  <ng-container *ngTemplateOutlet="publicData;context:{w: (publicWorkshop$|async)}"></ng-container>
+</div>
+<mat-divider></mat-divider>
+<div class="container" [class]="containerClass$|async">
+  <ng-container *ngTemplateOutlet="privateData;context:{w: (userWorkshop$|async)}"></ng-container>
+</div>
+
+<ng-template #publicData let-workshop="w">
+  <h1>{{workshop?.name}}</h1>
+  <h4>{{workshop?.jsDate?.toString()}}</h4>
+  <img *ngIf="workshop?.id" [src]="getPosterUrl$(workshop.id)|async">
+  <p>{{workshop?.description}}</p>
+</ng-template>
+
+<ng-template #privateData let-workshop="w">
+  <ng-container *ngIf="!!workshop; else signup">
+    <ng-container *ngTemplateOutlet="userData;context:{w: workshop}"></ng-container>
+  </ng-container>
+</ng-template>
+
+<ng-template #signup>
+  <app-workshop-signup [workshop$]="publicWorkshop$"></app-workshop-signup>
+</ng-template>
+
+<ng-template #userData let-workshop="w">
+  <ng-container *ngIf="workshop?.videoCallLink">
+    <a [href]="workshop.videoCallLink" target="_blank">
+      Click here to go to the <strong>video call</strong> for the workshop (or copy and paste the link below)
+    </a>
+    <p>{{workshop.videoCallLink}}</p>
+  </ng-container>
+  <ng-container *ngIf="workshop?.feedbackLink">
+    <a [href]="workshop.feedbackLink" target="_blank">
+      Click here to go to the <strong>feedback form</strong> for the workshop (or copy and paste the link below)
+    </a>
+    <p>{{workshop.feedbackLink}}</p>
+  </ng-container>
+  <ng-container *ngIf="workshop?.recordingLink" >
+    <h6>Recording:</h6>
+    <iframe
+      width="560" height="315" [src]="workshop.recordingLink" frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen
+    ></iframe>
+  </ng-container>
+</ng-template>

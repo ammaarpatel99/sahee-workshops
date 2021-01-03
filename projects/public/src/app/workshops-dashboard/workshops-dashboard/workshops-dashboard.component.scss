@@ -1,0 +1,23 @@
+.container {
+  margin: 1em;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  mat-card {
+    width: 20em;
+    height: 25em;
+    margin: 1em;
+    display: flex;
+    flex-direction: column;
+  }
+  mat-card-content {
+    flex-grow: 1;
+  }
+  mat-card-actions {
+    display: flex;
+    justify-content: space-evenly;
+    button {
+     flex-grow: 1;
+    }
+  }
+}

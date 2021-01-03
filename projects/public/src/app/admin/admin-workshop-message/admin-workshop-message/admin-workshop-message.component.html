@@ -1,0 +1,16 @@
+<h4>This is an email that will be sent out to all current users who are signed up for the workshop and have
+  consented to emails. Be careful as this may result in a lot of emails.</h4>
+<div class="emailTab">
+  <mat-form-field appearance="outline">
+    <mat-label>Email</mat-label>
+    <textarea matInput [(ngModel)]="updateEmail" ></textarea>
+  </mat-form-field>
+  <mat-slide-toggle [(ngModel)]="changeNewSignupEmail" (ngModelChange)="newSignupEmail = currentNewSignupEmail" >
+    Change email received when users sign up.
+  </mat-slide-toggle>
+  <mat-form-field appearance="outline">
+    <mat-label>New Signup Email</mat-label>
+    <textarea matInput [(ngModel)]="newSignupEmail" [disabled]="!changeNewSignupEmail" ></textarea>
+  </mat-form-field>
+  <button mat-raised-button color="primary" (click)="sendEmail()">Send</button>
+</div>

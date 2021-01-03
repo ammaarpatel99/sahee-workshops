@@ -1,0 +1,41 @@
+<ng-container *ngIf="unknownRoute$ | async">
+  <h1>The route you were looking for couldn't be found.</h1>
+</ng-container>
+<div class="container">
+  <ng-container *ngIf="allowNew$ | async">
+    <ng-container *ngTemplateOutlet="createWorkshopCard"></ng-container>
+  </ng-container>
+  <mat-card *ngFor="let workshop of workshops$ | async">
+    <mat-card-header>
+      <mat-card-title>
+        {{workshop.name}}
+      </mat-card-title>
+      <mat-card-subtitle>
+        {{workshop.jsDate.toString()}}
+      </mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <img mat-card-image [src]="(getPosterUrl$(workshop.id) | async) || ''">
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-stroked-button color="primary"
+              [routerLink]="[(unknownRoute$ | async) ? '../' : './', workshop.id]"
+      >View</button>
+    </mat-card-actions>
+  </mat-card>
+</div>
+
+<ng-template #createWorkshopCard>
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        Create New Workshop
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content></mat-card-content>
+    <mat-card-actions>
+      <button mat-stroked-button color="primary" [routerLink]="['./new']">Create</button>
+    </mat-card-actions>
+  </mat-card>
+</ng-template>

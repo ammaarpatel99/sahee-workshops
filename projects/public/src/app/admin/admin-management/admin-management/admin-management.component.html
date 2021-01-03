@@ -1,0 +1,6 @@
+<button #restoreBtn (click)="restoreCoreAdmins(); restoreBtn.disabled = true">Restore Core Admins</button>
+<input type="text" placeholder="User ID (uid)" [(ngModel)]="uid">
+<div>
+  <button #removeBtn (click)="removeAdmin(); removeBtn.disabled = true">Remove Admin</button>
+  <button #makeBtn (click)="makeAdmin(); makeBtn.disabled = true">Make Admin</button>
+</div>
