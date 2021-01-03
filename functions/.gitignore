@@ -12,3 +12,6 @@ typings/
 node_modules/
 
 /.idea
+
+#secret
+src/email/password.secret.ts
