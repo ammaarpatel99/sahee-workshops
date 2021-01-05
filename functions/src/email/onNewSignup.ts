@@ -1,8 +1,8 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import {AdminWorkshopDoc} from "../../../firestore-interfaces/workshops/workshop";
-import {transporter, replyTo, from} from "./transporter";
 import {PATHS} from "../firebase-paths";
+import {from, replyTo, transporter} from "./transporter";
 
 
 export const onNewSignup = functions.firestore.document(`${PATHS.workshopsCol}/{workshopID}/workshop-users/{uid}`).onCreate(

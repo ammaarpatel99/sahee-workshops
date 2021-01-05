@@ -8,22 +8,17 @@ import {extractBooleanParam, extractStringParam} from "../helpers/helpers";
 import {PATHS} from "../firebase-paths";
 
 export const register = functions.https.onCall(async (data, context) => {
-  try {
-    const uid = extractStringParam(context.auth?.uid, 'unauthenticated', 'Missing user');
-    const workshopID = extractStringParam(data?.workshopID, "invalid-argument", 'Missing workshopID');
-    const consentToEmails = extractBooleanParam(data?.consentToEmails, "invalid-argument", 'Missing consentToEmails');
-    return await admin.firestore().runTransaction(async transaction => {
-      const workshopDoc = await getWorkshopDoc(workshopID, transaction);
-      const userWorkshopDoc = makeUserWorkshopDoc(workshopDoc, consentToEmails);
-      const workshopUserDoc: WorkshopUserDoc = {consentToEmails};
-      return transaction
-        .set(admin.firestore().doc(PATHS.userWorkshopDoc(uid, workshopID)), userWorkshopDoc)
-        .set(admin.firestore().doc(PATHS.workshopUserDoc(workshopID, uid)), workshopUserDoc)
-    });
-  } catch (e) {
-    if (e instanceof functions.https.HttpsError) return e;
-    else throw e;
-  }
+  const uid = extractStringParam(context.auth?.uid, 'unauthenticated', 'Missing user');
+  const workshopID = extractStringParam(data?.workshopID, "invalid-argument", 'Missing workshopID');
+  const consentToEmails = extractBooleanParam(data?.consentToEmails, "invalid-argument", 'Missing consentToEmails');
+  return await admin.firestore().runTransaction(async transaction => {
+    const workshopDoc = await getWorkshopDoc(workshopID, transaction);
+    const userWorkshopDoc = makeUserWorkshopDoc(workshopDoc, consentToEmails);
+    const workshopUserDoc: WorkshopUserDoc = {consentToEmails};
+    return transaction
+      .set(admin.firestore().doc(PATHS.userWorkshopDoc(uid, workshopID)), userWorkshopDoc)
+      .set(admin.firestore().doc(PATHS.workshopUserDoc(workshopID, uid)), workshopUserDoc)
+  });
 })
 
 function makeUserWorkshopDoc(workshopDoc: AdminWorkshopDoc, consentToEmails: boolean): UserWorkshopDoc {
