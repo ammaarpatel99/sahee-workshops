@@ -53,3 +53,4 @@ ui-debug.log
 
 # Secrets
 /projects/public/src/environments/firebase-config.ts
+.firebase/hosting.ZGlzdC9wdWJsaWM.cache

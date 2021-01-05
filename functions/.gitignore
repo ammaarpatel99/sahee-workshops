@@ -14,7 +14,7 @@ node_modules/
 .idea
 
 #secret
-src/email/password.secret.ts
+src/email/transporter.ts
 
 #output
 lib/
