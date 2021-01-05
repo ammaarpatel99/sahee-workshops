@@ -15,9 +15,11 @@ import {AngularFireFunctionsModule} from '@angular/fire/functions';
 import {AngularFirePerformanceModule, PerformanceMonitoringService} from '@angular/fire/performance';
 import {WorkshopsDashboardModule} from './workshops-dashboard/workshops-dashboard.module';
 import {PublicWorkshopModule} from './public-workshop/public-workshop.module';
+import {LoginModule} from './login/login.module';
+import {NgxAuthFirebaseUIModule} from 'ngx-auth-firebaseui';
+import {AccountModule} from './account/account.module';
 
 import './firebase-initialisation/firebase-initialisation';
-import {LoginModule} from './login/login.module';
 
 const productionModules = [];
 const ProductionProviders = [];
@@ -42,7 +44,7 @@ if (environment.production) {
     AppRoutingModule,
     BrowserAnimationsModule,
     NavContainerModule,
-    AngularFireModule.initializeApp(environment.firebase, 'public'),
+    AngularFireModule.initializeApp(environment.firebase),
     ...productionModules,
     AngularFireAuthModule,
     AngularFirestoreModule,
@@ -50,7 +52,14 @@ if (environment.production) {
     AngularFireFunctionsModule,
     WorkshopsDashboardModule,
     PublicWorkshopModule,
-    LoginModule
+    LoginModule,
+    AccountModule,
+    NgxAuthFirebaseUIModule.forRoot(environment.firebase, undefined, {
+      enableFirestoreSync: true, // enable/disable autosync users with firestore
+      toastMessageOnAuthSuccess: true, // whether to open/show a snackbar message on auth success - default : true
+      toastMessageOnAuthError: true, // whether to open/show a snackbar message on auth error - default : true
+      enableEmailVerification: true, // default: true
+    })
   ],
   providers: [
     ...ProductionProviders

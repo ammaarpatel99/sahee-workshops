@@ -8,9 +8,9 @@ import {from, Observable, of} from 'rxjs';
   providedIn: 'root'
 })
 export class AdminService {
-  private readonly makeAdminFn = this.functions.httpsCallable<{uid: string}, void>('admin.makeAdmin');
-  private readonly removeAdminFn = this.functions.httpsCallable<{uid: string}, void>('admin.removeAdmin');
-  private readonly restoreAdminsFn = this.functions.httpsCallable<void, void>('admin.restoreCoreAdmins');
+  private readonly makeAdminFn = this.functions.httpsCallable<{uid: string}, void>('admin-makeAdmin');
+  private readonly removeAdminFn = this.functions.httpsCallable<{uid: string}, void>('admin-removeAdmin');
+  private readonly restoreAdminsFn = this.functions.httpsCallable<void, void>('admin-restoreCoreAdmins');
 
   private isAdmin$(): Observable<boolean> {
     return this.auth.user.pipe(
@@ -36,7 +36,13 @@ export class AdminService {
   }
 
   restoreAdmins$(): Observable<void> {
-    return this.restoreAdminsFn();
+    return this.restoreAdminsFn().pipe(
+      switchMapTo(this.auth.user),
+      take(1),
+      map(user => {
+        if (user) user.getIdTokenResult(true);
+      })
+    );
   }
 
   constructor(

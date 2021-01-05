@@ -5,6 +5,9 @@
   <ng-container *ngIf="allowNew$ | async">
     <ng-container *ngTemplateOutlet="createWorkshopCard"></ng-container>
   </ng-container>
+  <ng-container *ngIf="((workshops$|async)?.length || 0) === 0">
+    <ng-container *ngTemplateOutlet="noWorkshopsCard"></ng-container>
+  </ng-container>
   <mat-card *ngFor="let workshop of workshops$ | async">
     <mat-card-header>
       <mat-card-title>
@@ -14,9 +17,7 @@
         {{workshop.jsDate.toString()}}
       </mat-card-subtitle>
     </mat-card-header>
-    <mat-card-content>
-      <img mat-card-image [src]="(getPosterUrl$(workshop.id) | async) || ''">
-    </mat-card-content>
+    <img height="200" [src]="posterUrl(workshop.id) | getDownloadURL">
     <mat-card-actions>
       <button mat-stroked-button color="primary"
               [routerLink]="[(unknownRoute$ | async) ? '../' : './', workshop.id]"
@@ -37,5 +38,15 @@
     <mat-card-actions>
       <button mat-stroked-button color="primary" [routerLink]="['./new']">Create</button>
     </mat-card-actions>
+  </mat-card>
+</ng-template>
+
+<ng-template #noWorkshopsCard>
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        There are currently no workshops available
+      </mat-card-title>
+    </mat-card-header>
   </mat-card>
 </ng-template>

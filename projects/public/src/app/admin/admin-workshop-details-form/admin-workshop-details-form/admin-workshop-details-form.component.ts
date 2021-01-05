@@ -101,7 +101,7 @@ export class AdminWorkshopDetailsFormComponent implements OnInit, OnDestroy {
     };
     const setValue = (name: Exclude<WorkshopDetails, 'jsDate'>): void => {
       const value = getValue(name);
-      if (value) data[name] = value;
+      if (value !== undefined) data[name] = value;
     };
     const fields: Exclude<WorkshopDetails, 'jsDate'>[] =
       ['name', 'description', 'newSignupEmail', 'videoCallLink', 'feedbackLink', 'recordingLink'];

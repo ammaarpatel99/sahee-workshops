@@ -18,7 +18,27 @@
         *ngIf="isHandset$ | async">
         <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
       </button>
-      <span>public</span>
+      <span>Workshops by Sahee</span>
+      <span class="space-filler"></span>
+      <ng-container *ngIf="(user$|async) === undefined;else accountBtn">
+        <button mat-raised-button color="accent" (click)="signIn()">Sign In</button>
+      </ng-container>
+      <ng-template #accountBtn>
+        <ngx-auth-firebaseui-avatar
+          [canViewAccount]="false"
+          [links]="links"
+          (onSignOut)="signIn()"
+        ></ngx-auth-firebaseui-avatar>
+      </ng-template>
+    </mat-toolbar>
+    <mat-toolbar *ngIf="(email$|async) === null || (emailVerified$|async) === false" color="warn">
+      <span *ngIf="(email$|async) === null">
+        You're account doesn't currently have an email. If you wish to receive reminders you will have to enter one
+        (and consent for emails). You can do this from the accounts page.
+      </span>
+      <span *ngIf="(emailVerified$|async) === false">
+        You're email isn't verified. You may not receive emails until it's verified (assuming you have consented to emails).
+      </span>
     </mat-toolbar>
     <router-outlet></router-outlet>
   </mat-sidenav-content>

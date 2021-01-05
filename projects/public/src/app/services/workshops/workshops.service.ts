@@ -1,11 +1,14 @@
 import {Injectable, OnDestroy} from '@angular/core';
-import {combineLatest, Observable, of, ReplaySubject, Subscription} from 'rxjs';
+import {combineLatest, from, Observable, of, ReplaySubject, Subscription} from 'rxjs';
 import {UserWorkshop} from '../../../../../../firestore-interfaces/users/user-workshops/user-workshop';
 import {PublicWorkshop, PublicWorkshopDoc} from '../../../../../../firestore-interfaces/public-workshops/public-workshop';
-import {map, shareReplay, switchMap, tap} from 'rxjs/operators';
+import {filter, map, shareReplay, switchMap, switchMapTo, take, tap} from 'rxjs/operators';
 import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
 import {addJSDate, orderByDate} from '../../helpers/workshops';
 import {UserWorkshopsService} from '../user-workshops/user-workshops.service';
+import firebase from 'firebase';
+import {AngularFireFunctions} from '@angular/fire/functions';
+import {AngularFireAuth} from '@angular/fire/auth';
 
 @Injectable({
   providedIn: 'root'
@@ -14,6 +17,8 @@ export class WorkshopsService implements OnDestroy {
   private readonly _workshops$ = new ReplaySubject<Readonly<UserWorkshop|PublicWorkshop>[]>(1);
   readonly workshops$ = this._workshops$.asObservable();
   private readonly workshopIndices$ = new ReplaySubject<Map<string, number>>(1);
+  private readonly registerFn =
+    this.functions.httpsCallable<{ uid: string, workshopID: string, consentToEmails: boolean }, void>('workshop-register');
 
   getWorkshop$(id: string): Observable<Readonly<UserWorkshop|PublicWorkshop> | undefined> {
     return this.workshopIndices$.pipe(
@@ -26,9 +31,22 @@ export class WorkshopsService implements OnDestroy {
     );
   }
 
+  register$(workshopID: string, consentToEmails: boolean): Observable<void> {
+    return this.getWorkshop$(workshopID).pipe(
+      take(2),
+      filter(workshop => !!workshop),
+      switchMapTo(from(this.auth.currentUser)),
+      filter(user => !!user),
+      map(user => (user as firebase.User).uid),
+      switchMap(uid => from(this.registerFn({uid, workshopID, consentToEmails}).toPromise()))
+    );
+  }
+
   constructor(
     private firestore: AngularFirestore,
-    private userWorkshopsService: UserWorkshopsService
+    private userWorkshopsService: UserWorkshopsService,
+    private functions: AngularFireFunctions,
+    private auth: AngularFireAuth
   ) {
     this.subscriptions.push(this.fetchWorkshops$().subscribe());
   }

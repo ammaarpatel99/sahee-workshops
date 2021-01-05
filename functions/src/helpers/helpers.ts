@@ -5,7 +5,7 @@ import {FunctionsErrorCode} from "firebase-functions/lib/providers/https";
  * @throws functions.https.HttpError('invalid-argument', errorMessage)
  */
 export function extractStringParam(param: any, errorCode: FunctionsErrorCode, errorMessage: string): string {
-  if (!param || typeof param !== "string") throw new functions.https.HttpsError(errorCode, errorMessage);
+  if (typeof param !== "string") throw new functions.https.HttpsError(errorCode, errorMessage);
   return param;
 }
 
@@ -13,6 +13,6 @@ export function extractStringParam(param: any, errorCode: FunctionsErrorCode, er
  * @throws functions.https.HttpError('invalid-argument', errorMessage)
  */
 export function extractBooleanParam(param: any, errorCode: FunctionsErrorCode, errorMessage: string): boolean {
-  if (!param || typeof param !== "boolean") throw new functions.https.HttpsError(errorCode, errorMessage);
+  if (typeof param !== "boolean") throw new functions.https.HttpsError(errorCode, errorMessage);
   return param;
 }

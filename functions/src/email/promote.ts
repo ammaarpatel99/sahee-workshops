@@ -3,8 +3,9 @@ import {extractStringParam} from "../helpers/helpers";
 import {getAllWorkshopUsers, getWorkshopDoc} from "../helpers/workshop";
 import * as admin from "firebase-admin";
 import {UserDoc} from "../../../firestore-interfaces/users/user";
-import {transporter} from "./transporter";
+import {from, replyTo, transporter} from "./transporter";
 import {ensureIsAdmin} from "../helpers/admin";
+import {PATHS} from "../firebase-paths";
 
 
 export const promote = functions.https.onCall(async (data, context) => {
@@ -16,7 +17,8 @@ export const promote = functions.https.onCall(async (data, context) => {
     const workshopDoc = await getWorkshopDoc(workshopID);
     const subject = `[Sahee] ${workshopDoc.name}`;
     const userEmails = await getUserEmails(workshopID);
-    return transporter.sendMail({to: userEmails.join(','), subject, text: emailText});
+    await transporter.sendMail({from, bcc: userEmails, subject, text: emailText, replyTo});
+    return userEmails;
   } catch (e) {
     if (e instanceof functions.https.HttpsError) return e;
     else throw e;
@@ -24,11 +26,11 @@ export const promote = functions.https.onCall(async (data, context) => {
 })
 
 async function getUserEmails(workshopID: string): Promise<string[]> {
-  const queryConsentingUsers = await admin.firestore().collection('users')
+  const queryConsentingUsers = await admin.firestore().collection(PATHS.usersCol)
     .where('consentToEmails', '==', true);
   const consentingUsers = (await queryConsentingUsers.get()).docs
     .map(doc => ({id: doc.id, email: (doc.data() as UserDoc).email}))
     .filter(user => !!user.email) as {id: string, email: string}[];
   const signedupUsers = await getAllWorkshopUsers(workshopID);
-  return consentingUsers.filter(user => !signedupUsers.includes(user.id)).map(user => user.email);
+  return consentingUsers.filter(user => !signedupUsers.includes(user.id) && !!user.email).map(user => user.email);
 }

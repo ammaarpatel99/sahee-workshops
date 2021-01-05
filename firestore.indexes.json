@@ -1,4 +1,55 @@
 {
   "indexes": [],
-  "fieldOverrides": []
+  "fieldOverrides": [
+    {
+      "collectionGroup": "public-workshops",
+      "fieldPath": "description",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "user-workshops",
+      "fieldPath": "description",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "user-workshops",
+      "fieldPath": "videoCallLink",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "user-workshops",
+      "fieldPath": "feedbackLink",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "user-workshops",
+      "fieldPath": "recordingLink",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "workshops",
+      "fieldPath": "description",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "workshops",
+      "fieldPath": "videoCallLink",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "workshops",
+      "fieldPath": "feedbackLink",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "workshops",
+      "fieldPath": "recordingLink",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "workshops",
+      "fieldPath": "newSignupEmail",
+      "indexes": []
+    }
+  ]
 }

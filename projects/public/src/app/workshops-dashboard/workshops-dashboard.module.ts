@@ -4,16 +4,18 @@ import { WorkshopsDashboardComponent } from './workshops-dashboard/workshops-das
 import {MatCardModule} from '@angular/material/card';
 import {RouterModule} from '@angular/router';
 import {MatButtonModule} from '@angular/material/button';
+import {GetDownloadURLPipeModule} from '@angular/fire/storage';
 
 
 
 @NgModule({
   declarations: [WorkshopsDashboardComponent],
-  imports: [
-    CommonModule,
-    MatCardModule,
-    RouterModule,
-    MatButtonModule
-  ]
+    imports: [
+        CommonModule,
+        MatCardModule,
+        RouterModule,
+        MatButtonModule,
+        GetDownloadURLPipeModule
+    ]
 })
 export class WorkshopsDashboardModule { }

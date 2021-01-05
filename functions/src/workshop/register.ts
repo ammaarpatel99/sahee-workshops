@@ -5,6 +5,7 @@ import {UserWorkshopDoc} from "../../../firestore-interfaces/users/user-workshop
 import {WorkshopUserDoc} from "../../../firestore-interfaces/workshops/workshop-users/workshop-user";
 import {getWorkshopDoc} from "../helpers/workshop";
 import {extractBooleanParam, extractStringParam} from "../helpers/helpers";
+import {PATHS} from "../firebase-paths";
 
 export const register = functions.https.onCall(async (data, context) => {
   try {
@@ -16,8 +17,8 @@ export const register = functions.https.onCall(async (data, context) => {
       const userWorkshopDoc = makeUserWorkshopDoc(workshopDoc, consentToEmails);
       const workshopUserDoc: WorkshopUserDoc = {consentToEmails};
       return transaction
-        .set(admin.firestore().doc(`users/${uid}/user-workshops/${workshopID}`), userWorkshopDoc)
-        .set(admin.firestore().doc(`workshops/${workshopID}/workshops-users/${uid}`), workshopUserDoc)
+        .set(admin.firestore().doc(PATHS.userWorkshopDoc(uid, workshopID)), userWorkshopDoc)
+        .set(admin.firestore().doc(PATHS.workshopUserDoc(workshopID, uid)), workshopUserDoc)
     });
   } catch (e) {
     if (e instanceof functions.https.HttpsError) return e;

@@ -1,0 +1,33 @@
+<mat-accordion multi>
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>Profile</mat-panel-title>
+      <mat-panel-description>Edit Name and Email</mat-panel-description>
+    </mat-expansion-panel-header>
+    <ngx-auth-firebaseui-user
+      [canLogout]="false"
+      (onSignOut)="signIn()"
+    ></ngx-auth-firebaseui-user>
+  </mat-expansion-panel>
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>Verify email</mat-panel-title>
+    </mat-expansion-panel-header>
+    <ngx-auth-firebaseui-email-confirmation></ngx-auth-firebaseui-email-confirmation>
+  </mat-expansion-panel>
+  <mat-expansion-panel >
+    <mat-expansion-panel-header>
+      <mat-panel-title>Consent</mat-panel-title>
+      <mat-panel-description>Consent to general emails about workshops</mat-panel-description>
+    </mat-expansion-panel-header>
+    <div>
+      <p>This is not for emails about workshops you have registered for. For those emails you have to change the settings on the individual workshops.</p>
+      <mat-slide-toggle [(ngModel)]="consentToEmails">Consent to emails about workshops</mat-slide-toggle>
+    </div>
+    <mat-action-row>
+      <button mat-stroked-button color="primary" (click)="changeConsent()" [disabled]="currentConsentToEmails === consentToEmails">Submit</button>
+      <span class="space-filler"></span>
+    </mat-action-row>
+  </mat-expansion-panel>
+
+</mat-accordion>

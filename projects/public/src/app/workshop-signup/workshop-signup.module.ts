@@ -4,17 +4,19 @@ import { WorkshopSignupComponent } from './workshop-signup/workshop-signup.compo
 import {MatButtonModule} from '@angular/material/button';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {FormsModule} from '@angular/forms';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 
 
 @NgModule({
   declarations: [WorkshopSignupComponent],
-  imports: [
-    CommonModule,
-    MatButtonModule,
-    MatSlideToggleModule,
-    FormsModule
-  ],
+    imports: [
+        CommonModule,
+        MatButtonModule,
+        MatSlideToggleModule,
+        FormsModule,
+        MatProgressSpinnerModule
+    ],
   exports: [WorkshopSignupComponent]
 })
 export class WorkshopSignupModule { }

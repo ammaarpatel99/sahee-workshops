@@ -8,9 +8,10 @@ export const makeAdmin = functions.https.onCall(async (data, context) => {
     const uid = extractStringParam(context.auth?.uid, "unauthenticated", 'Missing user');
     await ensureIsAdmin(uid);
     const newAdmin = extractStringParam(data?.uid, "invalid-argument", 'Missing uid for new admin');
-    const currentClaims = (await admin.auth().getUser(newAdmin)).customClaims || {};
-    const newClaims = {...currentClaims, admin: true};
-    return await admin.auth().setCustomUserClaims(newAdmin, newClaims);
+    const claims = (await admin.auth().getUser(newAdmin)).customClaims || {};
+    claims.admin = true;
+    await admin.auth().setCustomUserClaims(newAdmin, claims);
+    return {uid: newAdmin};
   } catch (e) {
     if (e instanceof functions.https.HttpsError) return e;
     throw e;

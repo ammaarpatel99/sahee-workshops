@@ -1,9 +1,9 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {UserWorkshopsService} from '../../services/user-workshops/user-workshops.service';
 import {Observable, of} from 'rxjs';
 import {PublicWorkshop} from '../../../../../../firestore-interfaces/public-workshops/public-workshop';
 import {UserService} from '../../services/user/user.service';
-import {filter, switchMap, switchMapTo, take} from 'rxjs/operators';
+import {filter, switchMap, switchMapTo, take, tap} from 'rxjs/operators';
+import {WorkshopsService} from '../../services/workshops/workshops.service';
 
 @Component({
   selector: 'app-workshop-signup',
@@ -15,24 +15,30 @@ export class WorkshopSignupComponent implements OnInit {
   emailConsent$ = this.userService.emailConsent$;
   relatedEmailConsent = true;
   thisEmailConsent = true;
+  registering = false;
+
+  async signIn(): Promise<void> {
+    await this.userService.signIn();
+  }
 
   register(): void {
+    this.registering = true;
     this.emailConsent$.pipe(
       take(1),
       filter(consent => consent === null),
       switchMapTo(this.userService.setEmailConsent$(this.relatedEmailConsent))
     ).subscribe();
     this.workshop$.pipe(
-      take(1),
       filter(workshop => !!workshop),
+      take(1),
       switchMap(workshop =>
-        this.userWorkshopsService.register$((workshop as PublicWorkshop).id, this.thisEmailConsent)
+        this.workshopsService.register$((workshop as PublicWorkshop).id, this.thisEmailConsent)
       )
-    ).subscribe();
+    ).subscribe(_ => this.registering = false);
   }
 
   constructor(
-    private userWorkshopsService: UserWorkshopsService,
+    private workshopsService: WorkshopsService,
     private userService: UserService
   ) {}
 

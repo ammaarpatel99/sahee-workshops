@@ -14,6 +14,7 @@ export class UserService {
   readonly user$ = this.fetchUser$();
   readonly email$ = this.getEmail$();
   readonly emailConsent$ = this.getEmailConsent$();
+  readonly emailVerified$ = this.getEmailVerified$();
   private _redirectUrl: string|undefined;
 
   get redirectUrl(): string {

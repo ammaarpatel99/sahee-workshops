@@ -1,14 +1,14 @@
 {
   "targets": {
-    "sahee-workshop-signup": {
+    "sahee-workshop": {
       "hosting": {
         "public": [
-          "sahee-workshop-signup"
+          "sahee-workshop"
         ]
       }
     }
   },
   "projects": {
-    "default": "sahee-workshop-signup"
+    "default": "sahee-workshop"
   }
 }

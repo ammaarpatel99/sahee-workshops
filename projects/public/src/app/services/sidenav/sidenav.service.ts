@@ -5,7 +5,8 @@ import {BehaviorSubject} from 'rxjs';
 
 const LINKS = {
   PUBLIC: [
-    {name: 'Workshops', link: '/workshops'}
+    {name: 'Workshops', link: '/'},
+    {name: 'Account', link: '/account'}
   ],
   ADMIN: [
     {name: 'Workshops', link: '/admin/workshops'}

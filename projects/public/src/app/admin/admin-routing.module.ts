@@ -1,5 +1,5 @@
-import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import {NgModule} from '@angular/core';
+import {RouterModule, Routes} from '@angular/router';
 import {AdminWorkshopComponent} from './admin-workshop/admin-workshop/admin-workshop.component';
 import {WorkshopsDashboardComponent} from '../workshops-dashboard/workshops-dashboard/workshops-dashboard.component';
 import {canActivate, hasCustomClaim} from '@angular/fire/auth-guard';
@@ -8,7 +8,7 @@ import {AdminManagementComponent} from './admin-management/admin-management/admi
 const routes: Routes = [
   {
     path: 'workshops',
-    // ...canActivate(() => hasCustomClaim('admin')),
+    ...canActivate(() => hasCustomClaim('admin')),
     children: [
       {
         path: '',
@@ -37,8 +37,13 @@ const routes: Routes = [
     component: AdminManagementComponent
   },
   {
+    path: '',
+    pathMatch: 'full',
+    redirectTo: '/admin/workshops'
+  },
+  {
     path: '**',
-    redirectTo: '/workshops'
+    redirectTo: '/'
   }
 ];
 

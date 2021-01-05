@@ -9,8 +9,8 @@ import firebase from 'firebase/app';
   providedIn: 'root'
 })
 export class EmailService {
-  private readonly promoteFn = this.functions.httpsCallable<{uid: string, workshopID: string, email: string}, void>('email.promote');
-  private readonly sendFn = this.functions.httpsCallable<{uid: string, workshopID: string, email: string}, void>('email.send');
+  private readonly promoteFn = this.functions.httpsCallable<{uid: string, workshopID: string, email: string}, void>('email-promote');
+  private readonly sendFn = this.functions.httpsCallable<{uid: string, workshopID: string, email: string}, void>('email-send');
 
   promote$(workshopID: string, email: string): Observable<void> {
     return this.auth.user.pipe(

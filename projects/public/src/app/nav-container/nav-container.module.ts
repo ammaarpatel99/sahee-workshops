@@ -8,21 +8,23 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import {RouterModule} from '@angular/router';
+import {NgxAuthFirebaseUIModule} from 'ngx-auth-firebaseui';
 
 
 
 @NgModule({
   declarations: [NavContainerComponent],
-  imports: [
-    CommonModule,
-    LayoutModule,
-    MatToolbarModule,
-    MatButtonModule,
-    MatSidenavModule,
-    MatIconModule,
-    MatListModule,
-    RouterModule
-  ],
+    imports: [
+        CommonModule,
+        LayoutModule,
+        MatToolbarModule,
+        MatButtonModule,
+        MatSidenavModule,
+        MatIconModule,
+        MatListModule,
+        RouterModule,
+        NgxAuthFirebaseUIModule
+    ],
   exports: [NavContainerComponent]
 })
 export class NavContainerModule { }

@@ -15,11 +15,9 @@ export class UserWorkshopsService implements OnDestroy {
   private readonly _workshops$ = new ReplaySubject<Readonly<UserWorkshop>[]>(1);
   readonly workshops$ = this._workshops$.asObservable();
   private readonly workshopIndices$ = new ReplaySubject<Map<string, number>>(1);
-  private readonly registerFn =
-    this.functions.httpsCallable<{ uid: string, workshopID: string, consentToEmails: boolean }, void>('workshop.register');
-  private readonly unregisterFn = this.functions.httpsCallable<{uid: string, workshopID: string}, void>('workshop.unregister');
   private readonly changeConsentFn =
-    this.functions.httpsCallable<{ uid: string, workshopID: string, consentToEmails: boolean }, void>('workshop.changeConsent');
+    this.functions.httpsCallable<{ uid: string, workshopID: string, consentToEmails: boolean }, void>('workshop-changeConsent');
+  private readonly unregisterFn = this.functions.httpsCallable<{uid: string, workshopID: string}, void>('workshop-unregister');
 
   getWorkshop$(id: string): Observable<Readonly<UserWorkshop> | undefined> {
     return this.workshopIndices$.pipe(
@@ -39,18 +37,7 @@ export class UserWorkshopsService implements OnDestroy {
       switchMapTo(from(this.auth.currentUser)),
       filter(user => !!user),
       map(user => (user as firebase.User).uid),
-      switchMap(uid => from(this.changeConsentFn({uid, workshopID: id, consentToEmails: consent})))
-    );
-  }
-
-  register$(workshopID: string, consentToEmails: boolean): Observable<void> {
-    return this.getWorkshop$(workshopID).pipe(
-      take(1),
-      filter(workshop => !!workshop && workshop.consentToEmails !== consentToEmails),
-      switchMapTo(from(this.auth.currentUser)),
-      filter(user => !!user),
-      map(user => (user as firebase.User).uid),
-      switchMap(uid => from(this.registerFn({uid, workshopID, consentToEmails})))
+      switchMap(uid => from(this.changeConsentFn({uid, workshopID: id, consentToEmails: consent}).toPromise()))
     );
   }
 
@@ -61,7 +48,7 @@ export class UserWorkshopsService implements OnDestroy {
       switchMapTo(from(this.auth.currentUser)),
       filter(user => !!user),
       map(user => (user as firebase.User).uid),
-      switchMap(uid => from(this.unregisterFn({uid, workshopID})))
+      switchMap(uid => from(this.unregisterFn({uid, workshopID}).toPromise()))
     );
   }
 

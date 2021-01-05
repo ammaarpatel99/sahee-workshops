@@ -6,18 +6,22 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {FormsModule} from '@angular/forms';
 import {WorkshopSignupModule} from '../workshop-signup/workshop-signup.module';
+import { LatestComponent } from './latest/latest.component';
+import {GetDownloadURLPipeModule} from '@angular/fire/storage';
 
 
 
 @NgModule({
-  declarations: [PublicWorkshopComponent],
-  imports: [
-    CommonModule,
-    MatDividerModule,
-    MatButtonModule,
-    MatSlideToggleModule,
-    FormsModule,
-    WorkshopSignupModule
-  ]
+  declarations: [PublicWorkshopComponent, LatestComponent],
+    imports: [
+        CommonModule,
+        MatDividerModule,
+        MatButtonModule,
+        MatSlideToggleModule,
+        FormsModule,
+        WorkshopSignupModule,
+        GetDownloadURLPipeModule
+    ],
+  exports: [PublicWorkshopComponent, LatestComponent]
 })
 export class PublicWorkshopModule { }

@@ -30,8 +30,8 @@ export class AdminWorkshopMessageComponent implements OnInit, OnDestroy {
       take(1),
       filter(workshop => !!workshop),
       map(workshop => (workshop as AdminWorkshop).id),
-      switchMap(workshopID => this.emailService.send$(workshopID, this.newSignupEmail))
-    );
+      switchMap(workshopID => this.emailService.send$(workshopID, this.updateEmail))
+    ).subscribe();
   }
 
   constructor(

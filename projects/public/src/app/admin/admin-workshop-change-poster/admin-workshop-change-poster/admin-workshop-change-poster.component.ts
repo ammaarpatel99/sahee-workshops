@@ -48,8 +48,9 @@ export class AdminWorkshopChangePosterComponent implements OnInit {
   submitPoster(): void {
     this.posterEdited = false;
     this.workshop$.pipe(
-      take(1),
+      take(2),
       takeWhile(workshop => !!workshop),
+      take(1),
       map(workshop => (workshop as AdminWorkshop).id),
       switchMap(id => {
         const file = this.posterFile;
@@ -57,7 +58,7 @@ export class AdminWorkshopChangePosterComponent implements OnInit {
         return from(this.posterService.uploadPoster(id, file));
       }),
       tap(_ => this.resetPoster())
-    );
+    ).subscribe();
   }
 
   constructor(

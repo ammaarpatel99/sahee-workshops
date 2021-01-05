@@ -21,7 +21,7 @@ export class AdminWorkshopPromotionComponent implements OnInit {
         this.emailService.promote$(
           (workshop as AdminWorkshop).id, this.promotionEmail
         ))
-    );
+    ).subscribe();
   }
 
   constructor(

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {AngularFireStorage, AngularFireStorageReference} from '@angular/fire/storage';
 import {Observable, of} from 'rxjs';
-import {finalize, map} from 'rxjs/operators';
+import {map} from 'rxjs/operators';
 import {environment} from '../../../environments/environment';
 
 @Injectable({
@@ -34,16 +34,19 @@ export class PosterService {
     });
   }
 
-  uploadPoster(workshopID: string, poster: File): Promise<void> {
-    return new Promise((resolve: () => void) => {
+  async uploadPoster(workshopID: string, poster: File): Promise<void> {
+    if (!environment.production) return;
+    await this.storage.storage.ref(`public/workshops/${workshopID}/poster`).put(poster);
+    /*return new Promise((resolve: () => void, reject) => {
       if (!environment.production) {
         resolve();
         return;
       }
-      this.storage.upload(PosterService.getPath(workshopID), poster).snapshotChanges().pipe(
-        finalize(() => resolve())
-      );
-    });
+      this.storage.storage.ref(`public/workshops/${workshopID}/poster`).put(poster).then(_ => resolve());
+      /!*const task = this.storage.upload(PosterService.getPath(workshopID), poster);
+      task.catch(e => reject(e));
+      resolve();*!/
+    });*/
   }
 
   constructor(

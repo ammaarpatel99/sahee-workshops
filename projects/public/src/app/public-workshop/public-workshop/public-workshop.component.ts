@@ -7,6 +7,7 @@ import {PublicWorkshop} from '../../../../../../firestore-interfaces/public-work
 import {UserWorkshop} from '../../../../../../firestore-interfaces/users/user-workshops/user-workshop';
 import {PosterService} from '../../services/poster/poster.service';
 import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
+import {DomSanitizer, SafeResourceUrl, SafeUrl} from '@angular/platform-browser';
 
 @Component({
   selector: 'app-public-workshop',
@@ -20,9 +21,18 @@ export class PublicWorkshopComponent implements OnInit, OnDestroy {
   readonly userWorkshop$ = this._userWorkshop$.asObservable();
   private readonly _containerClass$ = new ReplaySubject<string>(1);
   readonly containerClass$ = this._containerClass$.asObservable();
+  private readonly posterUrls = new Map<string, string>();
 
-  getPosterUrl$(id: string): Observable<string> {
-    return this.posterService.getPosterUrl$(id).pipe(map(url => url || ''));
+  sanitizeRecordingUrl(url: string): SafeResourceUrl {
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+  }
+
+  getPosterUrl(id: string): string {
+    return this.posterUrls.get(id) || '';
+  }
+
+  posterUrl(workshopID: string): string {
+    return `public/workshops/${workshopID}/poster`;
   }
 
   constructor(
@@ -30,7 +40,8 @@ export class PublicWorkshopComponent implements OnInit, OnDestroy {
     private router: Router,
     private workshopsService: WorkshopsService,
     private posterService: PosterService,
-    private breakpointObserver: BreakpointObserver
+    private breakpointObserver: BreakpointObserver,
+    private sanitizer: DomSanitizer
   ) {
     this.subscriptions.push(this.getData$().subscribe());
     this.subscriptions.push(this.watchBreakpoints$().subscribe());
@@ -74,6 +85,17 @@ export class PublicWorkshopComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.subscriptions.push(this.getPoster$().subscribe());
+  }
+
+  private getPoster$(): Observable<void> {
+    return this.publicWorkshop$.pipe(
+      map(w => {
+        this.posterService.getPosterUrl$(w.id).pipe(
+          tap(url => this.posterUrls.set(w.id, url || ''))
+        ).toPromise();
+      })
+    );
   }
 
   private readonly subscriptions: Subscription[] = [];

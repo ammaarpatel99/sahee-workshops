@@ -6,8 +6,8 @@ export const environment = {
   production: false,
   firebase: {
     apiKey: 'apiKey',
-    authDomain: '',
-    projectId: 'sahee-workshop-signup',
+    authDomain: 'example.com',
+    projectId: 'sahee-workshop',
     storageBucket: '',
     messagingSenderId: '',
     appId: ''

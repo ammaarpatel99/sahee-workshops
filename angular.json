@@ -28,7 +28,12 @@
             "aot": true,
             "assets": [
               "projects/public/src/favicon.ico",
-              "projects/public/src/assets"
+              "projects/public/src/assets",
+              {
+                "glob": "**/*",
+                "input": "node_modules/ngx-auth-firebaseui/assets/",
+                "output": "./assets/"
+              }
             ],
             "styles": [
               "projects/public/src/styles.scss"
@@ -57,8 +62,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kb",
-                  "maximumError": "1mb"
+                  "maximumWarning": "1.5mb",
+                  "maximumError": "2mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -95,7 +100,12 @@
             "karmaConfig": "projects/public/karma.conf.js",
             "assets": [
               "projects/public/src/favicon.ico",
-              "projects/public/src/assets"
+              "projects/public/src/assets",
+              {
+                "glob": "**/*",
+                "input": "node_modules/ngx-auth-firebaseui/assets/",
+                "output": "./assets/"
+              }
             ],
             "styles": [
               "projects/public/src/styles.scss"
