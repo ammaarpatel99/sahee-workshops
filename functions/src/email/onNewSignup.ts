@@ -16,7 +16,7 @@ export const onNewSignup = functions.firestore.document(`${PATHS.workshopsCol}/{
 export async function sendNewSignupEmail(uid: string, workshopID: string): Promise<void> {
   const user = await admin.auth().getUser(uid);
   const userEmailAddress = user.email;
-  if (!userEmailAddress || !user.emailVerified) return;
+  if (!userEmailAddress) return;
   const workshopDoc = (await admin.firestore().doc(PATHS.workshopDoc(workshopID)).get()).data() as AdminWorkshopDoc;
   const text = workshopDoc.newSignupEmail;
   const subject = `[Sahee] ${workshopDoc.name}`;

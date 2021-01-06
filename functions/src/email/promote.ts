@@ -16,7 +16,7 @@ export const promote = functions.https.onCall(async (data, context) => {
   const workshopDoc = await getWorkshopDoc(workshopID);
   const subject = `[Sahee] ${workshopDoc.name}`;
   const userEmails = await getUserEmails(workshopID);
-  await transporter.sendMail({from, bcc: userEmails, subject, text: emailText, replyTo});
+  await transporter.sendMail({from, bcc: userEmails, subject, text: emailText, replyTo, to: replyTo});
   return userEmails;
 })
 
