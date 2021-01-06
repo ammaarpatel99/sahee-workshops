@@ -17,13 +17,14 @@ export class LoginComponent implements OnInit {
   ];
   readonly goBackUrl: string;
 
-  onSignIn(): void {
-    this.userService.emailVerified$.pipe(
+  async onSignIn(): Promise<void> {
+    /*this.userService.emailVerified$.pipe(
       take(2),
       filter(verified => verified !== undefined),
       take(1),
       switchMap(verified => verified ? from(this.router.navigateByUrl(this.goBackUrl)) : of(undefined))
-    ).subscribe();
+    ).subscribe();*/
+    this.router.navigateByUrl(this.goBackUrl);
   }
 
   constructor(
