@@ -1,13 +1,14 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {AdminWorkshop, AdminWorkshopDoc} from '../../../../../../../firestore-interfaces/workshops/workshop';
-import {from, Observable, ReplaySubject, Subscription} from 'rxjs';
+import {AdminWorkshop, AdminWorkshopDoc} from '../../../../../../../firestore-interfaces';
+import {Observable, of, ReplaySubject, Subscription} from 'rxjs';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {MatFormFieldAppearance} from '@angular/material/form-field';
-import {map, switchMap, take, takeWhile, tap} from 'rxjs/operators';
+import {finalize, map, switchMap, switchMapTo, take, tap} from 'rxjs/operators';
 import {ActivatedRoute, Router} from '@angular/router';
 import {AdminWorkshopsService} from '../../../services/admin-workshops/admin-workshops.service';
 import firebase from 'firebase/app';
 import Timestamp = firebase.firestore.Timestamp;
+import {LoadingService} from '../../../services/loading/loading.service';
 
 type WorkshopDetails = Exclude<keyof AdminWorkshop, 'id'|'datetime' >;
 
@@ -37,6 +38,7 @@ export class AdminWorkshopDetailsFormComponent implements OnInit, OnDestroy {
   readonly displayFields = DISPLAY_FIELDS;
   private readonly _editing$ = new ReplaySubject<boolean>(1);
   readonly editing$ = this._editing$.asObservable();
+  readonly loading$: Observable<boolean>;
   /**
    * An observable that produces a Workshop instance when editing said workshop, and undefined
    * when creating a new workshop. The observable should be multicast and have a buffer (i.e.
@@ -44,7 +46,7 @@ export class AdminWorkshopDetailsFormComponent implements OnInit, OnDestroy {
    */
   @Input() workshop$!: Observable<AdminWorkshop|undefined>;
 
-  readonly workshopDetailsForm = new FormGroup({
+  readonly form = new FormGroup({
     name: new FormControl('', Validators.required),
     description: new FormControl('', Validators.required),
     jsDate: new FormControl('', Validators.required),
@@ -55,7 +57,7 @@ export class AdminWorkshopDetailsFormComponent implements OnInit, OnDestroy {
   });
 
   getFormControl(field: WorkshopDetails): FormControl {
-    return this.workshopDetailsForm.get(field) as FormControl;
+    return this.form.get(field) as FormControl;
   }
 
   getFormFieldAppearance(field: WorkshopDetails): MatFormFieldAppearance {
@@ -68,15 +70,23 @@ export class AdminWorkshopDetailsFormComponent implements OnInit, OnDestroy {
     else return '';
   }
 
-  async resetWorkshopDetailsForm(): Promise<void> {
-    const workshop = await this.workshop$.pipe(take(1)).toPromise();
-    if (!workshop) {
-      this.workshopDetailsForm.reset();
-      this._editing$.next(true);
-      return;
+  async resetWorkshopDetailsForm(initialising: boolean = false): Promise<void> {
+    if (!initialising && (this.form.pristine || this.form.disabled)) {
+      throw new Error(`Can't reset workshop details form.`);
     }
-    this.workshopDetailsForm.reset({...workshop, jsDate: workshop.jsDate.toISOString().slice(0, -1)});
-    this._editing$.next(false);
+    if (!initialising) this.loadingService.startLoading();
+    try {
+      const workshop = await this.workshop$.pipe(take(1)).toPromise();
+      if (!workshop) {
+        this.form.reset();
+        this._editing$.next(true);
+        return;
+      }
+      this.form.reset({...workshop, jsDate: workshop.jsDate.toISOString().slice(0, -1)});
+      this._editing$.next(false);
+    } finally {
+      if (!initialising) this.loadingService.stopLoading();
+    }
   }
 
   edit(): void {
@@ -84,16 +94,39 @@ export class AdminWorkshopDetailsFormComponent implements OnInit, OnDestroy {
   }
 
   async submit(): Promise<void> {
-    if (this.workshopDetailsForm.invalid || this.workshopDetailsForm.pristine) return;
-    const currentWorkshop = await this.workshop$.pipe(take(1)).toPromise();
-    if (!currentWorkshop) {
-      return this.createWorkshop();
-    } else {
-      return this.updateWorkshop();
+    if (this.form.invalid || this.form.pristine || this.form.disabled) {
+      throw new Error(`Can't submit workshop details form.`);
+    }
+    this.loadingService.startLoading();
+    try {
+      const currentWorkshop = await this.workshop$.pipe(take(1)).toPromise();
+      if (!currentWorkshop) {
+        await this.createWorkshop();
+      } else {
+        await this.updateWorkshop(currentWorkshop.id);
+      }
+    } finally {
+      this.loadingService.stopLoading();
     }
   }
 
-  private async updateWorkshop(): Promise<void> {
+  async delete(): Promise<void> {
+    if (this.form.enabled) {
+      throw new Error(`Can't delete workshop details.`);
+    }
+    this.loadingService.startLoading();
+    const currentWorkshop = await this.workshop$.pipe(take(1)).toPromise();
+    if (!currentWorkshop) {
+      this.loadingService.stopLoading();
+      return;
+    }
+    this.adminWorkshopsService.deleteWorkshop$(currentWorkshop.id).pipe(
+      finalize(() => this.loadingService.stopLoading()),
+      switchMapTo(this.router.navigate(['..'], {relativeTo: this.route}))
+    ).subscribe();
+  }
+
+  private async updateWorkshop(workshopID: string): Promise<void> {
     const data: Partial<AdminWorkshopDoc> = {};
     const getValue = (name: WorkshopDetails): string | undefined => {
       if (this.getFormControl(name).dirty) return this.getFormControl(name).value;
@@ -108,12 +141,7 @@ export class AdminWorkshopDetailsFormComponent implements OnInit, OnDestroy {
     for (const field of fields) setValue(field);
     const datetime = getValue('jsDate');
     if (datetime) data.datetime = Timestamp.fromDate(new Date(datetime));
-    return this.workshop$.pipe(
-      takeWhile(workshop => !!workshop),
-      take(1),
-      map(workshop => (workshop as AdminWorkshop).id),
-      switchMap(id => from(this.adminWorkshopsService.updateWorkshop(id, data)))
-    ).toPromise();
+    return this.adminWorkshopsService.updateWorkshop$(workshopID, data).toPromise();
   }
 
   private async createWorkshop(): Promise<void> {
@@ -123,42 +151,64 @@ export class AdminWorkshopDetailsFormComponent implements OnInit, OnDestroy {
       datetime: Timestamp.fromDate(new Date(this.getFormControl('jsDate').value)),
       newSignupEmail: this.getFormControl('newSignupEmail').value
     };
-    const getValue = (field: Exclude<WorkshopDetails, 'jsDate'>): void => {
+    const setValue = (field: Exclude<WorkshopDetails, 'jsDate'>): void => {
       const value = this.getFormControl(field).value;
       if (value) data[field] = value;
     };
-    getValue('videoCallLink');
-    getValue('recordingLink');
-    getValue('feedbackLink');
-    const id = await this.adminWorkshopsService.createWorkshop(data);
+    setValue('videoCallLink');
+    setValue('recordingLink');
+    setValue('feedbackLink');
+    const id = await this.adminWorkshopsService.createWorkshop$(data).toPromise();
     await this.router.navigate(['..', id], {relativeTo: this.route});
   }
 
   constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private adminWorkshopsService: AdminWorkshopsService
+    private readonly router: Router,
+    private readonly route: ActivatedRoute,
+    private readonly adminWorkshopsService: AdminWorkshopsService,
+    private readonly loadingService: LoadingService
   ) {
-    this.subscriptions.push(this.manageFormEnabledState$().subscribe());
+    this.loading$ = this.loadingService.loading$;
+    this.subscriptions.push(
+      this.manageFormEnabledState$().subscribe(),
+      this.disableFormWhenLoading$().subscribe()
+    );
   }
 
   private manageFormEnabledState$(): Observable<void> {
     return this.editing$.pipe(
       map((editing: boolean): void => {
-        if (editing) this.workshopDetailsForm.enable();
-        else this.workshopDetailsForm.disable();
+        if (editing) this.form.enable();
+        else this.form.disable();
+      })
+    );
+  }
+
+  private disableFormWhenLoading$(): Observable<void> {
+    return this.loading$.pipe(
+      switchMap(loading => {
+        if (loading) {
+          this.form.disable();
+          return of(undefined);
+        }
+        return this.editing$.pipe(
+          take(1),
+          map(editing => this._editing$.next(editing))
+        );
       })
     );
   }
 
   ngOnInit(): void {
-    this.subscriptions.push(this.watchWorkshopAndUpdateForm$().subscribe());
+    this.subscriptions.push(
+      this.watchWorkshopAndUpdateForm$().subscribe()
+    );
   }
 
   private watchWorkshopAndUpdateForm$(): Observable<void> {
     return this.workshop$.pipe(
       tap(async _ => {
-        await this.resetWorkshopDetailsForm();
+        await this.resetWorkshopDetailsForm(true);
       }),
       map(_ => {})
     );

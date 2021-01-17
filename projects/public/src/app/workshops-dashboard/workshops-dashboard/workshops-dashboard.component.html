@@ -1,14 +1,16 @@
-<ng-container *ngIf="unknownRoute$ | async">
+<div *ngIf="unknownRoute$ | async" class="unknown-route">
   <h1>The route you were looking for couldn't be found.</h1>
-</ng-container>
+</div>
 <div class="container">
   <ng-container *ngIf="allowNew$ | async">
     <ng-container *ngTemplateOutlet="createWorkshopCard"></ng-container>
   </ng-container>
+
   <ng-container *ngIf="((workshops$|async)?.length || 0) === 0">
     <ng-container *ngTemplateOutlet="noWorkshopsCard"></ng-container>
   </ng-container>
-  <mat-card *ngFor="let workshop of workshops$ | async">
+
+  <mat-card *ngFor="let workshop of workshops$ | async" [class.future-workshop]="workshopIsInFuture(workshop)" >
     <mat-card-header>
       <mat-card-title>
         {{workshop.name}}
@@ -17,9 +19,11 @@
         {{workshop.jsDate.toString()}}
       </mat-card-subtitle>
     </mat-card-header>
-    <img height="200" [src]="posterUrl(workshop.id) | getDownloadURL">
+    <mat-card-content>
+      <img class="poster-img" [src]="(posterUrl$(workshop.id) | async) || ''" alt="Workshop Poster is Missing.">
+    </mat-card-content>
     <mat-card-actions>
-      <button mat-stroked-button color="primary"
+      <button mat-stroked-button color="accent"
               [routerLink]="[(unknownRoute$ | async) ? '../' : './', workshop.id]"
       >View</button>
     </mat-card-actions>

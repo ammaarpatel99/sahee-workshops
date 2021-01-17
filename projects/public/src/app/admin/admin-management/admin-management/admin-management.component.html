@@ -1,6 +1,15 @@
-<button #restoreBtn (click)="restoreCoreAdmins(); restoreBtn.disabled = true">Restore Core Admins</button>
-<input type="text" placeholder="User ID (uid)" [(ngModel)]="uid">
-<div>
-  <button #removeBtn (click)="removeAdmin(); removeBtn.disabled = true">Remove Admin</button>
-  <button #makeBtn (click)="makeAdmin(); makeBtn.disabled = true">Make Admin</button>
+<div class="mat-elevation-z4 container" >
+  <h1>Manage Admin Privileges</h1>
+  <mat-form-field>
+    <mat-label>Email Address</mat-label>
+    <input matInput [formControl]="emailAddress">
+  </mat-form-field>
+  <div class="form-actions">
+    <button mat-stroked-button color="warn" (click)="removeAdmin()" [disabled]="emailAddress.invalid || (loading$ | async)">
+      Remove Admin
+    </button>
+    <button mat-raised-button color="primary" (click)="makeAdmin()" [disabled]="emailAddress.invalid || (loading$ | async)">
+      Make Admin
+    </button>
+  </div>
 </div>

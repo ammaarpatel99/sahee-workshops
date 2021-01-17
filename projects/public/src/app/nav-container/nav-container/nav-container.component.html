@@ -1,45 +1,82 @@
 <mat-sidenav-container class="sidenav-container">
-  <mat-sidenav #drawer class="sidenav" fixedInViewport
+  <mat-sidenav #drawer class="sidenav mat-elevation-z4" fixedInViewport
       [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
       [mode]="(isHandset$ | async) ? 'over' : 'side'"
-      [opened]="(isHandset$ | async) === false">
-    <mat-toolbar>Menu</mat-toolbar>
-    <mat-nav-list>
-      <a mat-list-item *ngFor="let link of linksService.links | async" [routerLink]="link.link" >{{link.name}}</a>
-    </mat-nav-list>
+      [opened]="(isHandset$ | async) === false"
+  >
+    <ng-container *ngTemplateOutlet="sidenav"></ng-container>
   </mat-sidenav>
+
   <mat-sidenav-content>
-    <mat-toolbar color="primary">
-      <button
-        type="button"
-        aria-label="Toggle sidenav"
-        mat-icon-button
-        (click)="drawer.toggle()"
-        *ngIf="isHandset$ | async">
-        <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
-      </button>
-      <span>Workshops by Sahee</span>
-      <span class="space-filler"></span>
-      <ng-container *ngIf="(user$|async) === undefined;else accountBtn">
-        <button mat-raised-button color="accent" (click)="signIn()">Sign In</button>
-      </ng-container>
-      <ng-template #accountBtn>
-        <ngx-auth-firebaseui-avatar
-          [canViewAccount]="false"
-          [links]="links"
-          (onSignOut)="signIn()"
-        ></ngx-auth-firebaseui-avatar>
-      </ng-template>
-    </mat-toolbar>
-    <mat-toolbar *ngIf="(email$|async) === null || (emailVerified$|async) === false" color="warn">
-      <span *ngIf="(email$|async) === null">
-        You're account doesn't currently have an email. If you wish to receive reminders you will have to enter one
-        (and consent for emails). You can do this from the accounts page.
-      </span>
-      <span *ngIf="(emailVerified$|async) === false">
-        You're email isn't verified. You may not receive emails until it's verified (assuming you have consented to emails).
-      </span>
-    </mat-toolbar>
+    <ng-container *ngTemplateOutlet="toolbar"></ng-container>
+    <ng-template [ngTemplateOutlet]="emailIssuesToolbar"></ng-template>
     <router-outlet></router-outlet>
+    <ng-container *ngTemplateOutlet="feedbackBtn"></ng-container>
   </mat-sidenav-content>
+
 </mat-sidenav-container>
+
+
+<ng-template #sidenav >
+  <mat-toolbar>Menu</mat-toolbar>
+  <mat-nav-list>
+    <a mat-list-item *ngFor="let link of sidenavLinks$ | async" [routerLink]="link.link" (click)="closeDrawer(drawer)" >
+      {{link.name}}
+    </a>
+  </mat-nav-list>
+</ng-template>
+
+
+<ng-template #feedbackBtn>
+  <button mat-fab class="feedbackBtn" routerLink="/feedback" >
+    <mat-icon>feedback</mat-icon>
+  </button>
+</ng-template>
+
+
+<ng-template #toolbar>
+  <mat-toolbar color="primary" class="mat-elevation-z8">
+    <button
+      type="button"
+      aria-label="Toggle sidenav"
+      mat-icon-button
+      (click)="drawer.toggle()"
+      *ngIf="isHandset$ | async">
+      <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+    </button>
+    <span>Workshops by Sahee Counselling</span>
+    <span class="space-filler"></span>
+    <ng-container *ngIf="!(user$|async);else accountBtn">
+      <button mat-raised-button color="accent" (click)="signIn()">Sign In</button>
+    </ng-container>
+  </mat-toolbar>
+  <mat-progress-bar mode="indeterminate" *ngIf="loading$ | async"></mat-progress-bar>
+</ng-template>
+
+
+<ng-template #emailIssuesToolbar>
+  <mat-toolbar *ngIf="!dismissedEmailWarning && (emailIssues$ | async)" class="email-warning" color="warn" >
+    <span>
+      <ng-container *ngIf="(emailIssues$ | async) === 'email'; else emailNotVerifiedWarning" >
+      Your account doesn't currently have an email address, so you won't receive any emails.
+      To add an email address, go to the <a routerLink="/account">account page</a>.
+    </ng-container>
+    <ng-template #emailNotVerifiedWarning>
+      Your account's email isn't verified, so you may not receive emails.
+      To verify your email, go to the <a routerLink="/account">account page</a>.
+    </ng-template>
+    </span>
+    <button mat-icon-button (click)="dismissedEmailWarning = true">
+      <mat-icon>highlight_off</mat-icon>
+    </button>
+  </mat-toolbar>
+</ng-template>
+
+
+<ng-template #accountBtn>
+  <ngx-auth-firebaseui-avatar
+    [canViewAccount]="false"
+    [links]="accountBtnLinks"
+    (onSignOut)="signedOut()"
+  ></ngx-auth-firebaseui-avatar>
+</ng-template>

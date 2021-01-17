@@ -1,84 +1,109 @@
 import { Injectable } from '@angular/core';
 import {AngularFireAuth} from '@angular/fire/auth';
-import {AngularFirestore} from '@angular/fire/firestore';
-import {map, shareReplay, switchMap, take} from 'rxjs/operators';
-import firebase from 'firebase/app';
+import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
+import {distinctUntilChanged, map, shareReplay, switchMap, take} from 'rxjs/operators';
 import {from, Observable, of} from 'rxjs';
-import {User, UserDoc} from '../../../../../../firestore-interfaces/users/user';
+import {UserDoc} from '../../../../../../firestore-interfaces';
 import {Router} from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-  readonly user$ = this.fetchUser$();
-  readonly email$ = this.getEmail$();
-  readonly emailConsent$ = this.getEmailConsent$();
-  readonly emailVerified$ = this.getEmailVerified$();
+  /**
+   * The {@link AngularFirestoreCollection} for users.
+   */
+  private readonly firestoreCollection: AngularFirestoreCollection<UserDoc>;
+  /**
+   * Whether the current user has consented to general emails (not workshop specific), or undefined if there is no user.
+   * <br/>
+   * The observable never completes and is based off {@link AngularFireAuth#user}, although it only emits on changes.
+   * It is also multicast using {@link shareReplay shareReplay(1)}.
+   */
+  public readonly emailConsent$: Observable<boolean | undefined>;
+  /**
+   * The current redirectUrl (or undefined), as used by {@link redirectUrl};
+   */
   private _redirectUrl: string|undefined;
 
-  get redirectUrl(): string {
+  /**
+   * Gets the url stored by {@link signIn} and then resets the stored value.
+   * @returns The url stored by {@link signIn} or the base url, "/", if there is no stored url.
+   */
+  public redirectUrl(): string {
     const url = this._redirectUrl;
-    this._redirectUrl = undefined;
-    return url || '';
+    if (url !== undefined) this._redirectUrl = undefined;
+    return url || '/';
   }
 
-  async signIn(): Promise<void> {
-    this._redirectUrl = this.router.url;
-    await this.router.navigateByUrl('/login');
+  /**
+   * To be called after signing out.
+   * Calls {@link signIn} if the current route requires an authenticated user.
+   */
+  public async signedOut(): Promise<void> {
+    const url = this.router.url;
+    if (url.startsWith('/admin') || url.startsWith('/account')) return this.signIn();
   }
 
-  setEmailConsent$(consentToEmails: boolean): Observable<void> {
-    return this.user$.pipe(
+  /**
+   * Stores the current url and then redirect to the login page. The url can then be recovered using {@link redirectUrl}.
+   * @returns A promise which resolves when the navigation to the login page completes.
+   */
+  public signIn(): Promise<void>;
+  /**
+   * Stores the currentUrl and then returns the url of the login page. The currentUrl can then be recovered using {@link redirectUrl}.
+   * @returns The url of the login page.
+   */
+  public signIn(currentUrl: string): string;
+  public signIn(currentUrl?: string): Promise<void> | string {
+    this._redirectUrl = currentUrl || this.router.url;
+    if (currentUrl) return '/login';
+    return new Promise<void>(resolve => {
+      this.router.navigateByUrl('/login').then(() => resolve());
+    });
+  }
+
+  /**
+   * User to whether the user has consented to emails. This requires there to be a user logged in.
+   * @returns An observable that when subscribed to changes the consent. It only emits once and then completes.
+   */
+  public setEmailConsent$(consentToEmails: boolean): Observable<void> {
+    return this.auth.user.pipe(
       take(1),
-      switchMap(user => !user ? of(user) :
-        from(this.firestore.doc<UserDoc>(`users/${user.uid}`).update({consentToEmails}))
+      map(user => {
+        if (!user) throw new Error(`Can't change consent as there is no user.`);
+        return user.uid;
+      }),
+      switchMap(uid =>
+        from(this.firestoreCollection.doc(uid).update({consentToEmails}))
       )
     );
   }
 
-  sendEmailVerification$(): Observable<void> {
-    return this.auth.user.pipe(
-      take(1),
-      switchMap(user => user ? from(user.sendEmailVerification()) : of(undefined))
-    );
-  }
-
   constructor(
-    private auth: AngularFireAuth,
-    private firestore: AngularFirestore,
-    private router: Router
-  ) { }
-
-  private getEmailConsent$(): Observable<boolean|null|undefined> {
-    return this.user$.pipe(
-      map(user => user ? (user.consentToEmails || null) : undefined),
-      shareReplay(1)
-    );
+    private readonly auth: AngularFireAuth,
+    private readonly router: Router,
+    firestore: AngularFirestore
+  ) {
+    this.firestoreCollection = firestore.collection<UserDoc>('users');
+    this.emailConsent$ = this.getEmailConsent$();
   }
 
-  private getEmail$(): Observable<string | null | undefined> {
-    return this.user$.pipe(
-      map(user => user?.email),
-      shareReplay(1)
-    );
-  }
-
-  private getEmailVerified$(): Observable<boolean | undefined> {
+  /**
+   * Requires {@link firestoreCollection} to be initialised.
+   * @returns - The value for {@link emailConsent$}.
+   */
+  private getEmailConsent$(): Observable<boolean | undefined> {
     return this.auth.user.pipe(
-      map(user => user?.emailVerified),
+      switchMap(user => {
+        if (!user) return of(undefined);
+        return this.firestoreCollection.doc(user.uid).valueChanges().pipe(
+          map(userDoc => userDoc?.consentToEmails)
+        );
+      }),
+      distinctUntilChanged(),
       shareReplay(1)
     );
   }
 
-  private fetchUser$(): Observable<User | undefined> {
-    return this.auth.user.pipe(
-      switchMap(user => user ? this.fetchUserData$(user) : of(undefined)),
-      shareReplay(1)
-    );
-  }
-
-  private fetchUserData$(user: firebase.User): Observable<User|undefined> {
-    return this.firestore.doc<UserDoc>(`users/${user.uid}`).valueChanges({idField: 'id'});
-  }
 }

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { AdminWorkshopMessageComponent } from './admin-workshop-message/admin-workshop-message.component';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
-import {FormsModule} from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {MatButtonModule} from '@angular/material/button';
 
@@ -17,7 +17,8 @@ import {MatButtonModule} from '@angular/material/button';
     MatInputModule,
     FormsModule,
     MatSlideToggleModule,
-    MatButtonModule
+    MatButtonModule,
+    ReactiveFormsModule
   ],
   exports: [AdminWorkshopMessageComponent]
 })

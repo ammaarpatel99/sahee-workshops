@@ -1,0 +1,22 @@
+@import '~@angular/material/theming';
+
+$public-primary: mat-palette($mat-teal, 600);
+$public-accent: mat-palette($mat-deep-orange, 500);
+
+$public-warn: mat-palette($mat-red);
+
+$public-light-theme: mat-light-theme((
+  color: (
+    primary: $public-primary,
+    accent: $public-accent,
+    warn: $public-warn,
+  )
+));
+
+$public-dark-theme: mat-dark-theme((
+  color: (
+    primary: $public-primary,
+    accent: $public-accent,
+    warn: $public-warn,
+  )
+));

@@ -4,7 +4,6 @@ import { WorkshopsDashboardComponent } from './workshops-dashboard/workshops-das
 import {MatCardModule} from '@angular/material/card';
 import {RouterModule} from '@angular/router';
 import {MatButtonModule} from '@angular/material/button';
-import {GetDownloadURLPipeModule} from '@angular/fire/storage';
 
 
 
@@ -14,8 +13,7 @@ import {GetDownloadURLPipeModule} from '@angular/fire/storage';
         CommonModule,
         MatCardModule,
         RouterModule,
-        MatButtonModule,
-        GetDownloadURLPipeModule
+        MatButtonModule
     ]
 })
 export class WorkshopsDashboardModule { }

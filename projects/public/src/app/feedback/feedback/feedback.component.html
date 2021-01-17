@@ -1,0 +1,29 @@
+<div class="container">
+  <div [class]="containerClass$ | async" >
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Feedback Form</mat-card-title>
+        <mat-card-subtitle>
+          Use this form to submit feedback about this site.
+          Feedback about Sahee Counselling or the workshops should be sent directly to Sahee Counselling.
+          If you don't know how to contact them, look on <a href="https://sahee.co.uk">www.sahee.co.uk</a>.
+        </mat-card-subtitle>
+      </mat-card-header>
+      <form [formGroup]="form" (ngSubmit)="submit()" >
+        <mat-card-content>
+          <mat-form-field [appearance]="message.pristine ? 'fill' : 'standard'">
+            <mat-label>Message to Send</mat-label>
+            <textarea matInput formControlName="message" ></textarea>
+          </mat-form-field>
+          <mat-form-field *ngIf="email.enabled" [appearance]="email.pristine ? 'fill' : 'standard'">
+            <mat-label>Your email (to use to reply to your feedback)</mat-label>
+            <input matInput formControlName="email" >
+          </mat-form-field>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-stroked-button color="primary" type="submit">Send Feedback</button>
+        </mat-card-actions>
+      </form>
+    </mat-card>
+  </div>
+</div>

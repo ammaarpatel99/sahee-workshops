@@ -1,26 +1,42 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import {WorkshopsDashboardComponent} from './workshops-dashboard/workshops-dashboard/workshops-dashboard.component';
-import {PublicWorkshopComponent} from './public-workshop/public-workshop/public-workshop.component';
+import {WorkshopComponent} from './workshop/workshop/workshop.component';
 import {LoginComponent} from './login/login/login.component';
-import {AccountComponent} from './account/account/account.component';
-import {canActivate, redirectLoggedInTo, redirectUnauthorizedTo} from '@angular/fire/auth-guard';
-import {LatestComponent} from './public-workshop/latest/latest.component';
+import {LatestWorkshopGuard} from './guards/latest-workshop/latest-workshop.guard';
+import {LoginGuard} from './guards/login/login.guard';
+import {LoggedInGuard} from './guards/logged-in/logged-in.guard';
+import {AdminGuard} from './guards/admin/admin.guard';
+import {WorkshopResolver} from './resolvers/workshop/workshop.resolver';
+import {WorkshopDashboardResolver} from './resolvers/workshop-dashboard/workshop-dashboard.resolver';
 
 const routes: Routes = [
   {
     path: 'login',
     component: LoginComponent,
-    ...canActivate(() => redirectLoggedInTo('/workshops'))
+    canActivate: [LoginGuard]
   },
   {
     path: 'account',
-    component: AccountComponent,
-    ...canActivate(() => redirectUnauthorizedTo('/login'))
+    loadChildren: () => import('./account/account.module').then(m => m.AccountModule),
+    canLoad: [LoggedInGuard],
+    canActivate: [LoggedInGuard],
+    canActivateChild: [LoggedInGuard]
   },
   {
+    path: 'feedback',
+    loadChildren: () => import('./feedback/feedback.module').then(m => m.FeedbackModule)
+  },
+  /*{
+    path: 'settings',
+    loadChildren: () => import('./admin/settings/settings.module').then(m => m.SettingsModule)
+  },*/
+  {
     path: 'admin',
-    loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule)
+    loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule),
+    canLoad: [LoggedInGuard, AdminGuard],
+    canActivate: [LoggedInGuard, AdminGuard],
+    canActivateChild: [LoggedInGuard, AdminGuard]
   },
   {
     path: '',
@@ -28,20 +44,30 @@ const routes: Routes = [
       {
         path: '',
         pathMatch: 'full',
-        component: WorkshopsDashboardComponent
+        component: WorkshopsDashboardComponent,
+        resolve: {
+          workshops$: WorkshopDashboardResolver
+        }
       },
       {
         path: 'unknown',
         component: WorkshopsDashboardComponent,
-        data: {unknown: true}
+        data: {unknown: true},
+        resolve: {
+          workshops$: WorkshopDashboardResolver
+        }
       },
       {
         path: 'latest',
-        component: LatestComponent
+        canActivate: [LatestWorkshopGuard],
+        component: WorkshopComponent
       },
       {
         path: ':id',
-        component: PublicWorkshopComponent
+        component: WorkshopComponent,
+        resolve: {
+          workshop$: WorkshopResolver
+        }
       }
     ]
   },

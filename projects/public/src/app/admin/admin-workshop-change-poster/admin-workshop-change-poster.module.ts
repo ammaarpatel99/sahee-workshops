@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { AdminWorkshopChangePosterComponent } from './admin-workshop-change-poster/admin-workshop-change-poster.component';
 import {MatButtonModule} from '@angular/material/button';
 import {MatInputModule} from '@angular/material/input';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
 
 
 
@@ -11,7 +12,8 @@ import {MatInputModule} from '@angular/material/input';
   imports: [
     CommonModule,
     MatButtonModule,
-    MatInputModule
+    MatInputModule,
+    MatProgressBarModule
   ],
   exports: [AdminWorkshopChangePosterComponent]
 })

@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import {AdminService} from '../../../services/admin/admin.service';
-import {AngularFireAuth} from '@angular/fire/auth';
-import {map, take} from 'rxjs/operators';
+import {LoadingService} from '../../../services/loading/loading.service';
+import {Observable} from 'rxjs';
+import {FormControl, Validators} from '@angular/forms';
 
 @Component({
   selector: 'app-admin-management',
@@ -9,25 +10,32 @@ import {map, take} from 'rxjs/operators';
   styleUrls: ['./admin-management.component.scss']
 })
 export class AdminManagementComponent implements OnInit {
-  uid = '';
-  restoreCoreAdmins(): void {
-    this.adminService.restoreAdmins$().subscribe();
+  readonly loading$: Observable<boolean>;
+  readonly emailAddress = new FormControl('', Validators.email);
+
+  async makeAdmin(): Promise<void> {
+    if (this.emailAddress.invalid || await this.loadingService.loading()) return;
+    this.loadingService.startLoading();
+    this.adminService.makeAdmin$(this.emailAddress.value).subscribe({
+      complete: this.loadingService.stopLoading,
+      error: this.loadingService.stopLoading
+    });
   }
-  makeAdmin(): void {
-    this.adminService.makeAdmin$(this.uid).subscribe();
-  }
-  removeAdmin(): void {
-    this.adminService.removeAdmin$(this.uid).subscribe();
+
+  async removeAdmin(): Promise<void> {
+    if (this.emailAddress.invalid || await this.loadingService.loading()) return;
+    this.loadingService.startLoading();
+    this.adminService.removeAdmin$(this.emailAddress.value).subscribe({
+      complete: this.loadingService.stopLoading,
+      error: this.loadingService.stopLoading
+    });
   }
 
   constructor(
-    private adminService: AdminService,
-    private auth: AngularFireAuth
+    private readonly adminService: AdminService,
+    private readonly loadingService: LoadingService
   ) {
-    this.auth.user.pipe(
-      take(1),
-      map(user => user ? user.getIdTokenResult().then(token => console.log(token.claims)) : undefined)
-    ).subscribe();
+    this.loading$ = this.loadingService.loading$;
   }
 
   ngOnInit(): void {

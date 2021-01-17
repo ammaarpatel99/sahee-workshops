@@ -5,7 +5,8 @@ import {MatExpansionModule} from '@angular/material/expansion';
 import {NgxAuthFirebaseUIModule} from 'ngx-auth-firebaseui';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {MatButtonModule} from '@angular/material/button';
-import {FormsModule} from '@angular/forms';
+import {ReactiveFormsModule} from '@angular/forms';
+import { AccountRoutingModule } from './account-routing.module';
 
 
 
@@ -13,12 +14,12 @@ import {FormsModule} from '@angular/forms';
   declarations: [AccountComponent],
   imports: [
     CommonModule,
+    AccountRoutingModule,
     MatExpansionModule,
     NgxAuthFirebaseUIModule,
     MatSlideToggleModule,
-    MatButtonModule,
-    FormsModule
-  ],
-  exports: [AccountComponent]
+    ReactiveFormsModule,
+    MatButtonModule
+  ]
 })
 export class AccountModule { }

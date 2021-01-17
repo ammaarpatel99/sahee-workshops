@@ -1,0 +1,11 @@
+.container {
+  margin: 5em 15%;
+}
+
+.form-actions {
+  display: flex;
+  * {
+    flex-grow: 1;
+    margin: 1em;
+  }
+}

@@ -1,3 +1,24 @@
 .space-filler {
   flex: 1 0 auto;
 }
+
+.container {
+  margin: {
+    top: 2em;
+    bottom: 10em;
+  }
+}
+
+.thin-container {
+  margin: {
+    left: 20%;
+    right: 20%;
+  }
+}
+
+.wide-container {
+  margin: {
+    left: 10%;
+    right: 10%;
+  }
+}

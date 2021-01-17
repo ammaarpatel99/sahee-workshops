@@ -1,0 +1,26 @@
+.container {
+  margin-top: 2em;
+  display: flex;
+  justify-content: center;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+mat-card-actions {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+button {
+  width: 90%;
+}
+
+.thin-container {
+  width: 70%;
+}
+
+.wide-container {
+  width: 90%;
+}

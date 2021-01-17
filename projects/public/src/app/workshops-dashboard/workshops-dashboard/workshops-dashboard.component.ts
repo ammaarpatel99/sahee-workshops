@@ -1,53 +1,43 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {WorkshopsService} from '../../services/workshops/workshops.service';
+import {Component} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {Observable, of, Subscription} from 'rxjs';
-import {map, switchMap, tap} from 'rxjs/operators';
-import {PublicWorkshop} from '../../../../../../firestore-interfaces/public-workshops/public-workshop';
+import {forkJoin, Observable} from 'rxjs';
+import {map, shareReplay, switchMap, take} from 'rxjs/operators';
+import {PublicWorkshop} from '../../../../../../firestore-interfaces';
 import {PosterService} from '../../services/poster/poster.service';
+import {Workshop} from '../../helpers/workshops';
 
 @Component({
   selector: 'app-workshops-dashboard',
   templateUrl: './workshops-dashboard.component.html',
   styleUrls: ['./workshops-dashboard.component.scss']
 })
-export class WorkshopsDashboardComponent implements OnInit, OnDestroy {
-  readonly workshops$: Observable<Readonly<PublicWorkshop>[]> = this.workshopsService.workshops$;
-  readonly unknownRoute$: Observable<boolean>;
-  readonly allowNew$: Observable<boolean>;
-  private readonly posterUrls = new Map<string, string>();
+export class WorkshopsDashboardComponent {
+  public readonly workshops$: Observable<Readonly<PublicWorkshop>[]>;
+  public readonly unknownRoute$: Observable<boolean>;
+  public readonly allowNew$: Observable<boolean>;
+  private readonly posterUrls$: Observable<Map<string, string>>;
 
-  getPosterUrl(id: string): string {
-    return this.posterUrls.get(id) || '';
+  public posterUrl$(id: string): Observable<string> {
+    return this.posterUrls$.pipe(
+      take(1),
+      map(urlMap => urlMap.get(id) || '')
+    );
   }
 
-  posterUrl(workshopID: string): string {
-    return `public/workshops/${workshopID}/poster`;
+  public workshopIsInFuture(workshop: Workshop): boolean {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    return workshop.jsDate >= date;
   }
 
   constructor(
-    private workshopsService: WorkshopsService,
-    private route: ActivatedRoute,
-    private posterService: PosterService
+    private readonly route: ActivatedRoute,
+    private readonly posterService: PosterService
   ) {
     this.unknownRoute$ = this.checkForRouteData$('unknown');
     this.allowNew$ = this.checkForRouteData$('allowNew');
-  }
-
-  ngOnInit(): void {
-    this.subscriptions.push(this.getPosters$().subscribe());
-  }
-
-  private getPosters$(): Observable<void> {
-    return this.workshops$.pipe(
-      map(workshops => {
-        for (const w of workshops) {
-          this.posterService.getPosterUrl$(w.id).pipe(
-            tap(url => this.posterUrls.set(w.id, url || ''))
-          ).toPromise();
-        }
-      })
-    );
+    this.workshops$ = this.getWorkshops$();
+    this.posterUrls$ = this.getPosterUrls$();
   }
 
   private checkForRouteData$(name: string): Observable<boolean> {
@@ -56,9 +46,27 @@ export class WorkshopsDashboardComponent implements OnInit, OnDestroy {
     );
   }
 
-  private subscriptions: Subscription[] = [];
-  ngOnDestroy(): void {
-    for (const s of this.subscriptions) if (!s.closed) s.unsubscribe();
+  private getWorkshops$(): Observable<Readonly<PublicWorkshop>[]> {
+    return this.route.data.pipe(
+      switchMap(data => data.workshops$ as Observable<Readonly<PublicWorkshop>[]>)
+    );
+  }
+
+  private getPosterUrls$(): Observable<Map<string, string>> {
+    return this.workshops$.pipe(
+      switchMap(workshops => {
+        const urls: Observable<[string, string]>[] = [];
+        for (const workshop of workshops) {
+          const url$ = this.posterService.getPosterUrl$(workshop.id).pipe(
+            map(url => [workshop.id, url] as [string, string])
+          );
+          urls.push(url$);
+        }
+        return forkJoin(urls);
+      }),
+      map(data => new Map<string, string>(data)),
+      shareReplay(1)
+    );
   }
 
 }

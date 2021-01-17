@@ -1,16 +1,33 @@
 <h4>This is an email that will be sent out to all current users who are signed up for the workshop and have
   consented to emails. Be careful as this may result in a lot of emails.</h4>
 <div class="emailTab">
-  <mat-form-field appearance="outline">
-    <mat-label>Email</mat-label>
-    <textarea matInput [(ngModel)]="updateEmail" ></textarea>
-  </mat-form-field>
-  <mat-slide-toggle [(ngModel)]="changeNewSignupEmail" (ngModelChange)="newSignupEmail = currentNewSignupEmail" >
-    Change email received when users sign up.
-  </mat-slide-toggle>
-  <mat-form-field appearance="outline">
-    <mat-label>New Signup Email</mat-label>
-    <textarea matInput [(ngModel)]="newSignupEmail" [disabled]="!changeNewSignupEmail" ></textarea>
-  </mat-form-field>
-  <button mat-raised-button color="primary" (click)="sendEmail()">Send</button>
+  <form [formGroup]="form" (ngSubmit)="sendEmail()" >
+    <mat-form-field appearance="outline">
+      <mat-label>Email</mat-label>
+      <textarea matInput [formControl]="email" ></textarea>
+    </mat-form-field>
+    <mat-slide-toggle [formControl]="editNewSignupEmail" #slideToggle >
+      Change email received when users sign up.
+    </mat-slide-toggle>
+    <mat-form-field [appearance]="slideToggle.checked ? 'outline' : 'fill'">
+      <mat-label>New Signup Email</mat-label>
+      <textarea matInput [formControl]="newSignupEmail" ></textarea>
+    </mat-form-field>
+    <div class="form-actions">
+      <button mat-stroked-button color="warn" type="reset" [disabled]="form.pristine || form.disabled" (click)="reset()">
+        Reset
+      </button>
+      <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || form.pristine || form.disabled">
+        Submit
+      </button>
+    </div>
+  </form>
+</div>
+<div *ngIf="sentEmail !== null" class="recent-email">
+  <h2>Recently Sent Promotional Email</h2>
+  <p>{{sentEmail.message}}</p>
+  <h4>Sent to {{sentEmail.emailAddresses.length}} people:</h4>
+  <ul>
+    <li *ngFor="let emailAddress of sentEmail.emailAddresses">{{emailAddress}}</li>
+  </ul>
 </div>

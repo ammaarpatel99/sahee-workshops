@@ -7,6 +7,7 @@ import {MatCardModule} from '@angular/material/card';
 import {AdminWorkshopChangePosterModule} from '../admin-workshop-change-poster/admin-workshop-change-poster.module';
 import {AdminWorkshopPromotionModule} from '../admin-workshop-promotion/admin-workshop-promotion.module';
 import {AdminWorkshopMessageModule} from '../admin-workshop-message/admin-workshop-message.module';
+import {MatButtonModule} from '@angular/material/button';
 
 
 
@@ -19,7 +20,8 @@ import {AdminWorkshopMessageModule} from '../admin-workshop-message/admin-worksh
     AdminWorkshopPromotionModule,
     AdminWorkshopMessageModule,
     MatCardModule,
-    MatTabsModule
+    MatTabsModule,
+    MatButtonModule
   ],
   exports: [AdminWorkshopComponent]
 })

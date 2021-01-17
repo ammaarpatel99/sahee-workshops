@@ -1,72 +1,127 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {map, switchMap, take, takeWhile, tap} from 'rxjs/operators';
-import {AdminWorkshop} from '../../../../../../../firestore-interfaces/workshops/workshop';
-import {environment} from '../../../../environments/environment';
-import {from, Observable, of} from 'rxjs';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {filter, finalize, map, switchMap, take, takeWhile, tap} from 'rxjs/operators';
+import {AdminWorkshop} from '../../../../../../../firestore-interfaces';
+import {from, Observable, of, Subject, Subscription} from 'rxjs';
 import {PosterService} from '../../../services/poster/poster.service';
+import {LoadingService} from '../../../services/loading/loading.service';
+import {FormControl, Validators} from '@angular/forms';
 
 @Component({
   selector: 'app-admin-workshop-change-poster',
   templateUrl: './admin-workshop-change-poster.component.html',
   styleUrls: ['./admin-workshop-change-poster.component.scss']
 })
-export class AdminWorkshopChangePosterComponent implements OnInit {
+export class AdminWorkshopChangePosterComponent implements OnInit, OnDestroy {
   @Input() workshop$: Observable<AdminWorkshop | undefined> = of(undefined);
-  posterFile: File | undefined;
-  posterUrl: string | undefined;
-  posterEdited = false;
+  readonly poster = new FormControl(undefined, Validators.required);
+  private readonly _posterUploadStatus$: Subject<number | null> = new Subject<number | null>();
+  readonly posterUploadStatus$ = this._posterUploadStatus$.asObservable();
+  private _posterUrl: string | null = null;
+  private _posterFileName: string | null = null;
 
-  getPosterFile(event$: any): void {
-    if (!event$?.target?.files) return;
-    const files: FileList = event$.target.files;
-    this.posterFile = files.item(0) || undefined;
-    if (!this.posterEdited) this.posterEdited = true;
-    if (!this.posterFile) {
-      this.posterUrl = undefined;
-      return;
-    }
-    this.posterService.getPosterFileUrl(this.posterFile).then(url => this.posterUrl = url);
+  get posterUrl(): string | null {
+    return this._posterUrl;
   }
 
-  resetPoster(): void {
-    this.posterFile = undefined;
-    this.posterEdited = false;
+  get posterFileName(): string | null {
+    return this._posterFileName;
+  }
+
+  async getPosterFile(event$: any): Promise<void> {
+    if (!event$?.target?.files) return;
+    const files: FileList = event$.target.files;
+    const poster = files.item(0);
+    if (!poster) return;
+    this.poster.setValue(poster);
+    this.poster.markAsDirty();
+  }
+
+  resetPoster(initialising: boolean = false): void {
+    if (!initialising && (this.poster.disabled || this.poster.pristine)) {
+      throw new Error(`Can't reset poster`);
+    }
+    if (!initialising) this.loadingService.startLoading();
+    this.poster.reset();
     this.workshop$.pipe(
       take(1),
-      tap(workshop => {
-        if (!workshop) this.posterUrl = undefined;
+      finalize(() => {
+        if (!initialising) this.loadingService.stopLoading();
       }),
-      takeWhile(workshop => !!workshop),
+      filter(workshop => !!workshop),
       map(workshop => (workshop as AdminWorkshop).id),
       switchMap(id => this.posterService.getPosterUrl$(id)),
-      tap(url => {
-        this.posterUrl = url;
+      map(url => {
+        if (url) this._posterUrl = url;
       })
     ).subscribe();
   }
 
   submitPoster(): void {
-    this.posterEdited = false;
+    if (this.poster.invalid || this.poster.disabled || this.poster.pristine) {
+      throw new Error(`Can't submit poster.`);
+    }
+    const file = this.poster.value;
+    if (!(file instanceof File)) {
+      throw new Error(`Can't submit poster.`);
+    }
+    this.loadingService.startLoading();
     this.workshop$.pipe(
-      take(2),
-      takeWhile(workshop => !!workshop),
       take(1),
-      map(workshop => (workshop as AdminWorkshop).id),
-      switchMap(id => {
-        const file = this.posterFile;
-        if (!file || !environment.production) return of(undefined);
-        return from(this.posterService.uploadPoster(id, file));
+      finalize(() => {
+        this.resetPoster();
+        this._posterUploadStatus$.next(null);
+        this.loadingService.stopLoading();
       }),
-      tap(_ => this.resetPoster())
+      filter(workshop => !!workshop),
+      map(workshop => (workshop as AdminWorkshop).id),
+      switchMap(id => this.posterService.uploadPoster$(id, file)),
+      takeWhile(percentage => typeof percentage === 'number' && percentage >= 0 && percentage <= 100),
+      tap(percentage => this._posterUploadStatus$.next(percentage))
     ).subscribe();
   }
 
   constructor(
-    private posterService: PosterService
-  ) { }
+    private readonly posterService: PosterService,
+    private readonly loadingService: LoadingService
+  ) {
+    this.subscriptions.push(
+      this.watchPoster$().subscribe(),
+      this.disableWhenLoading$(this.loadingService.loading$).subscribe()
+    );
+  }
+
+  disableWhenLoading$(loading$: Observable<boolean>): Observable<void> {
+    return loading$.pipe(
+      map(loading => {
+        if (loading) this.poster.disable();
+        else this.poster.enable();
+      })
+    );
+  }
+
+  watchPoster$(): Observable<void> {
+    return this.poster.valueChanges.pipe(
+      switchMap(poster => {
+        if (!(poster instanceof File)) {
+          this._posterFileName = null;
+          return of(null);
+        }
+        this._posterFileName = poster.name;
+        return from(this.posterService.getPosterFileUrl(poster));
+      }),
+      map(url => {
+        this._posterUrl = url;
+      })
+    );
+  }
 
   ngOnInit(): void {
-    this.resetPoster();
+    this.resetPoster(true);
+  }
+
+  private readonly subscriptions: Subscription[] = [];
+  ngOnDestroy(): void {
+    for (const s of this.subscriptions) if (!s.closed) s.unsubscribe();
   }
 
 }

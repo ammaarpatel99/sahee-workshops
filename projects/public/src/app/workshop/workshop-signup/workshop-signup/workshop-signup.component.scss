@@ -1,0 +1,16 @@
+mat-horizontal-stepper {
+  width: 100%;
+  text-align: center;
+}
+
+.form-actions {
+  margin-top: 1em;
+  display: flex;
+  * {
+    flex-grow: 1;
+    margin: {
+      right: 0.5em;
+      left: 0.5em;
+    }
+  }
+}

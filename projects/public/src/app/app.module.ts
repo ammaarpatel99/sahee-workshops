@@ -14,10 +14,9 @@ import {AngularFireStorageModule} from '@angular/fire/storage';
 import {AngularFireFunctionsModule} from '@angular/fire/functions';
 import {AngularFirePerformanceModule, PerformanceMonitoringService} from '@angular/fire/performance';
 import {WorkshopsDashboardModule} from './workshops-dashboard/workshops-dashboard.module';
-import {PublicWorkshopModule} from './public-workshop/public-workshop.module';
+import {WorkshopModule} from './workshop/workshop.module';
 import {LoginModule} from './login/login.module';
 import {NgxAuthFirebaseUIModule} from 'ngx-auth-firebaseui';
-import {AccountModule} from './account/account.module';
 
 import './firebase-initialisation/firebase-initialisation';
 
@@ -43,17 +42,16 @@ if (environment.production) {
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
-    NavContainerModule,
     AngularFireModule.initializeApp(environment.firebase),
     ...productionModules,
     AngularFireAuthModule,
     AngularFirestoreModule,
     AngularFireStorageModule,
     AngularFireFunctionsModule,
+    NavContainerModule,
     WorkshopsDashboardModule,
-    PublicWorkshopModule,
+    WorkshopModule,
     LoginModule,
-    AccountModule,
     NgxAuthFirebaseUIModule.forRoot(environment.firebase, undefined, {
       enableFirestoreSync: true, // enable/disable autosync users with firestore
       toastMessageOnAuthSuccess: true, // whether to open/show a snackbar message on auth success - default : true

@@ -1,7 +1,10 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminManagementComponent } from './admin-management/admin-management.component';
-import {FormsModule} from '@angular/forms';
+import {ReactiveFormsModule} from '@angular/forms';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatButtonModule} from '@angular/material/button';
 
 
 
@@ -9,7 +12,10 @@ import {FormsModule} from '@angular/forms';
   declarations: [AdminManagementComponent],
   imports: [
     CommonModule,
-    FormsModule
+    MatFormFieldModule,
+    MatInputModule,
+    ReactiveFormsModule,
+    MatButtonModule
   ],
   exports: [AdminManagementComponent]
 })

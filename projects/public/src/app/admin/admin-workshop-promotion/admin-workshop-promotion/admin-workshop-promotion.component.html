@@ -3,7 +3,21 @@
 <div class="promotionTab">
   <mat-form-field appearance="outline">
     <mat-label>Promotion Email</mat-label>
-    <textarea matInput [(ngModel)]="promotionEmail" ></textarea>
+    <textarea matInput [formControl]="promotionEmail" ></textarea>
   </mat-form-field>
-  <button mat-raised-button color="primary" (click)="sendPromotionEmail()">Send</button>
+  <button
+    mat-raised-button color="primary"
+    [disabled]="promotionEmail.invalid || promotionEmail.pristine || promotionEmail.disabled"
+    (click)="sendPromotionEmail()"
+  >
+    Send
+  </button>
+</div>
+<div *ngIf="sentEmail !== null" class="recent-email">
+  <h2>Recently Sent Promotional Email</h2>
+  <p>{{sentEmail.message}}</p>
+  <h4>Sent to {{sentEmail.emailAddresses.length}} people:</h4>
+  <ul>
+    <li *ngFor="let emailAddress of sentEmail.emailAddresses">{{emailAddress}}</li>
+  </ul>
 </div>

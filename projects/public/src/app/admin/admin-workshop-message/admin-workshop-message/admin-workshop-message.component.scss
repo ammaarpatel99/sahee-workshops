@@ -5,8 +5,16 @@
   mat-slide-toggle {
     margin-bottom: 1em;
   }
-  button {
-    width: 80%;
-    margin: 0 10%;
+}
+
+.form-actions {
+  display: flex;
+  * {
+    flex-grow: 1;
+    margin: 1em;
   }
+}
+
+.recent-email {
+  margin: 1em;
 }
