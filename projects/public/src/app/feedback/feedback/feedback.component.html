@@ -12,8 +12,8 @@
       <form [formGroup]="form" (ngSubmit)="submit()" >
         <mat-card-content>
           <mat-form-field [appearance]="message.pristine ? 'fill' : 'standard'">
-            <mat-label>Message to Send</mat-label>
-            <textarea matInput formControlName="message" ></textarea>
+            <mat-label>Site Feedback</mat-label>
+            <textarea matInput formControlName="message" placeholder="Describe your error or problem" ></textarea>
           </mat-form-field>
           <mat-form-field *ngIf="email.enabled" [appearance]="email.pristine ? 'fill' : 'standard'">
             <mat-label>Your email (to use to reply to your feedback)</mat-label>
