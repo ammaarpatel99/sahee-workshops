@@ -3,6 +3,8 @@ import {AngularFireStorage, AngularFireStorageReference, AngularFireUploadTask} 
 import {Observable, of} from 'rxjs';
 import {environment} from '../../../environments/environment';
 import {switchMap} from 'rxjs/operators';
+import firebase from 'firebase/app';
+import UploadMetadata = firebase.storage.UploadMetadata;
 
 @Injectable({
   providedIn: 'root'
@@ -53,7 +55,12 @@ export class PosterService {
   public uploadPoster$(workshopID: string, poster: File): Observable<number | undefined> {
     return of(environment.production).pipe(
       switchMap(prod => {
-        if (prod) return this.getRef(workshopID).put(poster).percentageChanges();
+        const meta: UploadMetadata = {
+          cacheControl: 'max-age=360',
+          contentType: poster.type,
+          contentDisposition: 'inline'
+        };
+        if (prod) return this.getRef(workshopID).put(poster, meta).percentageChanges();
         return of(100);
       })
     );
