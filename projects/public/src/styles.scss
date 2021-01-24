@@ -37,6 +37,12 @@ $public-theme: mat-light-theme((
 
 @include angular-material-theme($public-light-theme);
 
+@import "./themes/admin";
+
+.admin-theme {
+  @include angular-material-color($admin-light-theme);
+}
+
 
 
 

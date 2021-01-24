@@ -1,0 +1,22 @@
+@import '~@angular/material/theming';
+
+$admin-primary: mat-palette($mat-grey, 900);
+$admin-accent: mat-palette($mat-teal, 500);
+
+$admin-warn: mat-palette($mat-deep-orange);
+
+$admin-light-theme: mat-light-theme((
+  color: (
+    primary: $admin-primary,
+    accent: $admin-accent,
+    warn: $admin-warn,
+  )
+));
+
+$admin-dark-theme: mat-dark-theme((
+  color: (
+    primary: $admin-primary,
+    accent: $admin-accent,
+    warn: $admin-warn,
+  )
+));
