@@ -45,7 +45,7 @@ if (environment.production) {
     AngularFireModule.initializeApp(environment.firebase),
     ...productionModules,
     AngularFireAuthModule,
-    AngularFirestoreModule,
+    AngularFirestoreModule.enablePersistence(),
     AngularFireStorageModule,
     AngularFireFunctionsModule,
     NavContainerModule,
