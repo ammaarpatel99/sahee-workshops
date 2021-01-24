@@ -24,6 +24,7 @@ export class NavContainerComponent {
   public readonly sidenavLinks$: Observable<{name: string, link: string}[]>;
   public readonly user$: Observable<boolean>;
   public readonly loading$: Observable<boolean>;
+  public readonly title$: Observable<'Workshops by Sahee Counselling' | `Sahee's Workshops`>;
   public dismissedEmailWarning = false;
 
   public async signIn(): Promise<void> {
@@ -56,6 +57,7 @@ export class NavContainerComponent {
     this.sidenavLinks$ = linksService.links$;
     this.user$ = this.getUser$();
     this.loading$ = loadingService.loading$;
+    this.title$ = this.getTitle$();
   }
 
   private getUser$(): Observable<boolean> {
@@ -67,6 +69,14 @@ export class NavContainerComponent {
   private observeIsHandset$(): Observable<boolean> {
     return this.breakpointObserver.observe([Breakpoints.Handset, Breakpoints.TabletPortrait]).pipe(
       map(res => res.matches),
+      shareReplay(1)
+    );
+  }
+
+  private getTitle$(): Observable<'Workshops by Sahee Counselling' | `Sahee's Workshops`> {
+    return this.breakpointObserver.observe([Breakpoints.HandsetPortrait]).pipe(
+      map(res => res.matches),
+      map(matches => matches ? `Sahee's Workshops` : 'Workshops by Sahee Counselling'),
       shareReplay(1)
     );
   }

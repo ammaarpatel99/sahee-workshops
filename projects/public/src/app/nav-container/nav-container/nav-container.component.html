@@ -44,7 +44,7 @@
       *ngIf="isHandset$ | async">
       <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
     </button>
-    <span>Workshops by Sahee Counselling</span>
+    <span>{{title$ | async}}</span>
     <span class="space-filler"></span>
     <ng-container *ngIf="!(user$|async);else accountBtn">
       <button mat-raised-button color="accent" (click)="signIn()">Sign In</button>
