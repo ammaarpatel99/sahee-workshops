@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Observable } from 'rxjs';
-import {map, shareReplay, take} from 'rxjs/operators';
+import {filter, map, shareReplay, take} from 'rxjs/operators';
 import {SidenavService} from '../../services/sidenav/sidenav.service';
 import {UserService} from '../../services/user/user.service';
 import {LinkMenuItem} from 'ngx-auth-firebaseui';
-import {Router} from '@angular/router';
+import {NavigationEnd, Router} from '@angular/router';
 import {AngularFireAuth} from '@angular/fire/auth';
 import {LoadingService} from '../../services/loading/loading.service';
 import {MatSidenav} from '@angular/material/sidenav';
@@ -25,6 +25,7 @@ export class NavContainerComponent {
   public readonly user$: Observable<boolean>;
   public readonly loading$: Observable<boolean>;
   public readonly title$: Observable<'Workshops by Sahee Counselling' | `Sahee's Workshops`>;
+  public readonly adminTheme$: Observable<'admin-theme' | ''>;
   public dismissedEmailWarning = false;
 
   public async signIn(): Promise<void> {
@@ -58,6 +59,7 @@ export class NavContainerComponent {
     this.user$ = this.getUser$();
     this.loading$ = loadingService.loading$;
     this.title$ = this.getTitle$();
+    this.adminTheme$ = this.getAdminTheme$();
   }
 
   private getUser$(): Observable<boolean> {
@@ -89,6 +91,14 @@ export class NavContainerComponent {
         if (!user.emailVerified) return 'verification';
         return null;
       })
+    );
+  }
+
+  private getAdminTheme$(): Observable<'admin-theme' | ''> {
+    return this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd),
+      map(event => (event as NavigationEnd).urlAfterRedirects.startsWith('/admin') ? 'admin-theme' : ''),
+      shareReplay(1)
     );
   }
 
