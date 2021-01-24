@@ -1,26 +1,23 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if
-          request.time < timestamp.date(2021, 2, 22);
-    }
-    /*match /public-workshops/{workshop}/{document=**} {
+    match /public-workshops/{document=**} {
       allow read: if true;
       allow write: if false;
     }
     match /users/{userId} {
       allow read, update, delete: if request.auth != null && request.auth.uid == userId;
       allow create: if request.auth != null;
-      match /{workshop}/{document=**} {
-        allow read, write: if false;
+      match /{document=**} {
+        allow read, update, delete: if request.auth != null && request.auth.uid == userId;
+        allow create: if false;
       }
     }
     match /workshops/{workshop} {
       allow read, write: if request.auth.token.admin == true;
-      match /{other}/{document=**} {
+      match /{document=**} {
         allow read, write: if false;
       }
-    }*/
+    }
   }
 }
