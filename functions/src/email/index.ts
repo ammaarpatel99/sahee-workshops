@@ -1,11 +1,12 @@
 import {https} from 'firebase-functions';
-const onCall = https.onCall;
-const HttpsError = https.HttpsError;
 import {CallableContext} from "firebase-functions/lib/providers/https";
 import {auth, firestore} from "firebase-admin";
 import {PATHS} from "../firebase-paths";
 import {AdminWorkshopDoc, UserDoc} from "../../../firestore-interfaces";
 import {sendEmail} from "./send-email";
+import {onCall} from '../function-builder';
+
+const HttpsError = https.HttpsError;
 
 
 export const send = onCall(async (data, context) => {

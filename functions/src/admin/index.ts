@@ -1,8 +1,8 @@
 import {https} from 'firebase-functions';
 import {auth} from "firebase-admin";
 import {CallableContext} from "firebase-functions/lib/providers/https";
+import {onCall} from '../function-builder';
 
-const onCall = https.onCall;
 const HttpsError = https.HttpsError;
 
 

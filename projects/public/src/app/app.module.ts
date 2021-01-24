@@ -11,7 +11,7 @@ import {AngularFireAnalyticsModule, ScreenTrackingService, UserTrackingService} 
 import {AngularFireAuthModule} from '@angular/fire/auth';
 import {AngularFirestoreModule} from '@angular/fire/firestore';
 import {AngularFireStorageModule} from '@angular/fire/storage';
-import {AngularFireFunctionsModule} from '@angular/fire/functions';
+import {AngularFireFunctionsModule, REGION} from '@angular/fire/functions';
 import {AngularFirePerformanceModule, PerformanceMonitoringService} from '@angular/fire/performance';
 import {WorkshopsDashboardModule} from './workshops-dashboard/workshops-dashboard.module';
 import {WorkshopModule} from './workshop/workshop.module';
@@ -60,7 +60,8 @@ if (environment.production) {
     })
   ],
   providers: [
-    ...ProductionProviders
+    ...ProductionProviders,
+    {provide: REGION, useValue: 'europe-west2'}
   ],
   bootstrap: [AppComponent]
 })

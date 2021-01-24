@@ -1,4 +1,4 @@
-import {firestore as firestoreFn} from "firebase-functions";
+import {firestoreFn} from "../function-builder";
 import {PATHS} from "../firebase-paths";
 import {firestore} from 'firebase-admin';
 import {AdminWorkshopDoc, PublicWorkshopDoc, UserWorkshopDoc} from "../../../firestore-interfaces";

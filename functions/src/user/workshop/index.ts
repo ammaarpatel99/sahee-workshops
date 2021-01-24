@@ -1,11 +1,10 @@
-import {firestore as firestoreFn, https} from "firebase-functions";
+import {https} from "firebase-functions";
 import {PATHS} from "../../firebase-paths";
 import {firestore, auth} from "firebase-admin";
 import {AdminWorkshopDoc, WorkshopUserDoc, UserWorkshopDoc} from "../../../../firestore-interfaces";
 import {sendEmail} from "../../email/send-email";
+import {firestoreFn, onCall} from '../../function-builder';
 
-
-const onCall = https.onCall;
 const HttpsError = https.HttpsError;
 
 

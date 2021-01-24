@@ -1,6 +1,7 @@
 import {https} from 'firebase-functions';
 import {initializeApp, auth} from 'firebase-admin';
 import {sendEmail} from "./email/send-email";
+import {onCall} from './function-builder';
 initializeApp();
 
 export * as workshop from './workshop';
@@ -8,7 +9,6 @@ export * as user from './user';
 export * as email from './email';
 export * as admin from './admin';
 
-const onCall = https.onCall;
 const HttpsError = https.HttpsError;
 
 export const feedback = onCall(async (data, context) => {
