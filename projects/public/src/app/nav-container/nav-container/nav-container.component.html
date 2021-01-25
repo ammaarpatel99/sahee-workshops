@@ -44,6 +44,7 @@
       *ngIf="isHandset$ | async">
       <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
     </button>
+    <img src="assets/sahee-logo.png" >
     <span>{{title$ | async}}</span>
     <span class="space-filler"></span>
     <ng-container *ngIf="!(user$|async);else accountBtn">
