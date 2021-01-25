@@ -24,7 +24,7 @@ export class NavContainerComponent {
   public readonly sidenavLinks$: Observable<{name: string, link: string}[]>;
   public readonly user$: Observable<boolean>;
   public readonly loading$: Observable<boolean>;
-  public readonly title$: Observable<'Workshops by Sahee Counselling' | `Sahee's Workshops`>;
+  public readonly title$: Observable<'Workshops' | ``>;
   public readonly adminTheme$: Observable<'admin-theme' | ''>;
   public dismissedEmailWarning = false;
 
@@ -75,10 +75,10 @@ export class NavContainerComponent {
     );
   }
 
-  private getTitle$(): Observable<'Workshops by Sahee Counselling' | `Sahee's Workshops`> {
+  private getTitle$(): Observable<'Workshops' | ``> {
     return this.breakpointObserver.observe([Breakpoints.HandsetPortrait]).pipe(
       map(res => res.matches),
-      map(matches => matches ? `Sahee's Workshops` : 'Workshops by Sahee Counselling'),
+      map(matches => matches ? `` : 'Workshops'),
       shareReplay(1)
     );
   }
