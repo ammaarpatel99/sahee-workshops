@@ -45,6 +45,14 @@ export class NavContainerComponent {
     ).subscribe();
   }
 
+  public async goToHomePage(): Promise<void> {
+    if (this.router.url.startsWith('/admin')) {
+      await this.router.navigateByUrl('/admin');
+    } else {
+      await this.router.navigateByUrl('/');
+    }
+  }
+
   constructor(
     private readonly breakpointObserver: BreakpointObserver,
     private readonly router: Router,

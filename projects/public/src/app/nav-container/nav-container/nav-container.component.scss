@@ -39,3 +39,10 @@
 mat-progress-bar {
   height: 0.4em;
 }
+
+.title-container {
+  height: 100%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
