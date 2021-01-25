@@ -14,6 +14,7 @@ import {MatButtonModule} from '@angular/material/button';
         MatCardModule,
         RouterModule,
         MatButtonModule
-    ]
+    ],
+  exports: [WorkshopsDashboardComponent]
 })
 export class WorkshopsDashboardModule { }
