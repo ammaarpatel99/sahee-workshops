@@ -19,6 +19,7 @@ import {LoginModule} from './login/login.module';
 import {NgxAuthFirebaseUIModule} from 'ngx-auth-firebaseui';
 
 import './firebase-initialisation/firebase-initialisation';
+import { ServiceWorkerModule } from '@angular/service-worker';
 
 const productionModules = [];
 const ProductionProviders = [];
@@ -57,7 +58,8 @@ if (environment.production) {
       toastMessageOnAuthSuccess: true, // whether to open/show a snackbar message on auth success - default : true
       toastMessageOnAuthError: true, // whether to open/show a snackbar message on auth error - default : true
       enableEmailVerification: true, // default: true
-    })
+    }),
+    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
   ],
   providers: [
     ...ProductionProviders,
