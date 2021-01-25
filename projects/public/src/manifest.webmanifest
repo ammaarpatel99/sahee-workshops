@@ -1,9 +1,9 @@
 {
-  "name": "public",
-  "short_name": "public",
-  "theme_color": "#1976d2",
+  "name": "Workshops by Sahee Counselling",
+  "short_name": "Sahee's Workshops",
+  "theme_color": "#00897b",
   "background_color": "#fafafa",
-  "display": "standalone",
+  "display": "browser",
   "scope": "./",
   "start_url": "./",
   "icons": [
