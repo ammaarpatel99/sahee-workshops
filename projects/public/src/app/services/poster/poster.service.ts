@@ -1,8 +1,8 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {AngularFireStorage, AngularFireStorageReference, AngularFireUploadTask} from '@angular/fire/storage';
 import {Observable, of} from 'rxjs';
 import {environment} from '../../../environments/environment';
-import {switchMap} from 'rxjs/operators';
+import {map, switchMap} from 'rxjs/operators';
 import firebase from 'firebase/app';
 import UploadMetadata = firebase.storage.UploadMetadata;
 
@@ -23,6 +23,35 @@ export class PosterService {
   public getPosterUrl$(workshopID: string): Observable<string | null> {
     const url$ = this.getRef(workshopID).getDownloadURL();
     return environment.production ? url$ : of(null);
+  }
+
+  /**
+   * Used to get all urls for posters for a workshop.
+   * There is the original url, the urls for the poster in different sizes, and the different sizes in webp format.
+   * The urls are provided as a string for srcset format
+   * <br/>
+   * If the build was not configured for production, the function won't actually try to fetch the url.
+   * @param workshopID - The ID of the workshop to get the posters for.
+   * @returns - An observable which when subscribed to gets the urls and emits them,
+   * or null if their is no poster (which could be because there is no workshop).
+   * It will emit once and then complete.
+   */
+  public getPosterUrls$(workshopID: string): Observable<{ webp: string; std: string; original: string; } | null> {
+    if (environment.production) return of(null);
+    return this.getPosterUrl$(workshopID).pipe(
+      map(url => {
+        if (url === null) return url;
+        const webp: string[] = [];
+        const std: string[] = [];
+        for (const [ext, width] of [['-s', 300], ['-m', 600], ['-l', 1000], ['-xl', 2000]]) {
+          const _url = url + ext;
+          const _width = ` ${width}w`;
+          std.push(_url + width);
+          webp.push(_url + '.webp' + width);
+        }
+        return {webp: webp.join(','), std: std.join(','), original: url};
+      })
+    );
   }
 
   /**
