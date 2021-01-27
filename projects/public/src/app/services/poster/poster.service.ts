@@ -6,24 +6,18 @@ import {map, switchMap} from 'rxjs/operators';
 import firebase from 'firebase/app';
 import UploadMetadata = firebase.storage.UploadMetadata;
 
+
+export interface PosterUrls {
+  webp: string;
+  std: string;
+  original: string;
+}
+
+
 @Injectable({
   providedIn: 'root'
 })
 export class PosterService {
-
-  /**
-   * Used to get the url for the poster of a workshop.
-   * <br/>
-   * If the build was not configured for production, the function won't actually try to fetch the url.
-   * @param workshopID - The ID of the workshop to get the poster for.
-   * @returns - An observable which when subscribed to gets the url and emits it,
-   * or null if their is no poster (which could be because there is no workshop).
-   * It will emit once and then complete.
-   */
-  public getPosterUrl$(workshopID: string): Observable<string | null> {
-    const url$ = this.getRef(workshopID).getDownloadURL();
-    return environment.production ? url$ : of(null);
-  }
 
   /**
    * Used to get all urls for posters for a workshop.
@@ -36,7 +30,7 @@ export class PosterService {
    * or null if their is no poster (which could be because there is no workshop).
    * It will emit once and then complete.
    */
-  public getPosterUrls$(workshopID: string): Observable<{ webp: string; std: string; original: string; } | null> {
+  public getPosterUrls$(workshopID: string): Observable<PosterUrls | null> {
     if (environment.production) return of(null);
     return this.getPosterUrl$(workshopID).pipe(
       map(url => {
@@ -93,6 +87,20 @@ export class PosterService {
         return of(100);
       })
     );
+  }
+
+  /**
+   * Used to get the url for the poster of a workshop.
+   * <br/>
+   * If the build was not configured for production, the function won't actually try to fetch the url.
+   * @param workshopID - The ID of the workshop to get the poster for.
+   * @returns - An observable which when subscribed to gets the url and emits it,
+   * or null if their is no poster (which could be because there is no workshop).
+   * It will emit once and then complete.
+   */
+  private getPosterUrl$(workshopID: string): Observable<string | null> {
+    const url$ = this.getRef(workshopID).getDownloadURL();
+    return environment.production ? url$ : of(null);
   }
 
   /**
