@@ -22,11 +22,10 @@ export const onUpload = storageFn().onFinalize(async (object, context) => {
   await bucket.file(object.name).download({destination: tmpPath});
   const genImgFn = genReactiveImgFn(object, tmpPath, bucket);
   await Promise.all([
-    genImgFn(300, '-300'),
-    genImgFn(500, '-500'),
-    genImgFn(750, '-750'),
-    genImgFn(1000, '-1000'),
-    genImgFn(2000, '-2000'),
+    genImgFn({width: 300}, '-s'),
+    genImgFn({width: 600}, '-m'),
+    genImgFn({width: 1000}, '-l'),
+    genImgFn({width: 2000}, '-xl'),
   ]);
   fs.unlinkSync(tmpPath);
 })
@@ -37,10 +36,10 @@ function genReactiveImgFn(object: ObjectMetadata, tmpPath: string, bucket: Bucke
   const serverPath = object.name;
   const uploadFn = saveNormalAndWebpFn(bucket, meta);
   const img = sharp(tmpPath);
-  return (size: number, fileExt: string) => {
+  return (size: {width?: number; height?: number}, fileExt: string) => {
     const _tmpPath = tmpPath + fileExt;
     const _serverPath = serverPath + fileExt;
-    const _img = img.resize({width: size, height: size, withoutEnlargement: true, fit: "inside"});
+    const _img = img.resize({...size, withoutEnlargement: true, fit: "inside"});
     return uploadFn(_img, _tmpPath, _serverPath);
   }
 }
