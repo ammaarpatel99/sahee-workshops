@@ -3,7 +3,7 @@ import {ActivatedRoute} from '@angular/router';
 import {map, shareReplay, switchMap} from 'rxjs/operators';
 import {Observable} from 'rxjs';
 import {PublicWorkshop, UserWorkshop} from '../../../../../../firestore-interfaces';
-import {PosterService} from '../../services/poster/poster.service';
+import {PosterService, PosterUrls} from '../../services/poster/poster.service';
 import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
 import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 import {isUserWorkshop, Workshop} from '../../helpers/workshops';
@@ -17,7 +17,7 @@ export class WorkshopComponent {
   readonly publicWorkshop$: Observable<Readonly<PublicWorkshop>>;
   readonly userWorkshop$: Observable<Readonly<UserWorkshop> | undefined>;
   readonly containerClass$: Observable<'wide-container' | 'thin-container'>;
-  readonly posterUrl$: Observable<string>;
+  readonly posterUrls$: Observable<PosterUrls>;
   readonly sanitizedRecordingUrl$: Observable<SafeResourceUrl>;
 
   constructor(
@@ -30,7 +30,7 @@ export class WorkshopComponent {
     this.publicWorkshop$ = workshop$;
     this.userWorkshop$ = this.getUserWorkshop$(workshop$);
     this.containerClass$ = this.getContainerClass$();
-    this.posterUrl$ = this.getPosterUrl$();
+    this.posterUrls$ = this.getPosterUrl$();
     this.sanitizedRecordingUrl$ = this.getSanitizedRecordingUrl$();
   }
 
@@ -60,10 +60,10 @@ export class WorkshopComponent {
     );
   }
 
-  private getPosterUrl$(): Observable<string> {
+  private getPosterUrl$(): Observable<PosterUrls> {
     return this.publicWorkshop$.pipe(
-      switchMap(w => this.posterService.getPosterUrl$(w.id)),
-      map(url => url || ''),
+      switchMap(w => this.posterService.getPosterUrls$(w.id)),
+      map(url => url || {webp: '', std: '', original: ''}),
       shareReplay(1)
     );
   }

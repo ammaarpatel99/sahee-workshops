@@ -49,9 +49,9 @@ export class AdminWorkshopChangePosterComponent implements OnInit, OnDestroy {
       }),
       filter(workshop => !!workshop),
       map(workshop => (workshop as AdminWorkshop).id),
-      switchMap(id => this.posterService.getPosterUrl$(id)),
+      switchMap(id => this.posterService.getPosterUrls$(id)),
       map(url => {
-        if (url) this._posterUrl = url;
+        if (url) this._posterUrl = url.original;
       })
     ).subscribe();
   }

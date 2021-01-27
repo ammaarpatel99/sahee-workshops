@@ -20,7 +20,10 @@
       </mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
-      <img class="poster-img" [src]="(posterUrl$(workshop.id) | async) || ''" alt="Workshop Poster is Missing.">
+      <picture>
+        <source type="image/webp" [srcset]="poster(workshop.id).webp" sizes="20em">
+        <img class="poster-img" [src]="poster(workshop.id).original" [srcset]="poster(workshop.id).std" sizes="20em" alt="Workshop Poster">
+      </picture>
     </mat-card-content>
     <mat-card-actions>
       <button mat-stroked-button color="accent"

@@ -2,7 +2,15 @@
   <ng-container *ngIf="publicWorkshop$ | async">
     <h1>{{(publicWorkshop$ | async)?.name}}</h1>
     <h4>{{(publicWorkshop$ | async)?.jsDate?.toString()}}</h4>
-    <img [src]="(posterUrl$ | async) || ''" alt="Workshop Poster is Missing.">
+    <picture>
+      <source type="image/webp" [srcset]="(posterUrls$ | async)?.webp || ''" sizes="400px">
+      <img
+        class="poster-img"
+        [src]="(posterUrls$ | async)?.original || ''"
+        [srcset]="(posterUrls$ | async)?.std || ''"
+        sizes="400px"
+        alt="Workshop Poster">
+    </picture>
     <p>{{(publicWorkshop$ | async)?.description}}</p>
   </ng-container>
   <mat-divider ></mat-divider>

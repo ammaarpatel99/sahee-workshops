@@ -1,9 +1,9 @@
-import {Component} from '@angular/core';
+import {Component, OnDestroy} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {forkJoin, Observable} from 'rxjs';
-import {map, shareReplay, switchMap, take} from 'rxjs/operators';
+import {Observable, Subscription} from 'rxjs';
+import {map, switchMap} from 'rxjs/operators';
 import {PublicWorkshop} from '../../../../../../firestore-interfaces';
-import {PosterService} from '../../services/poster/poster.service';
+import {PosterService, PosterUrls} from '../../services/poster/poster.service';
 import {Workshop} from '../../helpers/workshops';
 
 @Component({
@@ -11,23 +11,22 @@ import {Workshop} from '../../helpers/workshops';
   templateUrl: './workshops-dashboard.component.html',
   styleUrls: ['./workshops-dashboard.component.scss']
 })
-export class WorkshopsDashboardComponent {
+export class WorkshopsDashboardComponent implements OnDestroy {
   public readonly workshops$: Observable<Readonly<PublicWorkshop>[]>;
   public readonly unknownRoute$: Observable<boolean>;
   public readonly allowNew$: Observable<boolean>;
-  private readonly posterUrls$: Observable<Map<string, string>>;
-
-  public posterUrl$(id: string): Observable<string> {
-    return this.posterUrls$.pipe(
-      take(1),
-      map(urlMap => urlMap.get(id) || '')
-    );
-  }
+  private readonly posterUrls = new Map<string, PosterUrls | null>();
 
   public workshopIsInFuture(workshop: Workshop): boolean {
     const date = new Date();
     date.setHours(0, 0, 0, 0);
     return workshop.jsDate >= date;
+  }
+
+  public poster(workshopID: string): PosterUrls {
+    const urls = this.posterUrls.get(workshopID);
+    if (!urls) return {webp: '', original: '', std: ''};
+    return urls;
   }
 
   constructor(
@@ -37,7 +36,7 @@ export class WorkshopsDashboardComponent {
     this.unknownRoute$ = this.checkForRouteData$('unknown');
     this.allowNew$ = this.checkForRouteData$('allowNew');
     this.workshops$ = this.getWorkshops$();
-    this.posterUrls$ = this.getPosterUrls$();
+    this.subscriptions.push(this.watchPosterUrls$().subscribe());
   }
 
   private checkForRouteData$(name: string): Observable<boolean> {
@@ -52,21 +51,32 @@ export class WorkshopsDashboardComponent {
     );
   }
 
-  private getPosterUrls$(): Observable<Map<string, string>> {
+  private watchPosterUrls$(): Observable<void> {
     return this.workshops$.pipe(
-      switchMap(workshops => {
-        const urls: Observable<[string, string]>[] = [];
-        for (const workshop of workshops) {
-          const url$ = this.posterService.getPosterUrl$(workshop.id).pipe(
-            map(url => [workshop.id, url] as [string, string])
-          );
-          urls.push(url$);
+      map(workshops => {
+        for (const w of workshops) {
+          const currentUrls = this.posterUrls.get(w.id);
+          if (!!currentUrls) continue;
+          this.posterUrls.set(w.id, {webp: '', original: '', std: ''});
+          this.subscriptions.push(this.getPosterUrls$(w.id).subscribe());
         }
-        return forkJoin(urls);
-      }),
-      map(data => new Map<string, string>(data)),
-      shareReplay(1)
+      })
     );
+  }
+
+  private getPosterUrls$(workshopID: string): Observable<void> {
+    return this.posterService
+      .getPosterUrls$(workshopID)
+      .pipe(
+        map(posterUrls => {
+          this.posterUrls.set(workshopID, posterUrls);
+        })
+      );
+  }
+
+  private readonly subscriptions: Subscription[] = [];
+  ngOnDestroy(): void {
+    for (const s of this.subscriptions) if (!s.closed) s.unsubscribe();
   }
 
 }
