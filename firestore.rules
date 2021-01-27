@@ -6,6 +6,8 @@ service cloud.firestore {
       allow write: if false;
     }
     match /users/{userId} {
+      // to see the total no of users
+      allow list: if request.auth.token.admin == true;
       allow read, update, delete: if request.auth != null && request.auth.uid == userId;
       allow create: if request.auth != null;
       match /{document=**} {
@@ -16,6 +18,7 @@ service cloud.firestore {
     match /workshops/{workshop} {
       allow read, write: if request.auth.token.admin == true;
       match /{document=**} {
+        allow list: if request.auth.token.admin == true;
         allow read, write: if false;
       }
     }
