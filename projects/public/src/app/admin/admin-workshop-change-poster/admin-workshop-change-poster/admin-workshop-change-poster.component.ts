@@ -68,9 +68,9 @@ export class AdminWorkshopChangePosterComponent implements OnInit, OnDestroy {
     this.workshop$.pipe(
       take(1),
       finalize(() => {
-        this.resetPoster();
         this._posterUploadStatus$.next(null);
         this.loadingService.stopLoading();
+        this.resetPoster();
       }),
       filter(workshop => !!workshop),
       map(workshop => (workshop as AdminWorkshop).id),
