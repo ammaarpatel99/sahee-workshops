@@ -10,7 +10,7 @@ import {ObjectMetadata} from "firebase-functions/lib/providers/storage";
 
 export const onUpload = storageFn().onFinalize(async (object, context) => {
   if (
-    !object.metadata?.optimised ||
+    object.metadata?.optimised ||
     !object.name ||
     !object.contentType?.startsWith('image/') ||
     path.basename(object.name) !== 'poster'

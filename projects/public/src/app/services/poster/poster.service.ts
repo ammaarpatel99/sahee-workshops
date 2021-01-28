@@ -31,7 +31,6 @@ export class PosterService {
    * It will emit once and then complete.
    */
   public getPosterUrls$(workshopID: string): Observable<PosterUrls | null> {
-    if (environment.production) return of(null);
     return this.getPosterUrl$(workshopID).pipe(
       map(url => {
         if (url === null) return url;
@@ -40,8 +39,8 @@ export class PosterService {
         for (const [ext, width] of [['-s', 300], ['-m', 600], ['-l', 1000], ['-xl', 2000]]) {
           const _url = url + ext;
           const _width = ` ${width}w`;
-          std.push(_url + width);
-          webp.push(_url + '.webp' + width);
+          std.push(_url + _width);
+          webp.push(_url + '.webp' + _width);
         }
         return {webp: webp.join(','), std: std.join(','), original: url};
       })
