@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {AngularFireStorage, AngularFireStorageReference, AngularFireUploadTask} from '@angular/fire/storage';
-import {Observable, of} from 'rxjs';
+import {forkJoin, Observable, of} from 'rxjs';
 import {environment} from '../../../environments/environment';
 import {map, switchMap} from 'rxjs/operators';
 import firebase from 'firebase/app';
@@ -30,20 +30,37 @@ export class PosterService {
    * or null if their is no poster (which could be because there is no workshop).
    * It will emit once and then complete.
    */
-  public getPosterUrls$(workshopID: string): Observable<PosterUrls | null> {
-    return this.getPosterUrl$(workshopID).pipe(
-      map(url => {
-        if (url === null) return url;
-        const webp: string[] = [];
-        const std: string[] = [];
-        for (const [ext, width] of [['-s', 300], ['-m', 600], ['-l', 1000], ['-xl', 2000]]) {
-          const _url = url + ext;
-          const _width = ` ${width}w`;
-          std.push(_url + _width);
-          webp.push(_url + '.webp' + _width);
-        }
-        return {webp: webp.join(','), std: std.join(','), original: url};
-      })
+  public getPosterUrls$(workshopID: string): Observable<PosterUrls> {
+    if (!environment.production) return of({original: '', webp: '', std: ''});
+    const refs = this.getRefs(workshopID);
+    const original = PosterService.getPosterUrl$(refs.original);
+    const std: Observable<string>[] = [];
+    const webp: Observable<string>[] = [];
+    const addSize = (size: number): (source: Observable<string>) => Observable<string> => {
+      return source => source.pipe(
+        map(s => s + ` ${size}w`)
+      );
+    };
+    for (let i = 0; i < refs.sizes.length; i++) {
+      std.push(
+        PosterService
+          .getPosterUrl$(refs.std[i])
+          .pipe(addSize(refs.sizes[i])
+        )
+      );
+      webp.push(
+        PosterService
+          .getPosterUrl$(refs.webp[i])
+          .pipe(addSize(refs.sizes[i])
+        )
+      );
+    }
+    return forkJoin([original, forkJoin(std), forkJoin(webp)]).pipe(
+      map(res => ({
+        original: res[0],
+        std: res[1].join(', '),
+        webp: res[2].join(', ')
+      }))
     );
   }
 
@@ -92,14 +109,18 @@ export class PosterService {
    * Used to get the url for the poster of a workshop.
    * <br/>
    * If the build was not configured for production, the function won't actually try to fetch the url.
-   * @param workshopID - The ID of the workshop to get the poster for.
+   * @param ref - The {@link AngularFireStorageReference} to get the url for.
    * @returns - An observable which when subscribed to gets the url and emits it,
-   * or null if their is no poster (which could be because there is no workshop).
+   * or empty string if their is no poster (which could be because there is no workshop).
    * It will emit once and then complete.
    */
-  private getPosterUrl$(workshopID: string): Observable<string | null> {
-    const url$ = this.getRef(workshopID).getDownloadURL();
-    return environment.production ? url$ : of(null);
+  private static getPosterUrl$(ref: AngularFireStorageReference): Observable<string> {
+    const url$ = ref.getDownloadURL().pipe(
+      map((url: string | null) => {
+        return url || '';
+      })
+    );
+    return environment.production ? url$ : of('');
   }
 
   /**
@@ -109,6 +130,33 @@ export class PosterService {
    */
   private getRef(workshopID: string): AngularFireStorageReference {
     return this.storage.ref(`public/workshops/${workshopID}/poster`);
+  }
+
+  /**
+   * Get the {@link AngularFireStorageReference AngularFireStorageReferences} for the posters of a workshop.
+   * @param workshopID - The ID of the workshop.
+   * @returns - An object containing the {@link AngularFireStorageReference AngularFireStorageReferences},
+   * including the original, the different sizes, and the sizes in webp format.
+   * The width of the posters (except the original) is also given in the sizes array.
+   */
+  private getRefs(workshopID: string): {
+    std: AngularFireStorageReference[];
+    original: AngularFireStorageReference;
+    sizes: number[];
+    webp: AngularFireStorageReference[]
+  } {
+    const originalPath = `public/workshops/${workshopID}/poster`;
+    const original = this.storage.ref(originalPath);
+    const std: AngularFireStorageReference[] = [];
+    const webp: AngularFireStorageReference[] = [];
+    const sizes: number[] = [];
+    for (const [ext, width] of [['-s', 300], ['-m', 600], ['-l', 1000], ['-xl', 2000]] as [string, number][]) {
+      const stdPath = originalPath + ext;
+      std.push(this.storage.ref(stdPath));
+      webp.push(this.storage.ref(stdPath + '.webp'));
+      sizes.push(width);
+    }
+    return {original, std, webp, sizes};
   }
 
   constructor(

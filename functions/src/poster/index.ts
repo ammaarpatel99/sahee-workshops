@@ -27,6 +27,7 @@ export const onUpload = storageFn().onFinalize(async (object, context) => {
     genImgFn({width: 1000}, '-l'),
     genImgFn({width: 2000}, '-xl'),
   ]);
+  await bucket.file(object.name).setMetadata({...getMeta(object).metadata});
   fs.unlinkSync(tmpPath);
 })
 
@@ -35,28 +36,29 @@ function genReactiveImgFn(object: ObjectMetadata, tmpPath: string, bucket: Bucke
   const meta = getMeta(object);
   const serverPath = object.name;
   const uploadFn = saveNormalAndWebpFn(bucket, meta);
-  const img = sharp(tmpPath);
+  const img = () => sharp(tmpPath);
   return (size: {width?: number; height?: number}, fileExt: string) => {
     const _tmpPath = tmpPath + fileExt;
     const _serverPath = serverPath + fileExt;
-    const _img = img.resize({...size, withoutEnlargement: true, fit: "inside"});
+    const _img = () => img().resize({...size, withoutEnlargement: true, fit: "inside"});
     return uploadFn(_img, _tmpPath, _serverPath);
   }
 }
 
 
 function saveNormalAndWebpFn(bucket: Bucket, meta: UploadOptions) {
-  return async (img: sharp.Sharp, tmpPath: string, serverPath: string): Promise<any> => {
+  return async (img: () => sharp.Sharp, tmpPath: string, serverPath: string): Promise<any> => {
     const tmpPath_webp = tmpPath + '.webp';
     const serverPath_webp = serverPath + '.webp';
     await Promise.all([
-      img.toFile(tmpPath).then(() =>
+      img().jpeg().toFile(tmpPath).then(() =>
         bucket.upload(tmpPath, {
           ...meta,
           destination: serverPath,
+          contentType: 'image/jpeg',
         })
       ),
-      img.webp().toFile(tmpPath_webp).then(() =>
+      img().webp().toFile(tmpPath_webp).then(() =>
         bucket.upload(tmpPath_webp, {
           ...meta,
           destination: serverPath_webp,
