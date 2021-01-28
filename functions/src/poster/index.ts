@@ -76,7 +76,6 @@ function getMeta(object: ObjectMetadata): UploadOptions {
   return {
     contentType: object.contentType,
     metadata: {
-      contentType: object.contentType,
       contentDisposition: object.contentDisposition,
       cacheControl: object.cacheControl,
       optimised: true,
