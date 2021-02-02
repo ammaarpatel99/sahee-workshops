@@ -8,6 +8,7 @@ import {FirebaseFunctionsService} from '../firebase-functions/firebase-functions
   providedIn: 'root'
 })
 export class AdminService {
+  // TODO: move isAdmin$ somewhere else so that this service is lazy-loaded properly
   /**
    * An observable that emits whether the current user is an admin (or undefined if there is no user).
    * <br/>

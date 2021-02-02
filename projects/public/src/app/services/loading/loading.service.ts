@@ -10,6 +10,7 @@ export class LoadingService implements OnDestroy {
   private thingsLoading = 0;
   private readonly _loading$ = new BehaviorSubject<boolean>(false);
   readonly loading$ = this._loading$.asObservable();
+  private readonly watchRouterEventsSubscription;
 
   startLoading(): void {
     if (!this._loading$.value) this._loading$.next(true);
@@ -42,7 +43,7 @@ export class LoadingService implements OnDestroy {
   constructor(
     private readonly router: Router
   ) {
-    this.subscriptions.push(this.watchRouterEvents$().subscribe());
+    this.watchRouterEventsSubscription = this.watchRouterEvents$().subscribe();
   }
 
   private watchRouterEvents$(): Observable<void> {
@@ -54,8 +55,7 @@ export class LoadingService implements OnDestroy {
     );
   }
 
-  private readonly subscriptions: Subscription[] = [];
   ngOnDestroy(): void {
-    for (const s of this.subscriptions) if (!s.closed) s.unsubscribe();
+    this.watchRouterEventsSubscription.unsubscribe();
   }
 }
