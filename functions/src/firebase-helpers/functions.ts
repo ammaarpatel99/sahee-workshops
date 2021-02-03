@@ -9,7 +9,7 @@ export const functions = {
     send: 'email-send'
   },
   register: 'user-workshop-register',
-  feedback: 'feedback'
+  support: 'support-issue'
 };
 
 
