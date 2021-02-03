@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import {from, Observable} from 'rxjs';
+import {from, Observable, of} from 'rxjs';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {AngularFireAuth} from '@angular/fire/auth';
-import {first, switchMap} from 'rxjs/operators';
+import {first, map, shareReplay, switchMap} from 'rxjs/operators';
 import {UserDoc, FIRESTORE_PATHS as PATHS} from '@firebase-helpers';
 
 
@@ -13,6 +13,14 @@ import {UserDoc, FIRESTORE_PATHS as PATHS} from '@firebase-helpers';
   providedIn: 'root'
 })
 export class AccountService {
+  /**
+   * An observable which emits the user's consent to general emails.
+   * It emits null if the consent is not set (which could be because there is no user).
+   * The observable doesn't complete and may emit multiple times.
+   */
+  readonly emailConsent$ = this.getEmailConsent$();
+
+
   /**
    * An observable which updates the current user's consent to general emails.
    * This requires their to be a user currently signed in.
@@ -37,4 +45,23 @@ export class AccountService {
     private readonly firestore: AngularFirestore,
     private readonly auth: AngularFireAuth
   ) { }
+
+
+  /**
+   * Provides the value for {@link emailConsent$}
+   * @private
+   */
+  private getEmailConsent$(): Observable<boolean | null> {
+    return this.auth.user.pipe(
+      switchMap(user => {
+        if (!user) return of(undefined);
+        return this.firestore.doc<UserDoc>(PATHS.user.doc(user.uid)).valueChanges();
+      }),
+      map(data => {
+        if (data?.consentToEmails === true || data?.consentToEmails === false) return data.consentToEmails;
+        return null;
+      }),
+      shareReplay(1)
+    );
+  }
 }
