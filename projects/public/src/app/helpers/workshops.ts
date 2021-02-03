@@ -1,7 +1,7 @@
 import firebase from 'firebase/app';
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
-import {UserWorkshop, PublicWorkshop} from '../../../../../functions/src/firebase-helpers/firestore-interfaces';
+import {UserWorkshop, PublicWorkshop} from '@firebase-helpers';
 import Timestamp = firebase.firestore.Timestamp;
 
 export function addJSDate<T extends {datetime: Timestamp}>(): (source: Observable<T[]>) => Observable<(T & {jsDate: Date})[]> {
