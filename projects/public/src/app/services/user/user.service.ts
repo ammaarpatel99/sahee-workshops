@@ -5,7 +5,7 @@ import {combineLatest, from, Observable, of} from 'rxjs';
 import {map, shareReplay, switchMap} from 'rxjs/operators';
 import {FIRESTORE_PATHS as PATHS, UserDoc} from '@firebase-helpers';
 import firebase from 'firebase/app';
-import {Router, UrlTree} from '@angular/router';
+import {Router} from '@angular/router';
 
 
 /**
@@ -103,11 +103,11 @@ export class UserService {
    * Returns the url used to sign in, whilst storing a url to return to.
    * @param redirectUrl - The url to redirect to after signing in.
    * If missing the current url will be got from the router to redirect to.
-   * @returns - The {@link UrlTree} of the sign in page.
+   * @returns - The url of the sign in page.
    */
-  signInUrl(redirectUrl?: string): UrlTree {
+  signInUrl(redirectUrl?: string): string {
     this._redirectUrl = redirectUrl || this.router.url;
-    return this.router.parseUrl(UserService.SIGN_IN_URL);
+    return UserService.SIGN_IN_URL;
   }
 
 
