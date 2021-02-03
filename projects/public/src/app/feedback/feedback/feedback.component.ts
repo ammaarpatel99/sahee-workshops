@@ -6,7 +6,7 @@ import {finalize, map, shareReplay, take} from 'rxjs/operators';
 import {LoadingService} from '../../services/loading/loading.service';
 import {Router} from '@angular/router';
 import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
-import {EmailService} from '../../services/email/email.service';
+import {EmailService} from '../../services/email-old/email.service';
 
 @Component({
   selector: 'app-feedback',

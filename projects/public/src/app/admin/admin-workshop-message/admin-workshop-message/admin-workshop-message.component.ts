@@ -3,7 +3,7 @@ import {distinctUntilChanged, filter, finalize, map, switchMap, take} from 'rxjs
 import {AdminWorkshop} from '../../../../../../../functions/src/firebase-helpers/firestore-interfaces';
 import {forkJoin, Observable, of, Subscription} from 'rxjs';
 import {AdminWorkshopsService} from '../../../services/admin-workshops/admin-workshops.service';
-import {EmailService} from '../../../services/email/email.service';
+import {EmailService} from '../../../services/email-old/email.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {LoadingService} from '../../../services/loading/loading.service';
 
