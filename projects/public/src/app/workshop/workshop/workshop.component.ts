@@ -2,7 +2,7 @@ import {Component} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {map, shareReplay, switchMap} from 'rxjs/operators';
 import {Observable} from 'rxjs';
-import {PublicWorkshop, UserWorkshop} from '../../../../../../firestore-interfaces';
+import {PublicWorkshop, UserWorkshop} from '../../../../../../functions/src/firebase-helpers/firestore-interfaces';
 import {PosterService, PosterUrls} from '../../services/poster/poster.service';
 import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
 import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';

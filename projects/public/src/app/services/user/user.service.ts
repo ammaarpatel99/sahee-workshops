@@ -3,7 +3,7 @@ import {AngularFireAuth} from '@angular/fire/auth';
 import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
 import {distinctUntilChanged, map, shareReplay, switchMap, take} from 'rxjs/operators';
 import {from, Observable, of} from 'rxjs';
-import {UserDoc} from '../../../../../../firestore-interfaces';
+import {UserDoc} from '../../../../../../functions/src/firebase-helpers/firestore-interfaces';
 import {Router} from '@angular/router';
 
 @Injectable({

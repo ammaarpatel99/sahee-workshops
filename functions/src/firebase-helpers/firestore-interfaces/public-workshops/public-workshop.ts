@@ -1,6 +1,6 @@
 import firebase from 'firebase/app';
 import Timestamp = firebase.firestore.Timestamp;
-import {Id} from '../_shared';
+import {Id} from '../shared';
 
 export interface PublicWorkshopDoc {
   name: string;

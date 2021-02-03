@@ -1,19 +1,19 @@
+import {Id} from '../../shared';
 import firebase from 'firebase/app';
 import Timestamp = firebase.firestore.Timestamp;
-import {Id} from '../_shared';
 
-export interface AdminWorkshopDoc {
+export interface UserWorkshopDoc {
   name: string;
   description: string;
   datetime: Timestamp;
   videoCallLink?: string;
   feedbackLink?: string;
   recordingLink?: string;
-  newSignupEmail: string;
+  consentToEmails: boolean;
 }
 
-export type AdminWorkshopData = AdminWorkshopDoc & Id;
+export type UserWorkshopData = UserWorkshopDoc & Id;
 
-export interface AdminWorkshop extends AdminWorkshopData {
+export interface UserWorkshop extends UserWorkshopData {
   jsDate: Date;
 }

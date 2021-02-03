@@ -1,5 +1,5 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {AdminWorkshop, AdminWorkshopDoc} from '../../../../../../../firestore-interfaces';
+import {AdminWorkshop, AdminWorkshopDoc} from '../../../../../../../functions/src/firebase-helpers/firestore-interfaces';
 import {Observable, of, ReplaySubject, Subscription} from 'rxjs';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {MatFormFieldAppearance} from '@angular/material/form-field';

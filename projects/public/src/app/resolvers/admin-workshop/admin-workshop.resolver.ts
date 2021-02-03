@@ -7,7 +7,7 @@ import {
 import {EMPTY, Observable, of} from 'rxjs';
 import {switchMap, take} from 'rxjs/operators';
 import {AdminWorkshopsService} from '../../services/admin-workshops/admin-workshops.service';
-import {AdminWorkshop} from '../../../../../../firestore-interfaces';
+import {AdminWorkshop} from '../../../../../../functions/src/firebase-helpers/firestore-interfaces';
 
 @Injectable({
   providedIn: 'root'

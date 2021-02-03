@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
-import {AdminWorkshop, AdminWorkshopDoc, UserDoc, WorkshopUserDoc} from '../../../../../../firestore-interfaces';
+import {AdminWorkshop, AdminWorkshopDoc, UserDoc, WorkshopUserDoc} from '../../../../../../functions/src/firebase-helpers/firestore-interfaces';
 import {distinctUntilChanged, map, shareReplay, switchMap, take} from 'rxjs/operators';
 import {combineLatest, from, Observable, of} from 'rxjs';
 import {addJSDate, orderByDate} from '../../helpers/workshops';
@@ -84,7 +84,7 @@ export class AdminWorkshopsService {
         const usersData$ = this.firestore.collection<WorkshopUserDoc>(`workshops/${workshop.id}/workshop-users`)
           .valueChanges().pipe(
             map(docs => ({
-              users: docs.length,
+              user: docs.length,
               consents: docs.filter(doc => doc.consentToEmails).length
             }))
           );

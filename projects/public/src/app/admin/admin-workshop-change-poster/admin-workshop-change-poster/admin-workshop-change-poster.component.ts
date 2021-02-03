@@ -1,6 +1,6 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {filter, finalize, map, switchMap, take, takeWhile, tap} from 'rxjs/operators';
-import {AdminWorkshop} from '../../../../../../../firestore-interfaces';
+import {AdminWorkshop} from '../../../../../../../functions/src/firebase-helpers/firestore-interfaces';
 import {from, Observable, of, Subject, Subscription} from 'rxjs';
 import {PosterService} from '../../../services/poster/poster.service';
 import {LoadingService} from '../../../services/loading/loading.service';

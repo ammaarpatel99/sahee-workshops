@@ -1,4 +1,4 @@
-import {Id} from '../../_shared';
+import {Id} from '../../shared';
 
 export interface WorkshopUserDoc {
   consentToEmails: boolean;

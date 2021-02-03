@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {combineLatest, Observable, of} from 'rxjs';
-import {UserWorkshop, UserWorkshopDoc, PublicWorkshop, PublicWorkshopDoc} from '../../../../../../firestore-interfaces';
+import {UserWorkshop, UserWorkshopDoc, PublicWorkshop, PublicWorkshopDoc} from '../../../../../../functions/src/firebase-helpers/firestore-interfaces';
 import {distinctUntilChanged, map, shareReplay, switchMap, switchMapTo, take} from 'rxjs/operators';
 import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
 import {addJSDate, isUserWorkshop, orderByDate, Workshop} from '../../helpers/workshops';
