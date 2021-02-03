@@ -84,7 +84,7 @@ export class AdminWorkshopsService {
         const usersData$ = this.firestore.collection<WorkshopUserDoc>(`workshops/${workshop.id}/workshop-users`)
           .valueChanges().pipe(
             map(docs => ({
-              user: docs.length,
+              users: docs.length,
               consents: docs.filter(doc => doc.consentToEmails).length
             }))
           );
