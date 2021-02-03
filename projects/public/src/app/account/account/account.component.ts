@@ -1,5 +1,5 @@
 import {Component, OnDestroy} from '@angular/core';
-import {UserService} from '../../services/user/user.service';
+import {UserService} from '../../services/user-old/user.service';
 import {finalize, map, shareReplay} from 'rxjs/operators';
 import {Observable, Subscription} from 'rxjs';
 import {FormControl} from '@angular/forms';

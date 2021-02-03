@@ -1,6 +1,6 @@
 import {AfterViewInit, Component, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {Observable, Subscription} from 'rxjs';
-import {UserService} from '../../../services/user/user.service';
+import {UserService} from '../../../services/user-old/user.service';
 import {map, take} from 'rxjs/operators';
 import {WorkshopsService} from '../../../services/workshops/workshops.service';
 import {FormControl, FormGroup} from '@angular/forms';

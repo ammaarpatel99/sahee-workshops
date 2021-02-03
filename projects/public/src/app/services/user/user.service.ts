@@ -1,109 +1,208 @@
 import { Injectable } from '@angular/core';
 import {AngularFireAuth} from '@angular/fire/auth';
-import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
-import {distinctUntilChanged, map, shareReplay, switchMap, take} from 'rxjs/operators';
-import {from, Observable, of} from 'rxjs';
-import {UserDoc} from '../../../../../../functions/src/firebase-helpers/firestore-interfaces';
-import {Router} from '@angular/router';
+import {AngularFirestore} from '@angular/fire/firestore';
+import {combineLatest, from, Observable, of} from 'rxjs';
+import {map, shareReplay, switchMap} from 'rxjs/operators';
+import {FIRESTORE_PATHS as PATHS, UserDoc} from '@firebase-helpers';
+import firebase from 'firebase/app';
+import {Router, UrlTree} from '@angular/router';
 
+
+/**
+ * An enum for the possible states of the user,
+ * encapsulating their signed in state and their email state.
+ */
+export enum SignedInState {
+  NO_USER,
+  NO_EMAIL,
+  EMAIL_NOT_VERIFIED,
+  CONSENT_NOT_SET,
+  VALID
+}
+
+
+/**
+ * Encapsulates the state of the user,
+ * including their signed in state and their email state (together described by the field signedInState),
+ * and whether they are an admin (isAdmin field).
+ */
+export interface UserState {
+  readonly signedInState: SignedInState;
+  readonly isAdmin: boolean;
+}
+
+
+/**
+ * General use service regarding the current user.
+ */
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
   /**
-   * The {@link AngularFirestoreCollection} for users.
-   */
-  private readonly firestoreCollection: AngularFirestoreCollection<UserDoc>;
-  /**
-   * Whether the current user has consented to general emails (not workshop specific), or undefined if there is no user.
+   * An observable which emits the state of the user.
+   * It never completes and may emit multiple times.
    * <br/>
-   * The observable never completes and is based off {@link AngularFireAuth#user}, although it only emits on changes.
-   * It is also multicast using {@link shareReplay shareReplay(1)}.
+   * The admin state only updates on receiving a new idToken.
+   * This is either via logging in, or by force fetching a token (through {@link AngularFireAuth} library).
    */
-  public readonly emailConsent$: Observable<boolean | undefined>;
+  readonly userState$ = this.getUserState$();
   /**
-   * The current redirectUrl (or undefined), as used by {@link redirectUrl};
+   * A url to redirect to after signing in.
+   * @private
    */
-  private _redirectUrl: string|undefined;
+  private _redirectUrl: string | null = null;
+  /**
+   * The url used to sign in.
+   * @private
+   */
+  private static readonly SIGN_IN_URL = '/login';
+
 
   /**
-   * Gets the url stored by {@link signIn} and then resets the stored value.
-   * @returns The url stored by {@link signIn} or the base url, "/", if there is no stored url.
+   * The url to redirect to after signing in (stored by {@link signIn$} or {@link signInUrl}).
+   * @param clear - Whether to clear the stored url after getting it (defaults to true).
+   * @param defaultUrl - The url to return if there is no stored url (defaults to the base url).
+   * @returns - The stored url or the defaultUrl.
    */
-  public redirectUrl(): string {
-    const url = this._redirectUrl;
-    if (url !== undefined) this._redirectUrl = undefined;
-    return url || '/';
+  redirectUrl(clear?: boolean, defaultUrl?: string): string;
+  /**
+   * The url to redirect to after signing in (stored by {@link signIn$} or {@link signInUrl}).
+   * @param clear - Whether to clear the stored url after getting it (defaults to true).
+   * @param defaultUrl - The url to return if there is no stored url (defaults to the base url).
+   * @returns - The stored url or the defaultUrl.
+   */
+  redirectUrl(clear?: boolean, defaultUrl?: string | null): string | null;
+  redirectUrl(clear: boolean = true, defaultUrl: string | null = '/'): string | null {
+    const redirectUrl = this._redirectUrl || defaultUrl;
+    if (clear) this._redirectUrl = null;
+    return redirectUrl;
   }
 
-  /**
-   * To be called after signing out.
-   * Calls {@link signIn} if the current route requires an authenticated user.
-   */
-  public async signedOut(): Promise<void> {
-    const url = this.router.url;
-    if (url.startsWith('/admin') || url.startsWith('/account')) return this.signIn();
-  }
 
   /**
-   * Stores the current url and then redirect to the login page. The url can then be recovered using {@link redirectUrl}.
-   * @returns A promise which resolves when the navigation to the login page completes.
+   * An observable which redirects to the sign in page, whilst storing a url to return to.
+   * @param redirectUrl - The url to redirect to after signing in.
+   * If missing the current url will be got from the router to redirect to.
+   * @returns - An observable which only emits once and then completes.
    */
-  public signIn(): Promise<void>;
-  /**
-   * Stores the currentUrl and then returns the url of the login page. The currentUrl can then be recovered using {@link redirectUrl}.
-   * @returns The url of the login page.
-   */
-  public signIn(currentUrl: string): string;
-  public signIn(currentUrl?: string): Promise<void> | string {
-    this._redirectUrl = currentUrl || this.router.url;
-    if (currentUrl) return '/login';
-    return new Promise<void>(resolve => {
-      this.router.navigateByUrl('/login').then(() => resolve());
-    });
-  }
-
-  /**
-   * User to whether the user has consented to emails. This requires there to be a user logged in.
-   * @returns An observable that when subscribed to changes the consent. It only emits once and then completes.
-   */
-  public setEmailConsent$(consentToEmails: boolean): Observable<void> {
-    return this.auth.user.pipe(
-      take(1),
-      map(user => {
-        if (!user) throw new Error(`Can't change consent as there is no user.`);
-        return user.uid;
-      }),
-      switchMap(uid =>
-        from(this.firestoreCollection.doc(uid).update({consentToEmails}))
-      )
+  signIn$(redirectUrl?: string): Observable<void> {
+    this._redirectUrl = redirectUrl || this.router.url;
+    return from(this.router.navigateByUrl(UserService.SIGN_IN_URL)).pipe(
+      map(res => {
+        if (!res) {
+          this._redirectUrl = null;
+          throw new Error(`Couldn't redirect to login page to sign in.`);
+        }
+      })
     );
   }
 
-  constructor(
-    private readonly auth: AngularFireAuth,
-    private readonly router: Router,
-    firestore: AngularFirestore
-  ) {
-    this.firestoreCollection = firestore.collection<UserDoc>('users');
-    this.emailConsent$ = this.getEmailConsent$();
-  }
 
   /**
-   * Requires {@link firestoreCollection} to be initialised.
-   * @returns - The value for {@link emailConsent$}.
+   * Returns the url used to sign in, whilst storing a url to return to.
+   * @param redirectUrl - The url to redirect to after signing in.
+   * If missing the current url will be got from the router to redirect to.
+   * @returns - The {@link UrlTree} of the sign in page.
    */
-  private getEmailConsent$(): Observable<boolean | undefined> {
+  signInUrl(redirectUrl?: string): UrlTree {
+    this._redirectUrl = redirectUrl || this.router.url;
+    return this.router.parseUrl(UserService.SIGN_IN_URL);
+  }
+
+
+  /**
+   * An observable which redirect to a previously stored url (stored by either {@link signIn$} or {@link signInUrl}),
+   * whilst clearing the stored url.
+   * @returns - An observable that emits once and then completes.
+   */
+  signedIn$(): Observable<void> {
+    const redirectUrl = this.redirectUrl();
+    return from(this.router.navigateByUrl(redirectUrl || '/')).pipe(
+      map(res => {
+        if (!res) {
+          if (redirectUrl) this._redirectUrl = redirectUrl;
+          throw new Error(`Couldn't redirect after signing in.`);
+        }
+      })
+    );
+  }
+
+
+  /**
+   * An observable which redirects to the sign in page if the current route requires the user to be signed in.
+   * <br/>
+   * Redirects using {@link signIn$ signIn$()}.
+   * Currently the routes that require sign in are anything starting with /admin or /account.
+   * @returns - An observable which emits once and then completes.
+   */
+  signedOut$(): Observable<void> {
+    const url = this.router.url;
+    if (url.startsWith('/admin') || url.startsWith('/account')) {
+      return this.signIn$();
+    } else return of(undefined);
+  }
+
+
+  constructor(
+    private readonly auth: AngularFireAuth,
+    private readonly firestore: AngularFirestore,
+    private readonly router: Router
+  ) { }
+
+
+  /**
+   * Provides the value for {@link userState$}.
+   * @private
+   */
+  private getUserState$(): Observable<UserState> {
     return this.auth.user.pipe(
       switchMap(user => {
-        if (!user) return of(undefined);
-        return this.firestoreCollection.doc(user.uid).valueChanges().pipe(
-          map(userDoc => userDoc?.consentToEmails)
-        );
+        if (!user) return of([SignedInState.NO_USER, false] as [SignedInState, boolean]);
+        let state;
+        if (!user.email) state = of(SignedInState.NO_EMAIL);
+        else if (!user.emailVerified) state = of(SignedInState.EMAIL_NOT_VERIFIED);
+        else {
+          state = this.getConsentSet$(user.uid).pipe(
+            map(consentSet => {
+              if (consentSet) return SignedInState.VALID;
+              return SignedInState.CONSENT_NOT_SET;
+            })
+          );
+        }
+        const isAdmin$ = UserService.getIsAdmin$(user);
+        return combineLatest([state, isAdmin$]);
       }),
-      distinctUntilChanged(),
+      map(([signedInState, isAdmin]) => ({signedInState, isAdmin})),
       shareReplay(1)
     );
   }
 
+
+  /**
+   * Given a firebase user, provides an observable which emits whether they are an admin.
+   * @param user - The firebase user, as produced by {@link AngularFireAuth#user}.
+   * @returns - An observable which never completes and can emit multiple times.
+   * @private
+   */
+  private static getIsAdmin$(user: firebase.User): Observable<boolean> {
+    return from(user.getIdTokenResult()).pipe(
+      map(idTokenResult => idTokenResult.claims.admin === true)
+    );
+  }
+
+
+  /**
+   * Given a user's id, provides an observable which emits whether they have set their consent to general emails.
+   * @param userID - The id of the user.
+   * @returns - An observable which never completes and can emit multiple times.
+   * @private
+   */
+  private getConsentSet$(userID: string): Observable<boolean> {
+    return this.firestore.doc<UserDoc>(PATHS.user.doc(userID))
+      .valueChanges()
+      .pipe(
+        map(userDoc => userDoc?.consentToEmails !== true && userDoc?.consentToEmails !== false)
+      );
+  }
 }

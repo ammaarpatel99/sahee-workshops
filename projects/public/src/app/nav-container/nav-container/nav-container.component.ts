@@ -3,7 +3,7 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Observable } from 'rxjs';
 import {filter, map, shareReplay, take} from 'rxjs/operators';
 import {SidenavService} from '../../services/sidenav/sidenav.service';
-import {UserService} from '../../services/user/user.service';
+import {UserService} from '../../services/user-old/user.service';
 import {LinkMenuItem} from 'ngx-auth-firebaseui';
 import {NavigationEnd, Router} from '@angular/router';
 import {AngularFireAuth} from '@angular/fire/auth';
