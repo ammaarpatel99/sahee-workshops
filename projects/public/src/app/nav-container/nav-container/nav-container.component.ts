@@ -3,12 +3,12 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Observable } from 'rxjs';
 import {filter, map, shareReplay, take} from 'rxjs/operators';
 import {SidenavService} from '../../services/sidenav/sidenav.service';
-import {UserService} from '../../services/user-old/user.service';
 import {LinkMenuItem} from 'ngx-auth-firebaseui';
 import {NavigationEnd, Router} from '@angular/router';
 import {AngularFireAuth} from '@angular/fire/auth';
 import {LoadingService} from '../../services/loading/loading.service';
 import {MatSidenav} from '@angular/material/sidenav';
+import {UserService} from '../../services/user/user.service';
 
 @Component({
   selector: 'app-nav-container',
@@ -29,11 +29,11 @@ export class NavContainerComponent {
   public dismissedEmailWarning = false;
 
   public async signIn(): Promise<void> {
-    await this.userService.signIn();
+    return this.userService.signIn$().toPromise();
   }
 
   public async signedOut(): Promise<void> {
-    await this.userService.signedOut();
+    return this.userService.signedOut$().toPromise();
   }
 
   public closeDrawer(drawer: MatSidenav): void {

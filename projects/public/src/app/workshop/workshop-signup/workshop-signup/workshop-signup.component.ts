@@ -1,6 +1,5 @@
 import {AfterViewInit, Component, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {Observable, Subscription} from 'rxjs';
-import {UserService} from '../../../services/user-old/user.service';
 import {map, take} from 'rxjs/operators';
 import {WorkshopsService} from '../../../services/workshops/workshops.service';
 import {FormControl, FormGroup} from '@angular/forms';
@@ -8,6 +7,7 @@ import {LoadingService} from '../../../services/loading/loading.service';
 import {AngularFireAuth} from '@angular/fire/auth';
 import {isUserWorkshop} from '../../../helpers/workshops';
 import {MatHorizontalStepper} from '@angular/material/stepper';
+import {AccountService} from '../../../services/account/account.service';
 
 @Component({
   selector: 'app-workshop-signup',
@@ -61,7 +61,7 @@ export class WorkshopSignupComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   private changeGeneralConsent(): Promise<void> {
-    return this.userService.setEmailConsent$(this.formControl('generalEmailConsent').value).toPromise();
+    return this.accountService.updateConsent$(this.formControl('generalEmailConsent').value).toPromise();
   }
 
   private register(workshopID: string): Promise<void> {
@@ -79,7 +79,7 @@ export class WorkshopSignupComponent implements OnInit, AfterViewInit, OnDestroy
 
   constructor(
     private readonly workshopsService: WorkshopsService,
-    private readonly userService: UserService,
+    private readonly accountService: AccountService,
     private readonly loadingService: LoadingService,
     auth: AngularFireAuth
   ) {
@@ -91,7 +91,7 @@ export class WorkshopSignupComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   private watchEmailConsent$(): Observable<void> {
-    return this.userService.emailConsent$.pipe(
+    return this.accountService.emailConsent$.pipe(
       map(consent => {
         const control = this.formControl('generalEmailConsent');
         if (consent === undefined) control.enable();

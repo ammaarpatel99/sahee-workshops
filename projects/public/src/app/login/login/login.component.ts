@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {AuthProvider} from 'ngx-auth-firebaseui';
-import {UserService} from '../../services/user-old/user.service';
 import {Router} from '@angular/router';
+import {UserService} from '../../services/user/user.service';
 
 @Component({
   selector: 'app-login',

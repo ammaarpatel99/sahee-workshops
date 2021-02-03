@@ -11,9 +11,9 @@ import {
   Router
 } from '@angular/router';
 import { Observable } from 'rxjs';
-import {UserService} from '../../services/user-old/user.service';
 import {AngularFireAuth} from '@angular/fire/auth';
 import {map, take, tap} from 'rxjs/operators';
+import {UserService} from '../../services/user/user.service';
 
 @Injectable({
   providedIn: 'root'
@@ -40,7 +40,7 @@ export class LoggedInGuard implements CanActivate, CanActivateChild, CanLoad {
       take(1),
       map(user => {
         if (user) return true;
-        const url = this.userService.signIn(currentUrl);
+        const url = this.userService.signInUrl(currentUrl);
         return this.router.parseUrl(url);
       })
     );
