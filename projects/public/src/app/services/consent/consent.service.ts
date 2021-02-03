@@ -1,18 +1,18 @@
 import { Injectable } from '@angular/core';
 import {from, Observable, of} from 'rxjs';
+import {first, map, shareReplay, switchMap} from 'rxjs/operators';
+import {FIRESTORE_PATHS as PATHS, UserDoc} from '@firebase-helpers';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {AngularFireAuth} from '@angular/fire/auth';
-import {first, map, shareReplay, switchMap} from 'rxjs/operators';
-import {UserDoc, FIRESTORE_PATHS as PATHS} from '@firebase-helpers';
 
 
 /**
- * A service to be used only in the account component.
+ * A service for getting and setting a users general consent to emails
  */
 @Injectable({
   providedIn: 'root'
 })
-export class AccountService {
+export class ConsentService {
   /**
    * An observable which emits the user's consent to general emails.
    * It emits null if the consent is not set (which could be because there is no user).

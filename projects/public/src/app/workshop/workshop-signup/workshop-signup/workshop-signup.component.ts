@@ -7,7 +7,7 @@ import {LoadingService} from '../../../services/loading/loading.service';
 import {AngularFireAuth} from '@angular/fire/auth';
 import {isUserWorkshop} from '../../../helpers/workshops';
 import {MatHorizontalStepper} from '@angular/material/stepper';
-import {AccountService} from '../../../services/account/account.service';
+import {ConsentService} from '../../../services/consent/consent.service';
 
 @Component({
   selector: 'app-workshop-signup',
@@ -61,7 +61,7 @@ export class WorkshopSignupComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   private changeGeneralConsent(): Promise<void> {
-    return this.accountService.updateConsent$(this.formControl('generalEmailConsent').value).toPromise();
+    return this.consentService.updateConsent$(this.formControl('generalEmailConsent').value).toPromise();
   }
 
   private register(workshopID: string): Promise<void> {
@@ -79,7 +79,7 @@ export class WorkshopSignupComponent implements OnInit, AfterViewInit, OnDestroy
 
   constructor(
     private readonly workshopsService: WorkshopsService,
-    private readonly accountService: AccountService,
+    private readonly consentService: ConsentService,
     private readonly loadingService: LoadingService,
     auth: AngularFireAuth
   ) {
@@ -91,7 +91,7 @@ export class WorkshopSignupComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   private watchEmailConsent$(): Observable<void> {
-    return this.accountService.emailConsent$.pipe(
+    return this.consentService.emailConsent$.pipe(
       map(consent => {
         const control = this.formControl('generalEmailConsent');
         if (consent === undefined) control.enable();

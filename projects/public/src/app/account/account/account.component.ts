@@ -6,7 +6,7 @@ import {LoadingService} from '../../services/loading/loading.service';
 import {AngularFireAuth} from '@angular/fire/auth';
 import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
 import {UserService} from '../../services/user/user.service';
-import {AccountService} from '../../services/account/account.service';
+import {ConsentService} from '../../services/consent/consent.service';
 
 @Component({
   selector: 'app-account',
@@ -23,7 +23,7 @@ export class AccountComponent implements OnDestroy {
       throw new Error(`Can't change consent.`);
     }
     this.loadingService.startLoading();
-    this.accountService.updateConsent$(this.consentToEmails.value).pipe(
+    this.consentService.updateConsent$(this.consentToEmails.value).pipe(
       finalize(() => {
         this.consentToEmails.markAsPristine();
         this.loadingService.stopLoading();
@@ -37,7 +37,7 @@ export class AccountComponent implements OnDestroy {
 
   constructor(
     private readonly userService: UserService,
-    private readonly accountService: AccountService,
+    private readonly consentService: ConsentService,
     private readonly loadingService: LoadingService,
     private readonly auth: AngularFireAuth,
     private readonly breakpointObserver: BreakpointObserver
@@ -60,7 +60,7 @@ export class AccountComponent implements OnDestroy {
   }
 
   private watchEmailConsent$(): Observable<void> {
-    return this.accountService.emailConsent$.pipe(
+    return this.consentService.emailConsent$.pipe(
       map(consent => {
         this.consentToEmails.reset(consent);
       })
