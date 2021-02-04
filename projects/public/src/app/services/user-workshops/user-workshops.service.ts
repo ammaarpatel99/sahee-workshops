@@ -1,6 +1,6 @@
 import {Injectable, OnDestroy} from '@angular/core';
 import {isUserWorkshop, Workshop} from '../../helpers/workshops';
-import {Observable, of, Subject} from 'rxjs';
+import {AsyncSubject, Observable, of} from 'rxjs';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {UserWorkshopDoc, FIRESTORE_PATHS as PATHS, UserWorkshop, RegisterParam, RegisterRes, functions as f} from '@firebase-helpers';
 import {AngularFireAuth} from '@angular/fire/auth';
@@ -10,6 +10,10 @@ import {SignedInState, UserService} from '../user/user.service';
 import {AngularFireFunctions} from '@angular/fire/functions';
 
 
+/**
+ * A service for managing a user's workshop.
+ * It can get workshops, register and unregister as well as change workshop settings.
+ */
 @Injectable({
   providedIn: 'root'
 })
@@ -26,10 +30,10 @@ export class UserWorkshopsService implements OnDestroy {
    */
   private readonly _register$ = this.functions.httpsCallable<RegisterParam, RegisterRes>(f.register);
   /**
-   * Used to destroy hot observables with the takeUntil structure when destroying component.
+   * Used to destroy long-lived or hot observables with the takeUntil structure when destroying component.
    * @private
    */
-  private readonly destroy$ = new Subject<boolean>();
+  private readonly destroy$ = new AsyncSubject<true>();
 
 
   /**

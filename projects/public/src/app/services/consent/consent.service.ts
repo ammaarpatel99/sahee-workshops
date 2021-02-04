@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
-import {from, Observable, of} from 'rxjs';
-import {first, map, shareReplay, switchMap} from 'rxjs/operators';
+import {Injectable, OnDestroy} from '@angular/core';
+import {AsyncSubject, from, Observable, of} from 'rxjs';
+import {first, map, shareReplay, switchMap, takeUntil} from 'rxjs/operators';
 import {FIRESTORE_PATHS as PATHS, UserDoc} from '@firebase-helpers';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {AngularFireAuth} from '@angular/fire/auth';
@@ -12,13 +12,14 @@ import {AngularFireAuth} from '@angular/fire/auth';
 @Injectable({
   providedIn: 'root'
 })
-export class ConsentService {
+export class ConsentService implements OnDestroy {
   /**
    * An observable which emits the user's consent to general emails.
    * It emits null if the consent is not set (which could be because there is no user).
    * The observable doesn't complete and may emit multiple times.
    */
   readonly emailConsent$ = this.getEmailConsent$();
+  private readonly destroy$ = new AsyncSubject<true>();
 
 
   /**
@@ -61,7 +62,15 @@ export class ConsentService {
         if (data?.consentToEmails === true || data?.consentToEmails === false) return data.consentToEmails;
         return null;
       }),
-      shareReplay(1)
+      takeUntil(this.destroy$),
+      shareReplay(1),
+      takeUntil(this.destroy$)
     );
+  }
+
+
+  ngOnDestroy(): void {
+    this.destroy$.next(true);
+    this.destroy$.complete();
   }
 }

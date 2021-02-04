@@ -1,8 +1,8 @@
-import { Injectable } from '@angular/core';
+import {Injectable, OnDestroy} from '@angular/core';
 import {AngularFireAuth} from '@angular/fire/auth';
 import {AngularFirestore} from '@angular/fire/firestore';
-import {combineLatest, from, Observable, of} from 'rxjs';
-import {map, shareReplay, switchMap} from 'rxjs/operators';
+import {AsyncSubject, combineLatest, from, Observable, of} from 'rxjs';
+import {map, shareReplay, switchMap, takeUntil} from 'rxjs/operators';
 import {FIRESTORE_PATHS as PATHS, UserDoc} from '@firebase-helpers';
 import firebase from 'firebase/app';
 import {Router} from '@angular/router';
@@ -38,7 +38,7 @@ export interface UserState {
 @Injectable({
   providedIn: 'root'
 })
-export class UserService {
+export class UserService implements OnDestroy {
   /**
    * An observable which emits the state of the user.
    * It never completes and may emit multiple times.
@@ -57,6 +57,11 @@ export class UserService {
    * @private
    */
   private static readonly SIGN_IN_URL = '/login';
+  /**
+   * Used to destroy long-lived or hot observables with the takeUntil structure when destroying component.
+   * @private
+   */
+  private readonly destroy$ = new AsyncSubject<true>();
 
 
   /**
@@ -137,10 +142,12 @@ export class UserService {
    * @returns - An observable which emits once and then completes.
    */
   signedOut$(): Observable<void> {
-    const url = this.router.url;
-    if (url.startsWith('/admin') || url.startsWith('/account')) {
-      return this.signIn$();
-    } else return of(undefined);
+    return new Observable<void>(subscriber => {
+      const url = this.router.url;
+      const protectedRoute = url.startsWith('/admin') || url.startsWith('/account');
+      const obs$ = protectedRoute ? this.signIn$() : of(undefined);
+      return obs$.subscribe(subscriber);
+    });
   }
 
 
@@ -155,7 +162,7 @@ export class UserService {
    * Provides the value for {@link userState$}.
    * @private
    */
-  private getUserState$(): Observable<UserState> {
+  private getUserState$(): Observable<Readonly<UserState>> {
     return this.auth.user.pipe(
       switchMap(user => {
         if (!user) return of([SignedInState.NO_USER, false] as [SignedInState, boolean]);
@@ -174,7 +181,9 @@ export class UserService {
         return combineLatest([state, isAdmin$]);
       }),
       map(([signedInState, isAdmin]) => ({signedInState, isAdmin})),
-      shareReplay(1)
+      takeUntil(this.destroy$),
+      shareReplay(1),
+      takeUntil(this.destroy$),
     );
   }
 
@@ -204,5 +213,11 @@ export class UserService {
       .pipe(
         map(userDoc => userDoc?.consentToEmails !== true && userDoc?.consentToEmails !== false)
       );
+  }
+
+
+  ngOnDestroy(): void {
+    this.destroy$.next(true);
+    this.destroy$.complete();
   }
 }
