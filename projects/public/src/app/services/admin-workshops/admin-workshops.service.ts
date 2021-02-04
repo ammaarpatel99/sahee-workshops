@@ -3,7 +3,7 @@ import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firest
 import {AdminWorkshop, AdminWorkshopDoc, UserDoc, WorkshopUserDoc} from '../../../../../../functions/src/firebase-helpers/firestore-interfaces';
 import {distinctUntilChanged, map, shareReplay, switchMap, take} from 'rxjs/operators';
 import {combineLatest, from, Observable, of} from 'rxjs';
-import {addJSDate, orderByDate} from '../../helpers/workshops';
+import {addJSDates, orderByDate} from '../../helpers/workshops';
 import {AdminService} from '../admin/admin.service';
 
 export interface WorkshopStats {
@@ -169,7 +169,7 @@ export class AdminWorkshopsService {
         if (!isAdmin) return of([] as AdminWorkshop[]);
         return this.firestoreCollection.valueChanges({idField: 'id'});
       }),
-      addJSDate(),
+      addJSDates(),
       orderByDate(),
       shareReplay(1)
     );

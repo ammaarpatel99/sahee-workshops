@@ -3,7 +3,7 @@ import {combineLatest, Observable, of} from 'rxjs';
 import {UserWorkshop, UserWorkshopDoc, PublicWorkshop, PublicWorkshopDoc} from '../../../../../../functions/src/firebase-helpers/firestore-interfaces';
 import {distinctUntilChanged, map, shareReplay, switchMap, switchMapTo, take} from 'rxjs/operators';
 import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
-import {addJSDate, isUserWorkshop, orderByDate, Workshop} from '../../helpers/workshops';
+import {addJSDates, isUserWorkshop, orderByDate, Workshop} from '../../helpers/workshops';
 import {AngularFireAuth} from '@angular/fire/auth';
 import firebase from 'firebase/app';
 import Timestamp = firebase.firestore.Timestamp;
@@ -208,7 +208,7 @@ export class WorkshopsService {
    */
   private fetchPublicWorkshops$(): Observable<Readonly<PublicWorkshop>[]> {
     return this.publicWorkshopCollection.valueChanges({idField: 'id'}).pipe(
-      addJSDate(),
+      addJSDates(),
       orderByDate()
     );
   }
@@ -242,7 +242,7 @@ export class WorkshopsService {
             };
             return _w;
           })),
-          addJSDate(),
+          addJSDates(),
           orderByDate()
         );
     return this.auth.user.pipe(

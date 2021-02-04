@@ -6,7 +6,7 @@ import {
   FIRESTORE_PATHS as PATHS
 } from '@firebase-helpers';
 import {AngularFirestore} from '@angular/fire/firestore';
-import {addJSDate, orderByDate} from '../../helpers/workshops';
+import {addJSDates, orderByDate} from '../../helpers/workshops';
 import {distinctUntilChanged, map, shareReplay} from 'rxjs/operators';
 
 @Injectable({
@@ -58,7 +58,7 @@ export class PublicWorkshopsService {
       .collection<PublicWorkshopDoc>(PATHS.publicWorkshop.col)
       .valueChanges({idField: 'id'})
       .pipe(
-        addJSDate(),
+        addJSDates(),
         orderByDate(),
         shareReplay(1)
       );
