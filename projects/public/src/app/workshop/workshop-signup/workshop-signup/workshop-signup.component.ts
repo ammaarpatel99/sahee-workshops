@@ -1,13 +1,13 @@
 import {AfterViewInit, Component, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {Observable, Subscription} from 'rxjs';
 import {map, take} from 'rxjs/operators';
-import {WorkshopsService} from '../../../services/workshops/workshops.service';
 import {FormControl, FormGroup} from '@angular/forms';
 import {LoadingService} from '../../../services/loading/loading.service';
 import {AngularFireAuth} from '@angular/fire/auth';
 import {isUserWorkshop} from '../../../helpers/workshops';
 import {MatHorizontalStepper} from '@angular/material/stepper';
 import {ConsentService} from '../../../services/consent/consent.service';
+import {UserWorkshopsService} from '../../../services/user-workshops/user-workshops.service';
 
 @Component({
   selector: 'app-workshop-signup',
@@ -69,7 +69,7 @@ export class WorkshopSignupComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   private changeConsent(workshopID: string): Promise<void> {
-    return this.workshopsService.changeConsent$(workshopID, this.formControl('emailConsent').value).toPromise();
+    return this.workshopsService.updateConsent$(workshopID, this.formControl('emailConsent').value).toPromise();
   }
 
   async stepperNextIfAlreadySignedIn(): Promise<void> {
@@ -78,7 +78,7 @@ export class WorkshopSignupComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   constructor(
-    private readonly workshopsService: WorkshopsService,
+    private readonly workshopsService: UserWorkshopsService,
     private readonly consentService: ConsentService,
     private readonly loadingService: LoadingService,
     auth: AngularFireAuth
@@ -120,7 +120,7 @@ export class WorkshopSignupComponent implements OnInit, AfterViewInit, OnDestroy
 
   private getWorkshop$(): Observable<void> {
     if (!this.workshopID) throw new Error(`No workshop passed into workshop signup component.`);
-    return this.workshopsService.getWorkshop$(this.workshopID).pipe(
+    return this.workshopsService.workshop$(this.workshopID).pipe(
       map(workshop => {
         if (!workshop) throw new Error(`No valid workshop id provided to signup component.`);
         const control = this.formControl('emailConsent');

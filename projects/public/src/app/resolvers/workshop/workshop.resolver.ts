@@ -6,8 +6,8 @@ import {
 } from '@angular/router';
 import {EMPTY, Observable, of} from 'rxjs';
 import {switchMap, take} from 'rxjs/operators';
-import {WorkshopsService} from '../../services/workshops/workshops.service';
 import {Workshop} from '../../helpers/workshops';
+import {UserWorkshopsService} from '../../services/user-workshops/user-workshops.service';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +18,7 @@ export class WorkshopResolver implements Resolve< Observable<Readonly<Workshop>>
     const id = route.paramMap.get('id');
     const redirect$ = this.getRedirect$();
     if (!id) return redirect$;
-    const workshop$ = this.workshopsService.getWorkshop$(id).pipe(
+    const workshop$ = this.workshopsService.workshop$(id).pipe(
       switchMap(workshop => workshop ? of(workshop) : redirect$)
     );
     await workshop$.pipe(take(1)).toPromise();
@@ -27,7 +27,7 @@ export class WorkshopResolver implements Resolve< Observable<Readonly<Workshop>>
 
   constructor(
     private readonly router: Router,
-    private readonly workshopsService: WorkshopsService
+    private readonly workshopsService: UserWorkshopsService
   ) { }
 
   private getRedirect$(): Observable<never> {

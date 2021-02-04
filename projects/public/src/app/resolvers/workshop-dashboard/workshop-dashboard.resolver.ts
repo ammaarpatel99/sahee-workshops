@@ -5,9 +5,9 @@ import {
   ActivatedRouteSnapshot
 } from '@angular/router';
 import { Observable } from 'rxjs';
-import {WorkshopsService} from '../../services/workshops/workshops.service';
 import {take} from 'rxjs/operators';
 import {Workshop} from '../../helpers/workshops';
+import {PublicWorkshopsService} from '../../services/public-workshops/public-workshops.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,6 +20,6 @@ export class WorkshopDashboardResolver implements Resolve<Observable<Workshop[]>
   }
 
   constructor(
-    private readonly workshopsService: WorkshopsService
+    private readonly workshopsService: PublicWorkshopsService
   ) { }
 }
