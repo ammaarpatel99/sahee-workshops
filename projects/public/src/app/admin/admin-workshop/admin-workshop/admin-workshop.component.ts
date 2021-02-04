@@ -4,7 +4,7 @@ import {map, shareReplay, switchMap} from 'rxjs/operators';
 import {ActivatedRoute} from '@angular/router';
 import {AdminWorkshop} from '../../../../../../../functions/src/firebase-helpers/firestore-interfaces';
 import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
-import {AdminWorkshopsService, WorkshopStats} from '../../../services/admin-workshops/admin-workshops.service';
+import {AdminWorkshopsService, WorkshopStats} from '../../../services/admin-workshops-old/admin-workshops.service';
 
 @Component({
   selector: 'app-admin-workshop',

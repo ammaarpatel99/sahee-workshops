@@ -5,7 +5,7 @@ import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {MatFormFieldAppearance} from '@angular/material/form-field';
 import {finalize, map, switchMap, switchMapTo, take, tap} from 'rxjs/operators';
 import {ActivatedRoute, Router} from '@angular/router';
-import {AdminWorkshopsService} from '../../../services/admin-workshops/admin-workshops.service';
+import {AdminWorkshopsService} from '../../../services/admin-workshops-old/admin-workshops.service';
 import firebase from 'firebase/app';
 import Timestamp = firebase.firestore.Timestamp;
 import {LoadingService} from '../../../services/loading/loading.service';
