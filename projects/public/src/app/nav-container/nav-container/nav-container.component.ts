@@ -2,13 +2,13 @@ import { Component } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Observable } from 'rxjs';
 import {filter, map, shareReplay, take} from 'rxjs/operators';
-import {SidenavService} from '../../services/sidenav/sidenav.service';
 import {LinkMenuItem} from 'ngx-auth-firebaseui';
 import {NavigationEnd, Router} from '@angular/router';
 import {AngularFireAuth} from '@angular/fire/auth';
 import {LoadingService} from '../../services/loading/loading.service';
 import {MatSidenav} from '@angular/material/sidenav';
 import {UserService} from '../../services/user/user.service';
+import {NavigationService} from '../../services/navigation/navigation.service';
 
 @Component({
   selector: 'app-nav-container',
@@ -58,7 +58,7 @@ export class NavContainerComponent {
     private readonly router: Router,
     private readonly userService: UserService,
     private readonly auth: AngularFireAuth,
-    linksService: SidenavService,
+    linksService: NavigationService,
     loadingService: LoadingService
   ) {
     this.emailIssues$ = this.getEmailIssues$();
