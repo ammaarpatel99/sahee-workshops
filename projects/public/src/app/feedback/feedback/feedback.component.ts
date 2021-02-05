@@ -6,7 +6,7 @@ import {finalize, map, shareReplay, take} from 'rxjs/operators';
 import {LoadingService} from '../../services/loading/loading.service';
 import {Router} from '@angular/router';
 import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
-import {EmailService} from '../../services/email-old/email.service';
+import {SupportService} from '../../services/support/support.service';
 
 @Component({
   selector: 'app-feedback',
@@ -33,7 +33,7 @@ export class FeedbackComponent implements OnInit, OnDestroy {
       throw new Error(`Can't submit feedback.`);
     }
     this.loadingService.startLoading();
-    this.emailService.feedback$(this.message.value, this.email.enabled ? this.email.value : undefined).pipe(
+    this.emailService.support$(this.message.value, this.email.enabled ? this.email.value : undefined).pipe(
       finalize(() => this.loadingService.stopLoading())
     ).subscribe(() => this.router.navigateByUrl('/'));
   }
@@ -41,7 +41,7 @@ export class FeedbackComponent implements OnInit, OnDestroy {
   constructor(
     private readonly auth: AngularFireAuth,
     private readonly loadingService: LoadingService,
-    private readonly emailService: EmailService,
+    private readonly emailService: SupportService,
     private readonly router: Router,
     private readonly breakpointObserver: BreakpointObserver
   ) {

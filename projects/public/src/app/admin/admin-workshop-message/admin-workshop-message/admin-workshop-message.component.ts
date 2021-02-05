@@ -2,10 +2,10 @@ import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {distinctUntilChanged, filter, finalize, map, switchMap, take} from 'rxjs/operators';
 import {AdminWorkshop} from '../../../../../../../functions/src/firebase-helpers/firestore-interfaces';
 import {forkJoin, Observable, of, Subscription} from 'rxjs';
-import {EmailService} from '../../../services/email-old/email.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {LoadingService} from '../../../services/loading/loading.service';
 import {AdminWorkshopsService} from '../../../services/admin-workshops/admin-workshops.service';
+import {EmailService} from '../../../services/email/email.service';
 
 @Component({
   selector: 'app-admin-workshop-message',

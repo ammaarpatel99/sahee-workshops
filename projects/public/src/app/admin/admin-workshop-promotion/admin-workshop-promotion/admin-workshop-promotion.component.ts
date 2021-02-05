@@ -1,10 +1,10 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {Observable, of, Subscription} from 'rxjs';
 import {AdminWorkshop} from '../../../../../../../functions/src/firebase-helpers/firestore-interfaces';
-import {EmailService} from '../../../services/email-old/email.service';
 import {filter, finalize, map, switchMap, take} from 'rxjs/operators';
 import {FormControl, Validators} from '@angular/forms';
 import {LoadingService} from '../../../services/loading/loading.service';
+import {EmailService} from '../../../services/email/email.service';
 
 @Component({
   selector: 'app-admin-workshop-promotion',
