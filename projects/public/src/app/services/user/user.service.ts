@@ -2,7 +2,7 @@ import {Injectable, OnDestroy} from '@angular/core';
 import {AngularFireAuth} from '@angular/fire/auth';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {AsyncSubject, combineLatest, from, Observable, of} from 'rxjs';
-import {map, shareReplay, switchMap, takeUntil} from 'rxjs/operators';
+import {distinctUntilChanged, map, shareReplay, switchMap, takeUntil} from 'rxjs/operators';
 import {FIRESTORE_PATHS as PATHS, UserDoc} from '@firebase-helpers';
 import firebase from 'firebase/app';
 import {Router} from '@angular/router';
@@ -62,6 +62,18 @@ export class UserService implements OnDestroy {
    * @private
    */
   private readonly destroy$ = new AsyncSubject<true>();
+
+
+  /**
+   * An observable which emits whether the current user is an admin.
+   * It never completes and emits on changes.
+   */
+  get isAdmin$(): Observable<boolean> {
+    return this.userState$.pipe(
+      map(userState => userState.isAdmin),
+      distinctUntilChanged()
+    );
+  }
 
 
   /**

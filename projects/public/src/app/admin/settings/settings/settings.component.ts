@@ -2,9 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import {Observable} from 'rxjs';
 import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
 import {finalize, map, shareReplay} from 'rxjs/operators';
-import {AdminService} from '../../../services/admin/admin.service';
 import {FormControl, Validators} from '@angular/forms';
 import {LoadingService} from '../../../services/loading/loading.service';
+import {RepairService} from '../../../services/repair/repair.service';
+import {UserService} from '../../../services/user/user.service';
+import {ManageAdminsService} from '../../../services/manage-admins/manage-admins.service';
 
 @Component({
   selector: 'app-settings',
@@ -38,7 +40,7 @@ export class SettingsComponent implements OnInit {
       throw new Error(`Can't change admin privileges.`);
     }
     this.loadingService.startLoading();
-    (makeAdmin ? this.adminService.makeAdmin$ : this.adminService.removeAdmin$)(this.adminEmail.value).pipe(
+    (makeAdmin ? this.manageAdminsService.makeAdmin$ : this.manageAdminsService.removeAdmin$)(this.adminEmail.value).pipe(
       finalize(() => this.loadingService.stopLoading()),
       map(() => {
         this.adminEmail.reset();
@@ -49,7 +51,7 @@ export class SettingsComponent implements OnInit {
   restoreCoreAdmins(): void {
     if (this.loadingService.loading()) throw new Error(`Can't restore core admins.`);
     this.loadingService.startLoading();
-    this.adminService.restoreAdmins$().pipe(
+    this.repairService.restoreAdmins$().pipe(
       finalize(() => this.loadingService.stopLoading()),
       map(admins => {
         this._restoredAdmins = admins;
@@ -71,8 +73,10 @@ export class SettingsComponent implements OnInit {
 
   constructor(
     private readonly breakpointObserver: BreakpointObserver,
-    private readonly adminService: AdminService,
-    private readonly loadingService: LoadingService
+    private readonly repairService: RepairService,
+    private readonly adminService: UserService,
+    private readonly loadingService: LoadingService,
+    private readonly manageAdminsService: ManageAdminsService
   ) {
     this.containerClass$ = this.getContainerClass$();
     this.isAdmin$ = this.adminService.isAdmin$;

@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import {Observable, of} from 'rxjs';
 import {map, switchMapTo, take} from 'rxjs/operators';
 import {FirebaseFunctionsService} from '../firebase-functions/firebase-functions.service';
-import {AdminService} from '../admin/admin.service';
 import {environment} from '../../../environments/environment';
+import {UserService} from '../user/user.service';
 
 @Injectable({
   providedIn: 'root'
@@ -56,7 +56,7 @@ export class EmailService {
 
   constructor(
     private readonly functions: FirebaseFunctionsService,
-    private readonly adminService: AdminService
+    private readonly adminService: UserService
   ) { }
 
   /**
