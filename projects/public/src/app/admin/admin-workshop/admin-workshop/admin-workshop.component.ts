@@ -4,7 +4,7 @@ import {map, shareReplay, switchMap} from 'rxjs/operators';
 import {ActivatedRoute} from '@angular/router';
 import {AdminWorkshop} from '../../../../../../../functions/src/firebase-helpers/firestore-interfaces';
 import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
-import {AdminWorkshopsService, WorkshopStats} from '../../../services/admin-workshops-old/admin-workshops.service';
+import {WorkshopStats, WorkshopStatsService} from '../../../services/workshop-stats/workshop-stats.service';
 
 @Component({
   selector: 'app-admin-workshop',
@@ -14,12 +14,12 @@ import {AdminWorkshopsService, WorkshopStats} from '../../../services/admin-work
 export class AdminWorkshopComponent {
   readonly workshop$: Observable<Readonly<AdminWorkshop> | undefined>;
   readonly containerClass$: Observable<'wide-container' | 'thin-container'>;
-  readonly stats$: Observable<WorkshopStats | undefined>;
+  readonly stats$: Observable<Readonly<WorkshopStats> | null>;
 
   constructor(
     private readonly route: ActivatedRoute,
     private readonly breakpointObserver: BreakpointObserver,
-    private readonly adminWorkshopsService: AdminWorkshopsService
+    private readonly adminWorkshopsService: WorkshopStatsService
   ) {
     this.workshop$ = this.getWorkshop$();
     this.stats$ = this.fetchStats$();
@@ -44,9 +44,9 @@ export class AdminWorkshopComponent {
     );
   }
 
-  private fetchStats$(): Observable<WorkshopStats | undefined> {
+  private fetchStats$(): Observable<Readonly<WorkshopStats> | null> {
     return this.workshop$.pipe(
-      switchMap(workshop => workshop ? this.adminWorkshopsService.getWorkshopStats$(workshop.id) : of(workshop))
+      switchMap(workshop => workshop ? this.adminWorkshopsService.workshop$(workshop.id) : of(null))
     );
   }
 

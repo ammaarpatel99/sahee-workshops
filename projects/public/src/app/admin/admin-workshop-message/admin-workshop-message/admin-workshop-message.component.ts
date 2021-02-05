@@ -2,10 +2,10 @@ import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {distinctUntilChanged, filter, finalize, map, switchMap, take} from 'rxjs/operators';
 import {AdminWorkshop} from '../../../../../../../functions/src/firebase-helpers/firestore-interfaces';
 import {forkJoin, Observable, of, Subscription} from 'rxjs';
-import {AdminWorkshopsService} from '../../../services/admin-workshops-old/admin-workshops.service';
 import {EmailService} from '../../../services/email-old/email.service';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {LoadingService} from '../../../services/loading/loading.service';
+import {AdminWorkshopsService} from '../../../services/admin-workshops/admin-workshops.service';
 
 @Component({
   selector: 'app-admin-workshop-message',
@@ -63,7 +63,7 @@ export class AdminWorkshopMessageComponent implements OnInit, OnDestroy {
         let updateNewSignupEmail$: Observable<void> = of(undefined);
         if (this.editNewSignupEmail.value && this.newSignupEmail.dirty) {
           updateNewSignupEmail$ = this.adminWorkshopsService
-            .updateWorkshop$(id, {newSignupEmail: this.newSignupEmail.value});
+            .update$(id, {newSignupEmail: this.newSignupEmail.value});
         }
         return forkJoin([updateNewSignupEmail$, sendEmail$]);
       }),

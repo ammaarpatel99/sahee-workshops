@@ -5,10 +5,10 @@ import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {MatFormFieldAppearance} from '@angular/material/form-field';
 import {finalize, map, switchMap, switchMapTo, take, tap} from 'rxjs/operators';
 import {ActivatedRoute, Router} from '@angular/router';
-import {AdminWorkshopsService} from '../../../services/admin-workshops-old/admin-workshops.service';
 import firebase from 'firebase/app';
 import Timestamp = firebase.firestore.Timestamp;
 import {LoadingService} from '../../../services/loading/loading.service';
+import {AdminWorkshopsService} from '../../../services/admin-workshops/admin-workshops.service';
 
 type WorkshopDetails = Exclude<keyof AdminWorkshop, 'id'|'datetime' >;
 
@@ -120,7 +120,7 @@ export class AdminWorkshopDetailsFormComponent implements OnInit, OnDestroy {
       this.loadingService.stopLoading();
       return;
     }
-    this.adminWorkshopsService.deleteWorkshop$(currentWorkshop.id).pipe(
+    this.adminWorkshopsService.delete$(currentWorkshop.id).pipe(
       finalize(() => this.loadingService.stopLoading()),
       switchMapTo(this.router.navigate(['..'], {relativeTo: this.route}))
     ).subscribe();
@@ -141,7 +141,7 @@ export class AdminWorkshopDetailsFormComponent implements OnInit, OnDestroy {
     for (const field of fields) setValue(field);
     const datetime = getValue('jsDate');
     if (datetime) data.datetime = Timestamp.fromDate(new Date(datetime));
-    return this.adminWorkshopsService.updateWorkshop$(workshopID, data).toPromise();
+    return this.adminWorkshopsService.update$(workshopID, data).toPromise();
   }
 
   private async createWorkshop(): Promise<void> {
@@ -158,7 +158,7 @@ export class AdminWorkshopDetailsFormComponent implements OnInit, OnDestroy {
     setValue('videoCallLink');
     setValue('recordingLink');
     setValue('feedbackLink');
-    const id = await this.adminWorkshopsService.createWorkshop$(data).toPromise();
+    const id = await this.adminWorkshopsService.create$(data).toPromise();
     await this.router.navigate(['..', id], {relativeTo: this.route});
   }
 

@@ -6,8 +6,8 @@ import {
 } from '@angular/router';
 import {EMPTY, Observable, of} from 'rxjs';
 import {switchMap, take} from 'rxjs/operators';
-import {AdminWorkshopsService} from '../../services/admin-workshops-old/admin-workshops.service';
 import {AdminWorkshop} from '../../../../../../functions/src/firebase-helpers/firestore-interfaces';
+import {AdminWorkshopsService} from '../../services/admin-workshops/admin-workshops.service';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +18,7 @@ export class AdminWorkshopResolver implements Resolve<Observable<Readonly<AdminW
     const id = route.paramMap.get('id');
     const redirect$ = this.getRedirect$();
     if (!id) return redirect$;
-    const workshop$ = this.adminWorkshopsService.getWorkshop$(id).pipe(
+    const workshop$ = this.adminWorkshopsService.workshop$(id).pipe(
       switchMap(workshop => workshop ? of(workshop) : redirect$)
     );
     await workshop$.pipe(take(1)).toPromise();
