@@ -1,9 +1,10 @@
 import {Injectable, OnDestroy} from '@angular/core';
-import {AsyncSubject, Observable, of} from 'rxjs';
+import {Observable, of} from 'rxjs';
 import {AdminWorkshop, AdminWorkshopDoc, FIRESTORE_PATHS as PATHS} from '@firebase-helpers';
 import {UserService} from '../user/user.service';
 import {AngularFirestore} from '@angular/fire/firestore';
-import {distinctUntilChanged, first, map, shareReplay, switchMap, takeUntil} from 'rxjs/operators';
+import {first, map, shareReplay, switchMap, takeUntil} from 'rxjs/operators';
+import {CleanRxjs} from '../../helpers/clean-rxjs/clean-rxjs';
 
 
 /**
@@ -12,18 +13,13 @@ import {distinctUntilChanged, first, map, shareReplay, switchMap, takeUntil} fro
 @Injectable({
   providedIn: 'root'
 })
-export class AdminWorkshopsService implements OnDestroy {
+export class AdminWorkshopsService extends CleanRxjs implements OnDestroy {
   /**
    * Used to store observables produced by {@link workshop$}.
    * Together with the usage of {@link shareReplay shareReplay(1)}, this reduces firestore requests.
    * @private
    */
   private readonly storedWorkshopObservables = new Map<string, Observable<Readonly<AdminWorkshop> | null>>();
-  /**
-   * Used to destroy long-lived or hot observables with the takeUntil structure when destroying component.
-   * @private
-   */
-  private readonly destroy$ = new AsyncSubject<true>();
 
 
   /**
@@ -33,12 +29,12 @@ export class AdminWorkshopsService implements OnDestroy {
    * @returns - An observable that never completes and re-emits on changes.
    */
   workshop$(workshopID: string): Observable<Readonly<AdminWorkshop> | null> {
+    // If observable already created, return it.
     let obs$ = this.storedWorkshopObservables.get(workshopID);
     if (obs$) return obs$;
 
-    obs$ = this.userService.userState$.pipe(
-      map(userState => userState.isAdmin),
-      distinctUntilChanged(),
+    // otherwise create an observable
+    obs$ = this.userService.isAdmin$.pipe(
       switchMap(isAdmin => {
         if (!isAdmin) return of(null);
         return this.firestore.doc<AdminWorkshopDoc>(PATHS.workshop.doc(workshopID))
@@ -49,10 +45,10 @@ export class AdminWorkshopsService implements OnDestroy {
         return {...workshop, jsDate: workshop.datetime.toDate()};
       }),
       takeUntil(this.destroy$),
-      shareReplay(1),
-      takeUntil(this.destroy$)
+      shareReplay(1)
     );
 
+    // store created observable and return it.
     this.storedWorkshopObservables.set(workshopID, obs$);
     return obs$;
   }
@@ -64,7 +60,7 @@ export class AdminWorkshopsService implements OnDestroy {
    * @returns - An observable that emits once and then completes.
    */
   create$(data: Readonly<AdminWorkshopDoc>): Observable<string> {
-    return this.userService.userState$.pipe(
+    return this.userService.isAdmin$.pipe(
       first(),
       switchMap(isAdmin => {
         if (!isAdmin) throw new Error(`Can't create workshop as the user isn't an admin.`);
@@ -111,11 +107,5 @@ export class AdminWorkshopsService implements OnDestroy {
   constructor(
     private readonly userService: UserService,
     private readonly firestore: AngularFirestore
-  ) { }
-
-
-  ngOnDestroy(): void {
-    this.destroy$.next(true);
-    this.destroy$.complete();
-  }
+  ) { super(); }
 }

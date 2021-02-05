@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import {NavigationEnd, Router} from '@angular/router';
 import {UserService} from '../user/user.service';
 import {Observable, of} from 'rxjs';
-import {distinctUntilChanged, filter, map, switchMap} from 'rxjs/operators';
+import {distinctUntilChanged, filter, map, switchMap, takeUntil} from 'rxjs/operators';
+import {CleanRxjs} from '../../helpers/clean-rxjs/clean-rxjs';
 
 
 export interface NavigationLink {
@@ -41,7 +42,7 @@ const ADMIN_LINKS: NavigationLinks = [
 @Injectable({
   providedIn: 'root'
 })
-export class NavigationService {
+export class NavigationService extends CleanRxjs {
   /**
    * The links to be displayed in the main navigation.
    */
@@ -51,7 +52,7 @@ export class NavigationService {
   constructor(
     private readonly router: Router,
     private readonly userService: UserService
-  ) { }
+  ) { super(); }
 
 
   /**
@@ -66,7 +67,8 @@ export class NavigationService {
         if (url.startsWith('/admin')) return of(ADMIN_LINKS);
         return this.getPublicLinks$();
       }),
-      distinctUntilChanged()
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
     );
   }
 
@@ -76,10 +78,9 @@ export class NavigationService {
    * @private
    */
   private getPublicLinks$(): Observable<NavigationLinks> {
-    return this.userService.userState$.pipe(
-      map(state => state.isAdmin),
-      distinctUntilChanged(),
-      map(isAdmin => isAdmin ? PUBLIC_ADMIN_LINKS : PUBLIC_LINKS)
+    return this.userService.isAdmin$.pipe(
+      map(isAdmin => isAdmin ? PUBLIC_ADMIN_LINKS : PUBLIC_LINKS),
+      takeUntil(this.destroy$)
     );
   }
 

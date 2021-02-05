@@ -31,6 +31,7 @@ export class SupportService {
     return of(email).pipe(
       switchMap(_email => {
         if (_email) return of(_email);
+        // If there is no email, get the user's email.
         return this.auth.user.pipe(
           first(),
           map(user => {

@@ -1,14 +1,15 @@
 import {Injectable, OnDestroy} from '@angular/core';
-import {AsyncSubject, Observable} from 'rxjs';
+import {Observable} from 'rxjs';
 import {PublicWorkshop, PublicWorkshopDoc, FIRESTORE_PATHS as PATHS} from '@firebase-helpers';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {addJSDates, orderByDate} from '../../helpers/workshops';
 import {distinctUntilChanged, map, shareReplay, takeUntil} from 'rxjs/operators';
+import {CleanRxjs} from '../../helpers/clean-rxjs/clean-rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
-export class PublicWorkshopsService implements OnDestroy {
+export class PublicWorkshopsService extends CleanRxjs implements OnDestroy {
   /**
    * An observable which emits all workshops by their public data.
    * The observable re-emits whenever any workshop's data changes.
@@ -16,13 +17,8 @@ export class PublicWorkshopsService implements OnDestroy {
    */
   readonly workshops$ = this.getWorkshops$();
   /**
-   * Used to destroy long-lived or hot observables with the takeUntil structure when destroying component.
-   * @private
-   */
-  private readonly destroy$ = new AsyncSubject<true>();
-  /**
    * Used to store observables produced by {@link workshop$}.
-   * Together with the usage of {@link shareReplay shareReplay(1)}, this reduces firestore requests.
+   * Together with the usage of {@link shareReplay shareReplay(1)}, this reduces computation.
    * @private
    */
   private readonly storedWorkshopObservables = new Map<string, Observable<Readonly<PublicWorkshop> | null>>();
@@ -35,9 +31,11 @@ export class PublicWorkshopsService implements OnDestroy {
    * @returns - An observable which emits the data, re-emits on changes, and never completes.
    */
   workshop$(workshopID: string): Observable<PublicWorkshop | null> {
+    // If the observable has already been created, return it.
     let obs$ = this.storedWorkshopObservables.get(workshopID);
     if (obs$) return obs$;
 
+    // otherwise create the observable
     obs$ = this.workshops$.pipe(
       map(workshops => {
         workshops = workshops.filter(workshop => workshop.id === workshopID);
@@ -51,10 +49,10 @@ export class PublicWorkshopsService implements OnDestroy {
           && x.jsDate.getTime() === y.jsDate.getTime();
       }),
       takeUntil(this.destroy$),
-      shareReplay(1),
-      takeUntil(this.destroy$)
+      shareReplay(1)
     );
 
+    // store and return the observable
     this.storedWorkshopObservables.set(workshopID, obs$);
     return obs$;
   }
@@ -62,14 +60,14 @@ export class PublicWorkshopsService implements OnDestroy {
 
   constructor(
     private readonly firestore: AngularFirestore
-  ) { }
+  ) { super(); }
 
 
   /**
    * Provides the value for {@link workshops$}.
    * @private
    */
-  private getWorkshops$(): Observable<Readonly<PublicWorkshop>[]> {
+  private getWorkshops$(): Observable<readonly Readonly<PublicWorkshop>[]> {
     return this.firestore
       .collection<PublicWorkshopDoc>(PATHS.publicWorkshop.col)
       .valueChanges({idField: 'id'})
@@ -77,14 +75,7 @@ export class PublicWorkshopsService implements OnDestroy {
         addJSDates(),
         orderByDate(),
         takeUntil(this.destroy$),
-        shareReplay(1),
-        takeUntil(this.destroy$)
+        shareReplay(1)
       );
-  }
-
-
-  ngOnDestroy(): void {
-    this.destroy$.next(true);
-    this.destroy$.complete();
   }
 }

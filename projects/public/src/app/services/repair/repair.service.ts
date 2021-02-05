@@ -27,6 +27,8 @@ export class RepairService {
   restoreAdmins$(): Observable<string[]> {
     return this._restoreAdmins$().pipe(
       switchMap(newAdmins => {
+        // If the current user is one of those granted admin privileges,
+        // refresh id token so the website recognises their admin privileges.
         return this.auth.user.pipe(
           first(),
           switchMap(user => {

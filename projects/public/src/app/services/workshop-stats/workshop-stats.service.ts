@@ -1,9 +1,10 @@
-import { Injectable } from '@angular/core';
-import {AsyncSubject, combineLatest, Observable, of} from 'rxjs';
+import {Injectable, OnDestroy} from '@angular/core';
+import {combineLatest, Observable, of} from 'rxjs';
 import {AdminWorkshopsService} from '../admin-workshops/admin-workshops.service';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {WorkshopUserDoc, FIRESTORE_PATHS as PATHS, UserDoc} from '@firebase-helpers';
 import {distinctUntilChanged, map, shareReplay, switchMap, takeUntil} from 'rxjs/operators';
+import {CleanRxjs} from '../../helpers/clean-rxjs/clean-rxjs';
 
 
 /**
@@ -19,18 +20,13 @@ export interface WorkshopStats {
 @Injectable({
   providedIn: 'root'
 })
-export class WorkshopStatsService {
+export class WorkshopStatsService extends CleanRxjs implements OnDestroy {
   /**
    * Used to store observables produced by {@link workshop$}.
    * Together with the usage of {@link shareReplay shareReplay(1)}, this reduces firestore requests.
    * @private
    */
   private readonly storedWorkshopObservables = new Map<string, Observable<Readonly<WorkshopStats> | null>>();
-  /**
-   * Used to destroy long-lived or hot observables with the takeUntil structure when destroying component.
-   * @private
-   */
-  private readonly destroy$ = new AsyncSubject<true>();
   /**
    * An observable that emits the total number of users on the system.
    * It never completes and emits on changes.
@@ -45,9 +41,11 @@ export class WorkshopStatsService {
    * @returns - An observable that never completes and emits on changes.
    */
   workshop$(workshopID: string): Observable<Readonly<WorkshopStats> | null> {
+    // If observable already created, return it.
     let obs$ = this.storedWorkshopObservables.get(workshopID);
     if (obs$) return obs$;
 
+    // otherwise create observable
     obs$ = this.adminWorkshopsService.workshop$(workshopID).pipe(
       switchMap(workshop => {
         if (!workshop) return of(null);
@@ -65,8 +63,7 @@ export class WorkshopStatsService {
         return x?.users === y?.users && x?.totalUsers === y?.totalUsers && x?.consents === y?.consents;
       }),
       takeUntil(this.destroy$),
-      shareReplay(1),
-      takeUntil(this.destroy$)
+      shareReplay(1)
     );
 
     this.storedWorkshopObservables.set(workshopID, obs$);
@@ -83,14 +80,17 @@ export class WorkshopStatsService {
   private getWorkshopUsers$(workshopID: string): Observable<WorkshopUserDoc[]> {
     return this.firestore
       .collection<WorkshopUserDoc>(PATHS.workshop.user.col(workshopID))
-      .valueChanges();
+      .valueChanges()
+      .pipe(
+        takeUntil(this.destroy$)
+      );
   }
 
 
   constructor(
     private readonly adminWorkshopsService: AdminWorkshopsService,
     private readonly firestore: AngularFirestore
-  ) { }
+  ) { super(); }
 
 
   /**
@@ -104,8 +104,7 @@ export class WorkshopStatsService {
       .pipe(
         map(docs => docs.length),
         takeUntil(this.destroy$),
-        shareReplay(1),
-        takeUntil(this.destroy$)
+        shareReplay(1)
       );
   }
 }

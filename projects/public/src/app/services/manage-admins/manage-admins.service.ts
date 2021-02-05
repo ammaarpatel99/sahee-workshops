@@ -17,14 +17,12 @@ export class ManageAdminsService {
    * A function which calls the firebase function to make a user an admin.
    * @private
    */
-  private readonly _makeAdmin$ =
-    this.functions.httpsCallable<MakeAdminParam, MakeAdminRes>(f.admin.make);
+  private readonly _makeAdmin$ = this.functions.httpsCallable<MakeAdminParam, MakeAdminRes>(f.admin.make);
   /**
    * A function which calls the firebase function to remove a user's admin privileges.
    * @private
    */
-  private readonly _removeAdmin$ =
-    this.functions.httpsCallable<RemoveAdminParam, RemoveAdminRes>(f.admin.remove);
+  private readonly _removeAdmin$ = this.functions.httpsCallable<RemoveAdminParam, RemoveAdminRes>(f.admin.remove);
 
 
   /**
@@ -34,13 +32,8 @@ export class ManageAdminsService {
    * @returns - An observable that only emits once and then completes.
    */
   makeAdmin$(emailAddress: string): Observable<void> {
-    return this.userService.userState$.pipe(
-      first(),
-      switchMap(userState => {
-        if (!userState.isAdmin) throw new Error(`Can't make user admin as current user isn't admin.`);
-        return this._makeAdmin$({emailAddress});
-      })
-    );
+    return this.switchIfAdmin$(this._makeAdmin$({emailAddress}),
+      `Can't grant admin privileges.`);
   }
 
 
@@ -51,11 +44,24 @@ export class ManageAdminsService {
    * @returns - An observable that only emits once and then completes.
    */
   removeAdmin$(emailAddress: string): Observable<void> {
-    return this.userService.userState$.pipe(
+    return this.switchIfAdmin$(this._removeAdmin$({emailAddress}),
+      `Can't remove admin privileges.`);
+  }
+
+
+  /**
+   * An observable which switches to obs$ or throws an error with the message errMessage.<br/>
+   * The error is thrown if the user isn't an admin.
+   * @param obs$ - The observable to switch to.
+   * @param errMessage - The error message.
+   * @private
+   */
+  private switchIfAdmin$<T>(obs$: Observable<T>, errMessage: string): Observable<T> {
+    return this.userService.isAdmin$.pipe(
       first(),
-      switchMap(userState => {
-        if (!userState.isAdmin) throw new Error(`Can't remove admin privileges as current user isn't admin.`);
-        return this._removeAdmin$({emailAddress});
+      switchMap(isAdmin => {
+        if (isAdmin) return obs$;
+        throw new Error(errMessage);
       })
     );
   }

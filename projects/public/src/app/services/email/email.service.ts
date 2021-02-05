@@ -32,13 +32,8 @@ export class EmailService {
    * @returns - An observable that emits emails of the people the email was sent to, and then completes.
    */
   promote$(workshopID: string, message: string): Observable<string[]> {
-    return this.adminWorkshopsService.workshop$(workshopID).pipe(
-      first(),
-      switchMap(workshop => {
-        if (!workshop) throw new Error(`Can't promote workshop as either user isn't admin or workshop doesn't exist.`);
-        return this._promote$({workshopID, message});
-      })
-    );
+    return this.ifValidWorkshop$(workshopID, this._promote$({workshopID, message}),
+      `Failed send promotional email for workshop`);
   }
 
 
@@ -49,11 +44,25 @@ export class EmailService {
    * @returns - An observable that emits the emails of people who the message was sent to, and then completes.
    */
   send$(workshopID: string, message: string): Observable<string[]> {
+    return this.ifValidWorkshop$(workshopID, this._send$({workshopID, message}),
+      `Failed send email about workshop`);
+  }
+
+
+  /**
+   * An observable which switches to obs$ or throws an error with the message errMessage.<br/>
+   * The error is thrown if {@link AdminWorkshopsService#workshop$} emits null.
+   * @param workshopID - The ID of the workshop to test for.
+   * @param obs$ - The observable to switch to.
+   * @param errMessage - The error message.
+   * @private
+   */
+  private ifValidWorkshop$<T>(workshopID: string, obs$: Observable<T>, errMessage: string): Observable<T> {
     return this.adminWorkshopsService.workshop$(workshopID).pipe(
       first(),
       switchMap(workshop => {
-        if (!workshop) throw new Error(`Can't send email about workshop as either user isn't admin or workshop doesn't exist.`);
-        return this._send$({workshopID, message});
+        if (!workshop) throw new Error(errMessage);
+        return obs$;
       })
     );
   }

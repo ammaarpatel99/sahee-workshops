@@ -1,11 +1,12 @@
 import {Injectable, OnDestroy} from '@angular/core';
 import {AngularFireAuth} from '@angular/fire/auth';
 import {AngularFirestore} from '@angular/fire/firestore';
-import {AsyncSubject, combineLatest, from, Observable, of} from 'rxjs';
+import {combineLatest, from, Observable, of} from 'rxjs';
 import {distinctUntilChanged, map, shareReplay, switchMap, takeUntil} from 'rxjs/operators';
 import {FIRESTORE_PATHS as PATHS, UserDoc} from '@firebase-helpers';
 import firebase from 'firebase/app';
 import {Router} from '@angular/router';
+import {CleanRxjs} from '../../helpers/clean-rxjs/clean-rxjs';
 
 
 /**
@@ -33,12 +34,18 @@ export interface UserState {
 
 
 /**
+ * The url used to sign in.
+ */
+const SIGN_IN_URL = '/login';
+
+
+/**
  * General use service regarding the current user.
  */
 @Injectable({
   providedIn: 'root'
 })
-export class UserService implements OnDestroy {
+export class UserService extends CleanRxjs implements OnDestroy {
   /**
    * An observable which emits the state of the user.
    * It never completes and may emit multiple times.
@@ -52,21 +59,12 @@ export class UserService implements OnDestroy {
    * @private
    */
   private _redirectUrl: string | null = null;
-  /**
-   * The url used to sign in.
-   * @private
-   */
-  private static readonly SIGN_IN_URL = '/login';
-  /**
-   * Used to destroy long-lived or hot observables with the takeUntil structure when destroying component.
-   * @private
-   */
-  private readonly destroy$ = new AsyncSubject<true>();
 
 
   /**
    * An observable which emits whether the current user is an admin.
-   * It never completes and emits on changes.
+   * It never completes and emits on changes.<br/>
+   * It is based off {@link userState$}.
    */
   get isAdmin$(): Observable<boolean> {
     return this.userState$.pipe(
@@ -105,7 +103,7 @@ export class UserService implements OnDestroy {
    */
   signIn$(redirectUrl?: string): Observable<void> {
     this._redirectUrl = redirectUrl || this.router.url;
-    return from(this.router.navigateByUrl(UserService.SIGN_IN_URL)).pipe(
+    return from(this.router.navigateByUrl(SIGN_IN_URL)).pipe(
       map(res => {
         if (!res) {
           this._redirectUrl = null;
@@ -124,7 +122,7 @@ export class UserService implements OnDestroy {
    */
   signInUrl(redirectUrl?: string): string {
     this._redirectUrl = redirectUrl || this.router.url;
-    return UserService.SIGN_IN_URL;
+    return SIGN_IN_URL;
   }
 
 
@@ -167,7 +165,7 @@ export class UserService implements OnDestroy {
     private readonly auth: AngularFireAuth,
     private readonly firestore: AngularFirestore,
     private readonly router: Router
-  ) { }
+  ) { super(); }
 
 
   /**
@@ -177,11 +175,14 @@ export class UserService implements OnDestroy {
   private getUserState$(): Observable<Readonly<UserState>> {
     return this.auth.user.pipe(
       switchMap(user => {
+        // If there is no user, return no user and not admin
         if (!user) return of([SignedInState.NO_USER, false] as [SignedInState, boolean]);
+        // get user state
         let state;
         if (!user.email) state = of(SignedInState.NO_EMAIL);
         else if (!user.emailVerified) state = of(SignedInState.EMAIL_NOT_VERIFIED);
         else {
+          // figure out if they have consented to emails in order to set the state
           state = this.getConsentSet$(user.uid).pipe(
             map(consentSet => {
               if (consentSet) return SignedInState.VALID;
@@ -189,13 +190,14 @@ export class UserService implements OnDestroy {
             })
           );
         }
-        const isAdmin$ = UserService.getIsAdmin$(user);
+        // check if the user is an admin
+        const isAdmin$ = this.getIsAdmin$(user);
+        // return state and isAdmin$ together
         return combineLatest([state, isAdmin$]);
       }),
       map(([signedInState, isAdmin]) => ({signedInState, isAdmin})),
       takeUntil(this.destroy$),
-      shareReplay(1),
-      takeUntil(this.destroy$),
+      shareReplay(1)
     );
   }
 
@@ -206,9 +208,10 @@ export class UserService implements OnDestroy {
    * @returns - An observable which never completes and can emit multiple times.
    * @private
    */
-  private static getIsAdmin$(user: firebase.User): Observable<boolean> {
+  private getIsAdmin$(user: firebase.User): Observable<boolean> {
     return from(user.getIdTokenResult()).pipe(
-      map(idTokenResult => idTokenResult.claims.admin === true)
+      map(idTokenResult => idTokenResult.claims.admin === true),
+      takeUntil(this.destroy$)
     );
   }
 
@@ -223,13 +226,8 @@ export class UserService implements OnDestroy {
     return this.firestore.doc<UserDoc>(PATHS.user.doc(userID))
       .valueChanges()
       .pipe(
-        map(userDoc => userDoc?.consentToEmails !== true && userDoc?.consentToEmails !== false)
+        map(userDoc => userDoc?.consentToEmails === true || userDoc?.consentToEmails === false),
+        takeUntil(this.destroy$)
       );
-  }
-
-
-  ngOnDestroy(): void {
-    this.destroy$.next(true);
-    this.destroy$.complete();
   }
 }

@@ -1,9 +1,10 @@
 import {Injectable, OnDestroy} from '@angular/core';
-import {AsyncSubject, from, Observable, of} from 'rxjs';
+import {from, Observable, of} from 'rxjs';
 import {first, map, shareReplay, switchMap, takeUntil} from 'rxjs/operators';
 import {FIRESTORE_PATHS as PATHS, UserDoc} from '@firebase-helpers';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {AngularFireAuth} from '@angular/fire/auth';
+import {CleanRxjs} from '../../helpers/clean-rxjs/clean-rxjs';
 
 
 /**
@@ -12,14 +13,13 @@ import {AngularFireAuth} from '@angular/fire/auth';
 @Injectable({
   providedIn: 'root'
 })
-export class ConsentService implements OnDestroy {
+export class ConsentService extends CleanRxjs implements OnDestroy {
   /**
-   * An observable which emits the user's consent to general emails.
-   * It emits null if the consent is not set (which could be because there is no user).
+   * An observable which emits the user's consent to general emails.<br/>
+   * It emits null if the consent is not set (which could be because there is no user).<br/>
    * The observable doesn't complete and may emit multiple times.
    */
   readonly emailConsent$ = this.getEmailConsent$();
-  private readonly destroy$ = new AsyncSubject<true>();
 
 
   /**
@@ -45,7 +45,7 @@ export class ConsentService implements OnDestroy {
   constructor(
     private readonly firestore: AngularFirestore,
     private readonly auth: AngularFireAuth
-  ) { }
+  ) { super(); }
 
 
   /**
@@ -55,7 +55,7 @@ export class ConsentService implements OnDestroy {
   private getEmailConsent$(): Observable<boolean | null> {
     return this.auth.user.pipe(
       switchMap(user => {
-        if (!user) return of(undefined);
+        if (!user) return of(null);
         return this.firestore.doc<UserDoc>(PATHS.user.doc(user.uid)).valueChanges();
       }),
       map(data => {
@@ -63,14 +63,7 @@ export class ConsentService implements OnDestroy {
         return null;
       }),
       takeUntil(this.destroy$),
-      shareReplay(1),
-      takeUntil(this.destroy$)
+      shareReplay(1)
     );
-  }
-
-
-  ngOnDestroy(): void {
-    this.destroy$.next(true);
-    this.destroy$.complete();
   }
 }

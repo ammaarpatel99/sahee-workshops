@@ -1,6 +1,6 @@
 import {Injectable, OnDestroy} from '@angular/core';
 import {isUserWorkshop, Workshop} from '../../helpers/workshops';
-import {AsyncSubject, Observable, of} from 'rxjs';
+import {Observable, of} from 'rxjs';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {UserWorkshopDoc, FIRESTORE_PATHS as PATHS, UserWorkshop, RegisterParam, RegisterRes, functions as f} from '@firebase-helpers';
 import {AngularFireAuth} from '@angular/fire/auth';
@@ -8,6 +8,7 @@ import {first, map, shareReplay, switchMap, takeUntil} from 'rxjs/operators';
 import {PublicWorkshopsService} from '../public-workshops/public-workshops.service';
 import {SignedInState, UserService} from '../user/user.service';
 import {AngularFireFunctions} from '@angular/fire/functions';
+import {CleanRxjs} from '../../helpers/clean-rxjs/clean-rxjs';
 
 
 /**
@@ -17,7 +18,7 @@ import {AngularFireFunctions} from '@angular/fire/functions';
 @Injectable({
   providedIn: 'root'
 })
-export class UserWorkshopsService implements OnDestroy {
+export class UserWorkshopsService extends CleanRxjs implements OnDestroy {
   /**
    * Used to store observables produced by {@link workshop$}.
    * Together with the usage of {@link shareReplay shareReplay(1)}, this reduces firestore requests.
@@ -29,11 +30,6 @@ export class UserWorkshopsService implements OnDestroy {
    * @private
    */
   private readonly _register$ = this.functions.httpsCallable<RegisterParam, RegisterRes>(f.register);
-  /**
-   * Used to destroy long-lived or hot observables with the takeUntil structure when destroying component.
-   * @private
-   */
-  private readonly destroy$ = new AsyncSubject<true>();
 
 
   /**
@@ -52,8 +48,11 @@ export class UserWorkshopsService implements OnDestroy {
    * @returns - An observable that never completes and re-emits on changes.
    */
   workshop$(workshopID: string, userOnly: true): Observable<Readonly<UserWorkshop> | null>;
-  workshop$(workshopID: string, userOnly: boolean = false): Observable<Readonly<Workshop> | null> {
+  workshop$(workshopID: string, userOnly?: true): Observable<Readonly<Workshop> | null> {
+    // Get stored observable
     let obs$ = this.storedWorkshopObservables.get(workshopID);
+
+    // If there is no stored observable, create one and store it.
     if (!obs$) {
       obs$ = this.auth.user.pipe(
         switchMap(user => {
@@ -67,14 +66,15 @@ export class UserWorkshopsService implements OnDestroy {
           return {...workshop, jsDate: workshop.datetime.toDate()};
         }),
         takeUntil(this.destroy$),
-        shareReplay(1),
-        takeUntil(this.destroy$)
+        shareReplay(1)
       );
       this.storedWorkshopObservables.set(workshopID, obs$);
     }
 
+    // return the observable if userOnly is true
     if (userOnly) return obs$;
 
+    // switch to the public workshop if there is no user workshop
     return obs$.pipe(
       switchMap(workshop => {
         if (workshop) return of(workshop);
@@ -96,7 +96,7 @@ export class UserWorkshopsService implements OnDestroy {
       first(),
       switchMap(workshop => {
         if (!workshop) throw new Error(`Can't register for workshop as workshop doesn't exist`);
-        if (isUserWorkshop(workshop)) throw new Error(`Can't register for workshop as workshop already exists.`);
+        if (isUserWorkshop(workshop)) throw new Error(`Can't register for workshop as already registered.`);
         return this.userService.userState$;
       }),
       first(),
@@ -166,11 +166,5 @@ export class UserWorkshopsService implements OnDestroy {
     private readonly publicWorkshopsService: PublicWorkshopsService,
     private readonly userService: UserService,
     private readonly functions: AngularFireFunctions
-  ) { }
-
-
-  ngOnDestroy(): void {
-    this.destroy$.next(true);
-    this.destroy$.complete();
-  }
+  ) { super(); }
 }
