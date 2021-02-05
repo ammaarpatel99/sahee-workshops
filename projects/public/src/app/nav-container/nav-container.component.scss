@@ -10,20 +10,6 @@
   background: inherit;
 }
 
-.mat-toolbar.mat-primary {
-  position: sticky;
-  top: 0;
-  z-index: 10000;
-  img {
-    height: 60%;
-    margin-right: 0.5em;
-  }
-}
-
-.space-filler {
-  flex: 1 0 auto;
-}
-
 .feedbackBtn {
   position: fixed;
   right: 2em;
@@ -38,11 +24,4 @@
 
 mat-progress-bar {
   height: 0.4em;
-}
-
-.title-container {
-  height: 100%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
 }

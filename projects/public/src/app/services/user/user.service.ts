@@ -34,12 +34,6 @@ export interface UserState {
 
 
 /**
- * The url used to sign in.
- */
-const SIGN_IN_URL = '/login';
-
-
-/**
  * General use service regarding the current user.
  */
 @Injectable({
@@ -59,6 +53,10 @@ export class UserService extends CleanRxjs implements OnDestroy {
    * @private
    */
   private _redirectUrl: string | null = null;
+  /**
+   * The url used to sign in.
+   */
+  static readonly SIGN_IN_URL = '/login';
 
 
   /**
@@ -103,7 +101,7 @@ export class UserService extends CleanRxjs implements OnDestroy {
    */
   signIn$(redirectUrl?: string): Observable<void> {
     this._redirectUrl = redirectUrl || this.router.url;
-    return from(this.router.navigateByUrl(SIGN_IN_URL)).pipe(
+    return from(this.router.navigateByUrl(UserService.SIGN_IN_URL)).pipe(
       map(res => {
         if (!res) {
           this._redirectUrl = null;
@@ -122,7 +120,7 @@ export class UserService extends CleanRxjs implements OnDestroy {
    */
   signInUrl(redirectUrl?: string): string {
     this._redirectUrl = redirectUrl || this.router.url;
-    return SIGN_IN_URL;
+    return UserService.SIGN_IN_URL;
   }
 
 

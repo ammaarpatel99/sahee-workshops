@@ -1,0 +1,49 @@
+<mat-toolbar color="primary" class="mat-elevation-z8">
+  <button
+    type="button"
+    aria-label="Toggle sidenav"
+    mat-icon-button
+    (click)="toggleDrawer.emit()"
+    *ngIf="displayDrawerToggle">
+    <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+  </button>
+  <div class="title-container" (click)="redirectToHomePage()">
+    <img src="/assets/sahee-logo.png" alt="Sahee">
+    <span>{{title}}</span>
+  </div>
+  <span class="space-filler"></span>
+  <button *ngIf="signedIn;else accountBtn"
+          mat-raised-button color="accent" (click)="signIn()">
+    Sign In
+  </button>
+  <ng-template #accountBtn>
+    <ngx-auth-firebaseui-avatar
+      [canViewAccount]="false"
+      [links]="accountBtnLinks"
+      (onSignOut)="signedOut()"
+    ></ngx-auth-firebaseui-avatar>
+  </ng-template>
+</mat-toolbar>
+
+
+<mat-toolbar *ngIf="!dismissedEmailIssue && emailIssue" class="email-warning" color="warn" >
+    <span>
+      <ng-container [ngSwitch]="emailIssue">
+        <ng-container *ngSwitchCase="'email'">
+          Your account doesn't currently have an email address, so you won't receive any emails.
+          To add an email address, go to the <a routerLink="/account">account page</a>.
+        </ng-container>
+        <ng-container *ngSwitchCase="'verification'">
+          Your account's email isn't verified, so you may not receive emails.
+          To verify your email, go to the <a routerLink="/account">account page</a>.
+        </ng-container>
+        <ng-container *ngSwitchCase="'consent'">
+          You haven't told us whether you consent to emails or not.
+          To set your consent, go to the <a routerLink="/account">account page</a>, or just register for a workshop.
+        </ng-container>
+      </ng-container>
+    </span>
+  <button mat-icon-button (click)="dismissEmailIssue()">
+    <mat-icon>highlight_off</mat-icon>
+  </button>
+</mat-toolbar>
