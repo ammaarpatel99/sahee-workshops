@@ -54,7 +54,7 @@ if (environment.production) {
     WorkshopModule,
     LoginModule,
     NgxAuthFirebaseUIModule.forRoot(environment.firebase, undefined, {
-      enableFirestoreSync: true, // enable/disable autosync users with firestore
+      enableFirestoreSync: true, // enable/disable auto sync users with firestore
       toastMessageOnAuthSuccess: true, // whether to open/show a snackbar message on auth success - default : true
       toastMessageOnAuthError: true, // whether to open/show a snackbar message on auth error - default : true
       enableEmailVerification: true, // default: true
