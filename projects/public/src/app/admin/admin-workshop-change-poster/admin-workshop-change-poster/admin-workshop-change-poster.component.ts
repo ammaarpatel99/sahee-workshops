@@ -2,7 +2,7 @@ import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {filter, finalize, map, switchMap, take, takeWhile, tap} from 'rxjs/operators';
 import {AdminWorkshop} from '../../../../../../../functions/src/firebase-helpers/firestore-interfaces';
 import {from, Observable, of, Subject, Subscription} from 'rxjs';
-import {PosterService} from '../../../services/poster/poster.service';
+import {PosterService} from '../../../services/poster-old/poster.service';
 import {FormControl, Validators} from '@angular/forms';
 
 @Component({

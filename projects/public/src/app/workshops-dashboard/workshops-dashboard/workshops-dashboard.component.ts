@@ -3,7 +3,7 @@ import {ActivatedRoute} from '@angular/router';
 import {Observable, Subscription} from 'rxjs';
 import {map, switchMap} from 'rxjs/operators';
 import {PublicWorkshop} from '../../../../../../functions/src/firebase-helpers/firestore-interfaces';
-import {PosterService, PosterUrls} from '../../services/poster/poster.service';
+import {PosterService, PosterUrls} from '../../services/poster-old/poster.service';
 import {Workshop} from '../../helpers/workshops';
 
 @Component({

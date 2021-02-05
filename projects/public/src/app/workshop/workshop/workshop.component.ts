@@ -3,7 +3,7 @@ import {ActivatedRoute} from '@angular/router';
 import {map, shareReplay, switchMap} from 'rxjs/operators';
 import {Observable} from 'rxjs';
 import {PublicWorkshop, UserWorkshop} from '../../../../../../functions/src/firebase-helpers/firestore-interfaces';
-import {PosterService, PosterUrls} from '../../services/poster/poster.service';
+import {PosterService, PosterUrls} from '../../services/poster-old/poster.service';
 import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
 import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 import {isUserWorkshop, Workshop} from '../../helpers/workshops';
