@@ -45,8 +45,8 @@ export interface RegisterParam {
 export type RegisterRes = void;
 
 
-export interface FeedbackParam {
+export interface SupportParam {
   message: string;
   email?: string;
 }
-export type FeedbackRes = void;
+export type SupportRes = void;
