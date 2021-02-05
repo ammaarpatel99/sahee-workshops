@@ -2,7 +2,6 @@ import {Component, OnDestroy} from '@angular/core';
 import {finalize, map, shareReplay} from 'rxjs/operators';
 import {Observable, Subscription} from 'rxjs';
 import {FormControl} from '@angular/forms';
-import {LoadingService} from '../../services/loading/loading.service';
 import {AngularFireAuth} from '@angular/fire/auth';
 import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
 import {UserService} from '../../services/user/user.service';
@@ -22,11 +21,9 @@ export class AccountComponent implements OnDestroy {
     if (this.consentToEmails.pristine || this.consentToEmails.invalid || this.consentToEmails.disabled) {
       throw new Error(`Can't change consent.`);
     }
-    this.loadingService.startLoading();
     this.consentService.updateConsent$(this.consentToEmails.value).pipe(
       finalize(() => {
         this.consentToEmails.markAsPristine();
-        this.loadingService.stopLoading();
       })
     ).subscribe();
   }
@@ -38,14 +35,12 @@ export class AccountComponent implements OnDestroy {
   constructor(
     private readonly userService: UserService,
     private readonly consentService: ConsentService,
-    private readonly loadingService: LoadingService,
     private readonly auth: AngularFireAuth,
     private readonly breakpointObserver: BreakpointObserver
   ) {
     this.emailNotVerified$ = this.getEmailNotVerified$();
     this.containerClass$ = this.getContainerClass$();
     this.subscriptions.push(
-      this.disableWhenLoading$(this.loadingService.loading$).subscribe(),
       this.watchEmailConsent$().subscribe()
     );
   }

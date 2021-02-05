@@ -13,10 +13,10 @@
   </mat-form-field>
   <div class="form-actions">
     <ng-container *ngIf="!(editing$ | async); else formActions">
-      <button mat-flat-button color="warn" type="reset" (click)="delete()" [disabled]="loading$|async">
+      <button mat-flat-button color="warn" type="reset" (click)="delete()">
         Delete
       </button>
-      <button mat-stroked-button color="primary" (click)="edit()" [disabled]="loading$|async">
+      <button mat-stroked-button color="primary" (click)="edit()">
         Edit
       </button>
     </ng-container>

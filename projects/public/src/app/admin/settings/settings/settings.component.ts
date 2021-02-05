@@ -3,7 +3,6 @@ import {Observable} from 'rxjs';
 import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
 import {finalize, map, shareReplay} from 'rxjs/operators';
 import {FormControl, Validators} from '@angular/forms';
-import {LoadingService} from '../../../services/loading/loading.service';
 import {RepairService} from '../../../services/repair/repair.service';
 import {UserService} from '../../../services/user/user.service';
 import {ManageAdminsService} from '../../../services/manage-admins/manage-admins.service';
@@ -16,7 +15,6 @@ import {ManageAdminsService} from '../../../services/manage-admins/manage-admins
 export class SettingsComponent implements OnInit {
   public readonly containerClass$: Observable<'wide-container' | 'thin-container'>;
   public readonly isAdmin$: Observable<boolean | undefined>;
-  public readonly loading$: Observable<boolean>;
   private _restoredAdmins: string[] | null = null;
   private _patchedDatabase = false;
   private _repairedDatabase = false;
@@ -39,9 +37,7 @@ export class SettingsComponent implements OnInit {
     if (this.adminEmail.pristine || this.adminEmail.invalid || this.adminEmail.disabled) {
       throw new Error(`Can't change admin privileges.`);
     }
-    this.loadingService.startLoading();
     (makeAdmin ? this.manageAdminsService.makeAdmin$ : this.manageAdminsService.removeAdmin$)(this.adminEmail.value).pipe(
-      finalize(() => this.loadingService.stopLoading()),
       map(() => {
         this.adminEmail.reset();
       })
@@ -49,10 +45,7 @@ export class SettingsComponent implements OnInit {
   }
 
   restoreCoreAdmins(): void {
-    if (this.loadingService.loading()) throw new Error(`Can't restore core admins.`);
-    this.loadingService.startLoading();
     this.repairService.restoreAdmins$().pipe(
-      finalize(() => this.loadingService.stopLoading()),
       map(admins => {
         this._restoredAdmins = admins;
       })
@@ -60,13 +53,11 @@ export class SettingsComponent implements OnInit {
   }
 
   patchDatabase(): void  {
-    if (this.loadingService.loading()) throw new Error(`Can't patch database.`);
     // TODO: implement
     this._patchedDatabase = true;
   }
 
   repairDatabase(): void  {
-    if (this.loadingService.loading()) throw new Error(`Can't patch database.`);
     // TODO: implement
     this._repairedDatabase = true;
   }
@@ -75,12 +66,10 @@ export class SettingsComponent implements OnInit {
     private readonly breakpointObserver: BreakpointObserver,
     private readonly repairService: RepairService,
     private readonly adminService: UserService,
-    private readonly loadingService: LoadingService,
     private readonly manageAdminsService: ManageAdminsService
   ) {
     this.containerClass$ = this.getContainerClass$();
     this.isAdmin$ = this.adminService.isAdmin$;
-    this.loading$ = this.loadingService.loading$;
   }
 
   private getContainerClass$(): Observable<'wide-container' | 'thin-container'> {

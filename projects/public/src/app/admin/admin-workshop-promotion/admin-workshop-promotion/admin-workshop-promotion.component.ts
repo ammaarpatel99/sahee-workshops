@@ -3,7 +3,6 @@ import {Observable, of, Subscription} from 'rxjs';
 import {AdminWorkshop} from '../../../../../../../functions/src/firebase-helpers/firestore-interfaces';
 import {filter, finalize, map, switchMap, take} from 'rxjs/operators';
 import {FormControl, Validators} from '@angular/forms';
-import {LoadingService} from '../../../services/loading/loading.service';
 import {EmailService} from '../../../services/email/email.service';
 
 @Component({
@@ -20,10 +19,8 @@ export class AdminWorkshopPromotionComponent implements OnInit, OnDestroy {
     if (this.promotionEmail.pristine || this.promotionEmail.disabled || this.promotionEmail.invalid) {
       throw new Error(`Can't send promotional email.`);
     }
-    this.loadingService.startLoading();
     this.workshop$.pipe(
       take(1),
-      finalize(() => this.loadingService.stopLoading()),
       filter(workshop => !!workshop),
       switchMap(workshop =>
         this.emailService.promote$(
@@ -41,11 +38,9 @@ export class AdminWorkshopPromotionComponent implements OnInit, OnDestroy {
   }
 
   constructor(
-    private readonly emailService: EmailService,
-    private readonly loadingService: LoadingService
+    private readonly emailService: EmailService
   ) {
     this.subscriptions.push(
-      this.disableWhenLoading$(this.loadingService.loading$).subscribe()
     );
   }
 

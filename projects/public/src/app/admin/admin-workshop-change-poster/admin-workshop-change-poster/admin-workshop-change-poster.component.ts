@@ -3,7 +3,6 @@ import {filter, finalize, map, switchMap, take, takeWhile, tap} from 'rxjs/opera
 import {AdminWorkshop} from '../../../../../../../functions/src/firebase-helpers/firestore-interfaces';
 import {from, Observable, of, Subject, Subscription} from 'rxjs';
 import {PosterService} from '../../../services/poster/poster.service';
-import {LoadingService} from '../../../services/loading/loading.service';
 import {FormControl, Validators} from '@angular/forms';
 
 @Component({
@@ -40,12 +39,10 @@ export class AdminWorkshopChangePosterComponent implements OnInit, OnDestroy {
     if (!initialising && (this.poster.disabled || this.poster.pristine)) {
       throw new Error(`Can't reset poster`);
     }
-    if (!initialising) this.loadingService.startLoading();
     this.poster.reset();
     this.workshop$.pipe(
       take(1),
       finalize(() => {
-        if (!initialising) this.loadingService.stopLoading();
       }),
       filter(workshop => !!workshop),
       map(workshop => (workshop as AdminWorkshop).id),
@@ -64,12 +61,10 @@ export class AdminWorkshopChangePosterComponent implements OnInit, OnDestroy {
     if (!(file instanceof File)) {
       throw new Error(`Can't submit poster.`);
     }
-    this.loadingService.startLoading();
     this.workshop$.pipe(
       take(1),
       finalize(() => {
         this._posterUploadStatus$.next(null);
-        this.loadingService.stopLoading();
         this.resetPoster();
       }),
       filter(workshop => !!workshop),
@@ -81,12 +76,10 @@ export class AdminWorkshopChangePosterComponent implements OnInit, OnDestroy {
   }
 
   constructor(
-    private readonly posterService: PosterService,
-    private readonly loadingService: LoadingService
+    private readonly posterService: PosterService
   ) {
     this.subscriptions.push(
-      this.watchPoster$().subscribe(),
-      this.disableWhenLoading$(this.loadingService.loading$).subscribe()
+      this.watchPoster$().subscribe()
     );
   }
 

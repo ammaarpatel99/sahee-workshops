@@ -44,7 +44,7 @@
       </ng-container>
       <mat-action-row>
         <button mat-stroked-button color="warn" (click)="restoreCoreAdmins()"
-                [disabled]="restoredAdmins !== null || (loading$ | async)">
+                [disabled]="restoredAdmins !== null">
           Restore Core Admins
         </button>
       </mat-action-row>
@@ -64,7 +64,7 @@
       </h4>
       <mat-action-row>
         <button mat-stroked-button color="warn" (click)="patchDatabase()"
-                [disabled]="patchedDatabase || (loading$ | async)">
+                [disabled]="patchedDatabase">
           Restore Core Admins
         </button>
       </mat-action-row>
@@ -86,7 +86,7 @@
       </h4>
       <mat-action-row>
         <button mat-stroked-button color="warn" (click)="repairDatabase()"
-                [disabled]="repairedDatabase || (loading$ | async)">
+                [disabled]="repairedDatabase">
           Restore Core Admins
         </button>
       </mat-action-row>

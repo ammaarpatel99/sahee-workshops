@@ -5,7 +5,6 @@ import {filter, map, shareReplay, take} from 'rxjs/operators';
 import {LinkMenuItem} from 'ngx-auth-firebaseui';
 import {NavigationEnd, Router} from '@angular/router';
 import {AngularFireAuth} from '@angular/fire/auth';
-import {LoadingService} from '../../services/loading/loading.service';
 import {MatSidenav} from '@angular/material/sidenav';
 import {UserService} from '../../services/user/user.service';
 import {NavigationService} from '../../services/navigation/navigation.service';
@@ -23,7 +22,6 @@ export class NavContainerComponent {
   ];
   public readonly sidenavLinks$: Observable<{name: string, link: string}[]>;
   public readonly user$: Observable<boolean>;
-  public readonly loading$: Observable<boolean>;
   public readonly title$: Observable<'Workshops' | ``>;
   public readonly adminTheme$: Observable<'admin-theme' | ''>;
   public dismissedEmailWarning = false;
@@ -58,14 +56,12 @@ export class NavContainerComponent {
     private readonly router: Router,
     private readonly userService: UserService,
     private readonly auth: AngularFireAuth,
-    linksService: NavigationService,
-    loadingService: LoadingService
+    linksService: NavigationService
   ) {
     this.emailIssues$ = this.getEmailIssues$();
     this.isHandset$ = this.observeIsHandset$();
     this.sidenavLinks$ = linksService.links$;
     this.user$ = this.getUser$();
-    this.loading$ = loadingService.loading$;
     this.title$ = this.getTitle$();
     this.adminTheme$ = this.getAdminTheme$();
   }

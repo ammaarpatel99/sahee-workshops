@@ -3,7 +3,6 @@ import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {AngularFireAuth} from '@angular/fire/auth';
 import {Observable, Subscription} from 'rxjs';
 import {finalize, map, shareReplay, take} from 'rxjs/operators';
-import {LoadingService} from '../../services/loading/loading.service';
 import {Router} from '@angular/router';
 import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
 import {SupportService} from '../../services/support/support.service';
@@ -32,15 +31,12 @@ export class FeedbackComponent implements OnInit, OnDestroy {
     if (this.form.pristine || this.form.invalid || this.form.disabled) {
       throw new Error(`Can't submit feedback.`);
     }
-    this.loadingService.startLoading();
     this.emailService.support$(this.message.value, this.email.enabled ? this.email.value : undefined).pipe(
-      finalize(() => this.loadingService.stopLoading())
     ).subscribe(() => this.router.navigateByUrl('/'));
   }
 
   constructor(
     private readonly auth: AngularFireAuth,
-    private readonly loadingService: LoadingService,
     private readonly emailService: SupportService,
     private readonly router: Router,
     private readonly breakpointObserver: BreakpointObserver
@@ -48,7 +44,6 @@ export class FeedbackComponent implements OnInit, OnDestroy {
     this.containerClass$ = this.getContainerClass$();
     this.subscriptions.push(
       this.watchUserForEmail$().subscribe(),
-      this.disableWhileLoading$(this.loadingService.loading$).subscribe()
     );
   }
 

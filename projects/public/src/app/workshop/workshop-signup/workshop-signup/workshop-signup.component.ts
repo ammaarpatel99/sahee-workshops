@@ -2,7 +2,6 @@ import {AfterViewInit, Component, Input, OnDestroy, OnInit, ViewChild} from '@an
 import {Observable, Subscription} from 'rxjs';
 import {map, take} from 'rxjs/operators';
 import {FormControl, FormGroup} from '@angular/forms';
-import {LoadingService} from '../../../services/loading/loading.service';
 import {AngularFireAuth} from '@angular/fire/auth';
 import {isUserWorkshop} from '../../../helpers/workshops';
 import {MatHorizontalStepper} from '@angular/material/stepper';
@@ -40,7 +39,6 @@ export class WorkshopSignupComponent implements OnInit, AfterViewInit, OnDestroy
     ) throw new Error(`Can't submit registration.`);
     // whether to edit general consent must be evaluated here as all controls are disabled when loading
     const editGeneralConsent = this.formControl('generalEmailConsent').enabled;
-    this.loadingService.startLoading();
     try {
       const workshopID = this.workshopID;
       if (this.registered) {
@@ -52,7 +50,6 @@ export class WorkshopSignupComponent implements OnInit, AfterViewInit, OnDestroy
       }
       this.form.markAsPristine();
     } finally {
-      this.loadingService.stopLoading();
     }
   }
 
@@ -80,12 +77,10 @@ export class WorkshopSignupComponent implements OnInit, AfterViewInit, OnDestroy
   constructor(
     private readonly workshopsService: UserWorkshopsService,
     private readonly consentService: ConsentService,
-    private readonly loadingService: LoadingService,
     auth: AngularFireAuth
   ) {
     this.subscriptions.push(
-      this.watchEmailConsent$().subscribe(),
-      this.disableFormWhenLoading$(this.loadingService.loading$).subscribe()
+      this.watchEmailConsent$().subscribe()
     );
     this.user$ = auth.user.pipe(map(user => !!user));
   }

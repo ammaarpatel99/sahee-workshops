@@ -7,7 +7,6 @@ import {finalize, map, switchMap, switchMapTo, take, tap} from 'rxjs/operators';
 import {ActivatedRoute, Router} from '@angular/router';
 import firebase from 'firebase/app';
 import Timestamp = firebase.firestore.Timestamp;
-import {LoadingService} from '../../../services/loading/loading.service';
 import {AdminWorkshopsService} from '../../../services/admin-workshops/admin-workshops.service';
 
 type WorkshopDetails = Exclude<keyof AdminWorkshop, 'id'|'datetime' >;
@@ -38,7 +37,6 @@ export class AdminWorkshopDetailsFormComponent implements OnInit, OnDestroy {
   readonly displayFields = DISPLAY_FIELDS;
   private readonly _editing$ = new ReplaySubject<boolean>(1);
   readonly editing$ = this._editing$.asObservable();
-  readonly loading$: Observable<boolean>;
   /**
    * An observable that produces a Workshop instance when editing said workshop, and undefined
    * when creating a new workshop. The observable should be multicast and have a buffer (i.e.
@@ -74,7 +72,6 @@ export class AdminWorkshopDetailsFormComponent implements OnInit, OnDestroy {
     if (!initialising && (this.form.pristine || this.form.disabled)) {
       throw new Error(`Can't reset workshop details form.`);
     }
-    if (!initialising) this.loadingService.startLoading();
     try {
       const workshop = await this.workshop$.pipe(take(1)).toPromise();
       if (!workshop) {
@@ -85,7 +82,6 @@ export class AdminWorkshopDetailsFormComponent implements OnInit, OnDestroy {
       this.form.reset({...workshop, jsDate: workshop.jsDate.toISOString().slice(0, -1)});
       this._editing$.next(false);
     } finally {
-      if (!initialising) this.loadingService.stopLoading();
     }
   }
 
@@ -97,7 +93,6 @@ export class AdminWorkshopDetailsFormComponent implements OnInit, OnDestroy {
     if (this.form.invalid || this.form.pristine || this.form.disabled) {
       throw new Error(`Can't submit workshop details form.`);
     }
-    this.loadingService.startLoading();
     try {
       const currentWorkshop = await this.workshop$.pipe(take(1)).toPromise();
       if (!currentWorkshop) {
@@ -106,7 +101,6 @@ export class AdminWorkshopDetailsFormComponent implements OnInit, OnDestroy {
         await this.updateWorkshop(currentWorkshop.id);
       }
     } finally {
-      this.loadingService.stopLoading();
     }
   }
 
@@ -114,14 +108,11 @@ export class AdminWorkshopDetailsFormComponent implements OnInit, OnDestroy {
     if (this.form.enabled) {
       throw new Error(`Can't delete workshop details.`);
     }
-    this.loadingService.startLoading();
     const currentWorkshop = await this.workshop$.pipe(take(1)).toPromise();
     if (!currentWorkshop) {
-      this.loadingService.stopLoading();
       return;
     }
     this.adminWorkshopsService.delete$(currentWorkshop.id).pipe(
-      finalize(() => this.loadingService.stopLoading()),
       switchMapTo(this.router.navigate(['..'], {relativeTo: this.route}))
     ).subscribe();
   }
@@ -165,13 +156,10 @@ export class AdminWorkshopDetailsFormComponent implements OnInit, OnDestroy {
   constructor(
     private readonly router: Router,
     private readonly route: ActivatedRoute,
-    private readonly adminWorkshopsService: AdminWorkshopsService,
-    private readonly loadingService: LoadingService
+    private readonly adminWorkshopsService: AdminWorkshopsService
   ) {
-    this.loading$ = this.loadingService.loading$;
     this.subscriptions.push(
-      this.manageFormEnabledState$().subscribe(),
-      this.disableFormWhenLoading$().subscribe()
+      this.manageFormEnabledState$().subscribe()
     );
   }
 
@@ -180,21 +168,6 @@ export class AdminWorkshopDetailsFormComponent implements OnInit, OnDestroy {
       map((editing: boolean): void => {
         if (editing) this.form.enable();
         else this.form.disable();
-      })
-    );
-  }
-
-  private disableFormWhenLoading$(): Observable<void> {
-    return this.loading$.pipe(
-      switchMap(loading => {
-        if (loading) {
-          this.form.disable();
-          return of(undefined);
-        }
-        return this.editing$.pipe(
-          take(1),
-          map(editing => this._editing$.next(editing))
-        );
       })
     );
   }
