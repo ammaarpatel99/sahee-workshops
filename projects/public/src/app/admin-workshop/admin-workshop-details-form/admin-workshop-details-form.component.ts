@@ -136,13 +136,18 @@ export class AdminWorkshopDetailsFormComponent {
     if (!force && this.form.disabled) {
       throw new Error(`Can't reset workshop details form.`);
     }
-    if (!this.workshop) {
-      this.form.reset();
-      this.editing = true;
-      return;
+    this.form.disable();
+    try {
+      if (!this.workshop) {
+        this.form.reset();
+        this.editing = true;
+        return;
+      }
+      this.form.reset({...this.workshop, jsDate: this.workshop.jsDate.toISOString().slice(0, -1)});
+      this.editing = false;
+    } finally {
+      this.form.enable();
     }
-    this.form.reset({...this.workshop, jsDate: this.workshop.jsDate.toISOString().slice(0, -1)});
-    this.editing = false;
   }
 
 
@@ -153,10 +158,15 @@ export class AdminWorkshopDetailsFormComponent {
     if (this.form.invalid || this.form.pristine || this.form.disabled) {
       throw new Error(`Can't submit workshop details form.`);
     }
-    if (!this.workshop) {
-      await this.createWorkshop();
-    } else {
-      await this.updateWorkshop(this.workshop.id);
+    this.form.disable();
+    try {
+      if (!this.workshop) {
+        await this.createWorkshop();
+      } else {
+        await this.updateWorkshop(this.workshop.id);
+      }
+    } finally {
+      this.form.enable();
     }
   }
 
