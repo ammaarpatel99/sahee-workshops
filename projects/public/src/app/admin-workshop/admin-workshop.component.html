@@ -7,7 +7,7 @@
 </div>
 
 <ng-template #detailsForm>
-  <app-admin-workshop-details-form [workshop$]="workshop$"></app-admin-workshop-details-form>
+  <app-admin-workshop-details-form [workshop]="workshop$ | async"></app-admin-workshop-details-form>
 </ng-template>
 
 <ng-template #workshopTabs>
