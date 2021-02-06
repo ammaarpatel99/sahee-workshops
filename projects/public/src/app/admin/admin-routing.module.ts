@@ -1,8 +1,8 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {AdminWorkshopComponent} from '../admin-workshop/admin-workshop.component';
+import {AdminWorkshopComponent} from './admin-workshop/admin-workshop.component';
 import {WorkshopsDashboardComponent} from '../workshops-dashboard/workshops-dashboard.component';
-import {AdminWorkshopResolver} from '../guards/admin-workshop/admin-workshop.resolver';
+import {AdminWorkshopResolver} from './guards/admin-workshop/admin-workshop.resolver';
 
 const routes: Routes = [
   {

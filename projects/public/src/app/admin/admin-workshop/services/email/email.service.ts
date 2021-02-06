@@ -3,8 +3,8 @@ import {AngularFireFunctions} from '@angular/fire/functions';
 import {functions as f, PromotionalEmailParam, PromotionalEmailRes, SendEmailParam, SendEmailRes} from '@firebase-helpers';
 import {Observable, of} from 'rxjs';
 import {first, switchMap} from 'rxjs/operators';
-import {AdminWorkshopsService} from '../admin-workshops/admin-workshops.service';
-import {environment} from '../../../environments/environment';
+import {AdminWorkshopsService} from '../../../services/admin-workshops/admin-workshops.service';
+import {environment} from '../../../../../environments/environment';
 
 
 /**

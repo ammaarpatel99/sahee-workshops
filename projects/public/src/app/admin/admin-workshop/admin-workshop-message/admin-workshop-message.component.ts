@@ -3,8 +3,8 @@ import {finalize, map, takeUntil} from 'rxjs/operators';
 import {AdminWorkshop} from '@firebase-helpers';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {AdminWorkshopsService} from '../../services/admin-workshops/admin-workshops.service';
-import {EmailService} from '../../services/email/email.service';
-import {CleanRxjs} from '../../helpers/clean-rxjs/clean-rxjs';
+import {EmailService} from '../services/email/email.service';
+import {CleanRxjs} from '../../../helpers/clean-rxjs/clean-rxjs';
 
 
 interface SentEmail {

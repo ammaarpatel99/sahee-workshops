@@ -3,7 +3,7 @@ import {Resolve} from '@angular/router';
 import {Observable} from 'rxjs';
 import {AdminWorkshop} from '@firebase-helpers';
 import {AdminWorkshopsService} from '../../services/admin-workshops/admin-workshops.service';
-import {GeneralWorkshopResolver} from '../../helpers/workshop-resolver/general-workshop-resolver';
+import {GeneralWorkshopResolver} from '../../../helpers/workshop-resolver/general-workshop-resolver';
 
 
 @Injectable({

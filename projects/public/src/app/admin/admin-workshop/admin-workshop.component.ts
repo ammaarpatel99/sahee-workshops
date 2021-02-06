@@ -4,8 +4,8 @@ import {map, shareReplay, switchMap, takeUntil} from 'rxjs/operators';
 import {ActivatedRoute} from '@angular/router';
 import {AdminWorkshop} from '@firebase-helpers';
 import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
-import {WorkshopStats, WorkshopStatsService} from '../services/workshop-stats/workshop-stats.service';
-import {CleanRxjs} from '../helpers/clean-rxjs/clean-rxjs';
+import {WorkshopStats, WorkshopStatsService} from './services/workshop-stats/workshop-stats.service';
+import {CleanRxjs} from '../../helpers/clean-rxjs/clean-rxjs';
 
 
 @Component({

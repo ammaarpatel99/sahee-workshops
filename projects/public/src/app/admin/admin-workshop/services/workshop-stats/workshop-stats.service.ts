@@ -1,10 +1,10 @@
 import {Injectable, OnDestroy} from '@angular/core';
 import {combineLatest, Observable, of} from 'rxjs';
-import {AdminWorkshopsService} from '../admin-workshops/admin-workshops.service';
+import {AdminWorkshopsService} from '../../../services/admin-workshops/admin-workshops.service';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {WorkshopUserDoc, FIRESTORE_PATHS as PATHS, UserDoc} from '@firebase-helpers';
 import {distinctUntilChanged, map, shareReplay, switchMap, takeUntil} from 'rxjs/operators';
-import {CleanRxjs} from '../../helpers/clean-rxjs/clean-rxjs';
+import {CleanRxjs} from '../../../../helpers/clean-rxjs/clean-rxjs';
 
 
 /**

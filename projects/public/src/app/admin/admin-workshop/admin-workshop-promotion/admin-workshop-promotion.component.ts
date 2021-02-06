@@ -1,7 +1,7 @@
 import {Component, Input} from '@angular/core';
 import {finalize, map} from 'rxjs/operators';
 import {FormControl, Validators} from '@angular/forms';
-import {EmailService} from '../../services/email/email.service';
+import {EmailService} from '../services/email/email.service';
 
 
 interface SentEmail {
