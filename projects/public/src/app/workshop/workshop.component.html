@@ -40,5 +40,8 @@
       ></iframe>
     </ng-container>
   </ng-container>
-  <app-workshop-signup [workshopID]="(workshop$ | async)?.id"></app-workshop-signup>
+  <app-workshop-signup
+    [workshopID]="(workshop$ | async)?.id"
+    [consent]="(userWorkshop$ | async)?.consentToEmails || null"
+  ></app-workshop-signup>
 </div>
