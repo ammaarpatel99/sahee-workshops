@@ -19,7 +19,7 @@ export class MainToolbarComponent extends CleanRxjs implements OnDestroy {
    * Whether to display a toggle for the sidenav drawer.
    * Defaults to false.
    */
-  @Input() displayDrawerToggle = false;
+  @Input() displayDrawerToggle: boolean | null = false;
   /**
    * Emits when the user clicked the sidenav drawer toggle.
    */
@@ -27,7 +27,7 @@ export class MainToolbarComponent extends CleanRxjs implements OnDestroy {
   /**
    * The title to display in the toolbar.
    */
-  @Input() title?: string;
+  @Input() title: string | null = null;
   /**
    * Whether a user is signed in.
    * It is used to decide whether to display the sign in button or the account button

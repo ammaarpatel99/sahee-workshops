@@ -37,19 +37,15 @@ export class WorkshopSignupComponent extends CleanRxjs implements AfterViewInit,
 
 
   /**
-   * The internal field for {@link workshopID}.
-   * @private
-   */
-  private _workshopID?: string;
-  /**
    * The ID of the workshop the user is registering/registered for.
    */
-  @Input()
-  set workshopID(id: string) {
-    this._workshopID = id;
-  }
-  get workshopID(): string {
-    const id = this._workshopID;
+  @Input() workshopID?: string;
+
+  /**
+   * Internal field for {@link workshopID} that throws an error if it is null.
+   */
+  get _workshopID(): string {
+    const id = this.workshopID;
     if (!id) throw new Error(`No workshop ID in signup component.`);
     return id;
   }
@@ -151,7 +147,7 @@ export class WorkshopSignupComponent extends CleanRxjs implements AfterViewInit,
    * @private
    */
   private unregister(): Promise<void> {
-    return this.workshopsService.unregister$(this.workshopID).toPromise();
+    return this.workshopsService.unregister$(this._workshopID).toPromise();
   }
 
 
@@ -169,7 +165,7 @@ export class WorkshopSignupComponent extends CleanRxjs implements AfterViewInit,
    * @private
    */
   private register(): Promise<void> {
-    return this.workshopsService.register$(this.workshopID, this.emailConsent.value).toPromise();
+    return this.workshopsService.register$(this._workshopID, this.emailConsent.value).toPromise();
   }
 
 
@@ -178,7 +174,7 @@ export class WorkshopSignupComponent extends CleanRxjs implements AfterViewInit,
    * @private
    */
   private changeConsent(): Promise<void> {
-    return this.workshopsService.updateConsent$(this.workshopID, this.emailConsent.value).toPromise();
+    return this.workshopsService.updateConsent$(this._workshopID, this.emailConsent.value).toPromise();
   }
 
 

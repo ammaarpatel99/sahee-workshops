@@ -1,5 +1,5 @@
 import {AsyncSubject} from 'rxjs';
-import {OnDestroy} from '@angular/core';
+import {Injectable, OnDestroy} from '@angular/core';
 
 
 /**
@@ -9,7 +9,8 @@ import {OnDestroy} from '@angular/core';
  * <br/>
  * To use put takeUntil(this.destroy$) in appropriate observables, so they will complete when the class is destroyed.
  */
-export class CleanRxjs implements OnDestroy {
+@Injectable()
+export abstract class CleanRxjs implements OnDestroy {
   /**
    * Used to destroy long-lived or hot observables with the takeUntil structure when destroying component.
    * @private
