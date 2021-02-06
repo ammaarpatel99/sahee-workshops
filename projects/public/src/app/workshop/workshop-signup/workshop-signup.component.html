@@ -15,7 +15,7 @@
         </ng-template>
       </h4>
       <form [formGroup]="form" >
-        <mat-slide-toggle formControlName="generalEmailConsent" *ngIf="formControl('generalEmailConsent').enabled" >
+        <mat-slide-toggle formControlName="generalEmailConsent" *ngIf="generalEmailConsent.enabled" >
           Consent to emails about <strong>other</strong> workshops
         </mat-slide-toggle>
         <div></div>
@@ -27,11 +27,10 @@
         <button mat-stroked-button color="warn" *ngIf="registered" [disabled]="form.disabled" (click)="submit(true)">
           Unregister
         </button>
-        <button mat-stroked-button color="primary" [disabled]="(registered && form.pristine) || form.disabled || form.invalid" (click)="submit()">
+        <button mat-stroked-button color="primary" [disabled]="(registered && form.pristine) || form.disabled" (click)="submit()">
           Submit
         </button>
       </div>
     </mat-step>
   </mat-horizontal-stepper>
 </form>
-
