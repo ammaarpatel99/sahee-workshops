@@ -15,6 +15,7 @@ node_modules/
 
 #secret
 src/email/transporter.ts
+src/email/secret-emails.ts
 
 #output
 lib/

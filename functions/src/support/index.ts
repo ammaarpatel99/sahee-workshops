@@ -2,6 +2,7 @@ import {https} from 'firebase-functions';
 import {auth} from 'firebase-admin';
 import {sendEmail} from '../email/send-email';
 import {onCall} from '../function-builder';
+import {SUPPORT_EMAIL} from '../email/secret-emails';
 
 const HttpsError = https.HttpsError;
 
@@ -24,7 +25,7 @@ export const issue = onCall(async (data, context) => {
   await sendEmail({
     subject: `Error/Issue Report`,
     message,
-    to: `ammaarpatel99@gmail.com`,
+    to: SUPPORT_EMAIL,
     replyTo: email,
     cc: `sajedapat@gmail.com`
   });

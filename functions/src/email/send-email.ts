@@ -1,6 +1,7 @@
 import {transporter} from './transporter';
 import {Address} from 'nodemailer/lib/mailer';
 import {SentMessageInfo} from 'nodemailer';
+import {CONTACT_EMAIL, NO_REPLY_EMAIL} from './secret-emails';
 
 
 export interface EmailOptions {
@@ -13,17 +14,14 @@ export interface EmailOptions {
 }
 
 
-const SAHEE_CONTACT: Address = {name: 'Sajeda Patel', address: 'sajedapat@gmail.com'};
-
-
 export function sendEmail(emailOptions: EmailOptions): Promise<SentMessageInfo> {
   return transporter.sendMail({
     subject: `[SAHEE] ${(emailOptions.subject)}`,
     text: emailOptions.message,
-    to: emailOptions.to || SAHEE_CONTACT,
+    to: emailOptions.to || CONTACT_EMAIL,
     bcc: emailOptions.bcc,
-    replyTo: emailOptions.replyTo || SAHEE_CONTACT,
-    from: {name: 'Sahee Counselling', address: 'no-reply@sahee.co.uk'},
+    replyTo: emailOptions.replyTo || CONTACT_EMAIL,
+    from: NO_REPLY_EMAIL,
     cc: emailOptions.cc
   });
 }
