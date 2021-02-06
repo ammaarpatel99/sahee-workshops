@@ -2,9 +2,9 @@ import {Component} from '@angular/core';
 import {Observable, of} from 'rxjs';
 import {map, shareReplay, switchMap} from 'rxjs/operators';
 import {ActivatedRoute} from '@angular/router';
-import {AdminWorkshop} from '../../../../../../../functions/src/firebase-helpers/firestore-interfaces';
+import {AdminWorkshop} from '../../../../../functions/src/firebase-helpers/firestore-interfaces';
 import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
-import {WorkshopStats, WorkshopStatsService} from '../../../services/workshop-stats/workshop-stats.service';
+import {WorkshopStats, WorkshopStatsService} from '../services/workshop-stats/workshop-stats.service';
 
 @Component({
   selector: 'app-admin-workshop',

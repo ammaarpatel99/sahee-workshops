@@ -17,9 +17,10 @@ import {WorkshopsDashboardModule} from './workshops-dashboard/workshops-dashboar
 import {WorkshopModule} from './workshop/workshop.module';
 import {LoginModule} from './login/login.module';
 import {NgxAuthFirebaseUIModule} from 'ngx-auth-firebaseui';
+import { ServiceWorkerModule } from '@angular/service-worker';
+
 
 import './firebase-initialisation/firebase-initialisation';
-import { ServiceWorkerModule } from '@angular/service-worker';
 
 const productionModules = [];
 const ProductionProviders = [];
@@ -34,6 +35,7 @@ if (environment.production) {
     PerformanceMonitoringService
   );
 }
+
 
 @NgModule({
   declarations: [

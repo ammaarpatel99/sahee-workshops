@@ -1,5 +1,5 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {AdminWorkshop, AdminWorkshopDoc} from '../../../../../../../functions/src/firebase-helpers/firestore-interfaces';
+import {AdminWorkshop, AdminWorkshopDoc} from '../../../../../../functions/src/firebase-helpers/firestore-interfaces';
 import {Observable, of, ReplaySubject, Subscription} from 'rxjs';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {MatFormFieldAppearance} from '@angular/material/form-field';
@@ -7,7 +7,7 @@ import {finalize, map, switchMap, switchMapTo, take, tap} from 'rxjs/operators';
 import {ActivatedRoute, Router} from '@angular/router';
 import firebase from 'firebase/app';
 import Timestamp = firebase.firestore.Timestamp;
-import {AdminWorkshopsService} from '../../../services/admin-workshops/admin-workshops.service';
+import {AdminWorkshopsService} from '../../services/admin-workshops/admin-workshops.service';
 
 type WorkshopDetails = Exclude<keyof AdminWorkshop, 'id'|'datetime' >;
 

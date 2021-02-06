@@ -1,6 +1,6 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {AdminWorkshopComponent} from './admin-workshop/admin-workshop/admin-workshop.component';
+import {AdminWorkshopComponent} from '../admin-workshop/admin-workshop.component';
 import {WorkshopsDashboardComponent} from '../workshops-dashboard/workshops-dashboard.component';
 import {AdminWorkshopResolver} from '../resolvers/admin-workshop/admin-workshop.resolver';
 
