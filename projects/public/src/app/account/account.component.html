@@ -7,11 +7,13 @@
           <mat-panel-title>Profile</mat-panel-title>
           <mat-panel-description>Edit Name and Email (and delete account)</mat-panel-description>
         </mat-expansion-panel-header>
-        <ngx-auth-firebaseui-user
-          (onAccountDeleted)="signedOut()"
-          [canLogout]="false"
-          (onSignOut)="signedOut()"
-        ></ngx-auth-firebaseui-user>
+        <ng-template matExpansionPanelContent>
+          <ngx-auth-firebaseui-user
+            (onAccountDeleted)="signedOut()"
+            [canLogout]="false"
+            (onSignOut)="signedOut()"
+          ></ngx-auth-firebaseui-user>
+        </ng-template>
       </mat-expansion-panel>
 
 
@@ -19,7 +21,10 @@
         <mat-expansion-panel-header>
           <mat-panel-title>Verify email</mat-panel-title>
         </mat-expansion-panel-header>
-        <ngx-auth-firebaseui-email-confirmation (signOut)="signedOut()" ></ngx-auth-firebaseui-email-confirmation>
+        <ng-template matExpansionPanelContent>
+          <ngx-auth-firebaseui-email-confirmation (signOut)="signedOut()" >
+          </ngx-auth-firebaseui-email-confirmation>
+        </ng-template>
       </mat-expansion-panel>
 
 
@@ -33,7 +38,7 @@
           <mat-slide-toggle [formControl]="consentToEmails">Consent to emails about workshops.</mat-slide-toggle>
         </div>
         <mat-action-row>
-          <button mat-stroked-button color="primary" (click)="changeConsent()"
+          <button mat-stroked-button color="primary" (click)="updateConsent()"
                   [disabled]="consentToEmails.pristine || consentToEmails.invalid || consentToEmails.disabled">
             Submit
           </button>
