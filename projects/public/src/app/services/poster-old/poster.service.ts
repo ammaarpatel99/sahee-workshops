@@ -18,6 +18,7 @@ export interface PosterUrls {
   providedIn: 'root'
 })
 export class PosterService {
+  // TODO: cache poster urls
 
   /**
    * Used to get all urls for posters for a workshop.
