@@ -109,7 +109,9 @@ export class SupportComponent extends CleanRxjs {
       .support$(this.message.value, email)
       .pipe(
         finalize(() => this.form.enable())
-      ).subscribe();
+      ).subscribe({
+      next: () => this.form.reset()
+    });
   }
 
 
