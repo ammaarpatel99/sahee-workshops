@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import {WorkshopsDashboardComponent} from './workshops-dashboard/workshops-dashboard.component';
 import {WorkshopComponent} from './workshop/workshop.component';
-import {LoginComponent} from './login/login/login.component';
+import {LoginComponent} from './login/login.component';
 import {LatestWorkshopGuard} from './guards/latest-workshop/latest-workshop.guard';
 import {LoginGuard} from './guards/login/login.guard';
 import {LoggedInGuard} from './guards/logged-in/logged-in.guard';
