@@ -1,7 +1,7 @@
 import {Component, OnDestroy} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {distinctUntilChanged, filter, map, shareReplay, switchMap, takeUntil} from 'rxjs/operators';
-import {Observable, of} from 'rxjs';
+import {distinctUntilChanged, map, shareReplay, switchMap, takeUntil} from 'rxjs/operators';
+import {Observable} from 'rxjs';
 import {UserWorkshop} from '@firebase-helpers';
 import {PosterService, PosterUrls} from '../services/poster-old/poster.service';
 import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
@@ -60,29 +60,10 @@ export class WorkshopComponent extends CleanRxjs implements OnDestroy {
    */
   private getWorkshop$(): Observable<Readonly<Workshop>> {
     return this.route.data.pipe(
-      switchMap(data => data.workshop$ as Observable<Readonly<Workshop> | null>),
-      switchMap(workshop => {
-        if (!workshop) {
-          return this.navigateAway().then(() => null);
-        } else return of(workshop);
-      }),
-      filter(workshop => workshop !== null),
-      map(workshop => workshop as Readonly<Workshop>),
+      switchMap(data => data.workshop$ as Observable<Readonly<Workshop>>),
       takeUntil(this.destroy$),
       shareReplay(1)
     );
-  }
-
-
-  /**
-   * Navigates away from this component to ./.. (which should be the workshop dashboard).
-   * <br/>
-   * If the navigation fails it throws an error.
-   * @private
-   */
-  private async navigateAway(): Promise<void> {
-    const res = await this.router.navigate(['..'], {relativeTo: this.route});
-    if (!res) throw new Error(`Can't navigate away from workshop page.`);
   }
 
 

@@ -7,7 +7,7 @@ import {LatestWorkshopGuard} from './guards/latest-workshop/latest-workshop.guar
 import {LoginGuard} from './guards/login/login.guard';
 import {LoggedInGuard} from './guards/logged-in/logged-in.guard';
 import {AdminGuard} from './guards/admin/admin.guard';
-import {WorkshopResolver} from './resolvers/workshop/workshop.resolver';
+import {WorkshopResolver} from './guards/workshop/workshop.resolver';
 
 const routes: Routes = [
   {
