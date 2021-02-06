@@ -7,7 +7,7 @@
   </mat-form-field>
   <button
     mat-raised-button color="primary"
-    [disabled]="promotionEmail.invalid || promotionEmail.pristine || promotionEmail.disabled"
+    [disabled]="promotionEmail.pristine || promotionEmail.disabled"
     (click)="sendPromotionEmail()"
   >
     Send

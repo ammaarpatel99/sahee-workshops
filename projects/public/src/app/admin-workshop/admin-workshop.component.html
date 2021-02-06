@@ -24,7 +24,7 @@
     </mat-tab>
     <mat-tab label="Promotion">
       <div class="tab">
-        <app-admin-workshop-promotion [workshop$]="workshop$"></app-admin-workshop-promotion>
+        <app-admin-workshop-promotion [workshopID]="(workshop$ | async)?.id || null"></app-admin-workshop-promotion>
       </div>
     </mat-tab>
     <mat-tab label="Email">
