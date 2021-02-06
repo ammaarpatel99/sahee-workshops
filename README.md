@@ -1,6 +1,16 @@
 # Sahee Workshops
 
-This project was generated with Angular CLI.
+The purpose of this project is to provide a website for managing workshops done by Sahee Counseling.
+The main branch is the code that is deployed, and is live at `https://workshops.sahee.co.uk`.
+
+The system allows admins to create and edit workshops displayed on the site.
+Other users can register (and unregister) for workshops as well as setting and changing their consent
+for general emails regarding workshops they aren't registered for, as well as emails for each individual
+workshop they are registered for. The admins are able to send emails of both sorts, as well as view the number
+of people that are signed up for workshops, the total number of people, and the number that have consented
+from those that have signed up.
+
+The project was built with angular and angular/fire, and is deployed using firebase.
 
 ##Setup
 
