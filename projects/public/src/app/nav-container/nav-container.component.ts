@@ -13,7 +13,7 @@ import {CleanRxjs} from '../helpers/clean-rxjs/clean-rxjs';
   templateUrl: './nav-container.component.html',
   styleUrls: ['./nav-container.component.scss']
 })
-export class NavContainerComponent {
+export class NavContainerComponent extends CleanRxjs implements OnDestroy {
   /**
    * Navigation links from {@link NavigationService#links$}.
    */
@@ -55,7 +55,7 @@ export class NavContainerComponent {
     private readonly breakpointObserver: BreakpointObserver,
     private readonly router: Router,
     private readonly navigationService: NavigationService
-  ) { }
+  ) { super(); }
 
 
   /**
@@ -68,6 +68,7 @@ export class NavContainerComponent {
       Breakpoints.TabletPortrait
     ]).pipe(
       map(res => res.matches),
+      takeUntil(this.destroy$),
       shareReplay(1)
     );
   }
@@ -81,6 +82,7 @@ export class NavContainerComponent {
     return this.breakpointObserver.observe([Breakpoints.HandsetPortrait]).pipe(
       map(res => res.matches),
       map(matches => matches ? `` : 'Workshops'),
+      takeUntil(this.destroy$),
       shareReplay(1)
     );
   }
@@ -94,6 +96,7 @@ export class NavContainerComponent {
     return this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
       map(event => (event as NavigationEnd).urlAfterRedirects.startsWith('/admin') ? 'admin-theme' : ''),
+      takeUntil(this.destroy$),
       shareReplay(1)
     );
   }
