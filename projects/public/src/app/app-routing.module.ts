@@ -39,8 +39,8 @@ const routes: Routes = [
     canActivateChild: [LoggedInGuard]
   },
   {
-    path: 'feedback',
-    loadChildren: () => import('./feedback/feedback.module').then(m => m.FeedbackModule)
+    path: 'support',
+    loadChildren: () => import('./support/support.module').then(m => m.SupportModule)
   },
   /*{
     path: 'settings',
