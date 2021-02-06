@@ -5,7 +5,7 @@ import {Observable} from 'rxjs';
 import {distinctUntilChanged, finalize, map, shareReplay, takeUntil} from 'rxjs/operators';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {AngularFireAuth} from '@angular/fire/auth';
-import {SupportService} from '../services/support/support.service';
+import {SupportService} from './service/support.service';
 
 
 @Component({
