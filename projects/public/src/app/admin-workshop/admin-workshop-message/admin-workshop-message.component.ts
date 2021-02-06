@@ -1,126 +1,179 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {distinctUntilChanged, filter, finalize, map, switchMap, take} from 'rxjs/operators';
-import {AdminWorkshop} from '../../../../../../functions/src/firebase-helpers/firestore-interfaces';
-import {forkJoin, Observable, of, Subscription} from 'rxjs';
+import {Component, Input, OnDestroy} from '@angular/core';
+import {finalize, map, takeUntil} from 'rxjs/operators';
+import {AdminWorkshop} from '@firebase-helpers';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {AdminWorkshopsService} from '../../services/admin-workshops/admin-workshops.service';
 import {EmailService} from '../../services/email/email.service';
+import {CleanRxjs} from '../../helpers/clean-rxjs/clean-rxjs';
+
+
+interface SentEmail {
+  message: string;
+  emailAddresses: string[];
+}
+
 
 @Component({
   selector: 'app-admin-workshop-message',
   templateUrl: './admin-workshop-message.component.html',
   styleUrls: ['./admin-workshop-message.component.scss']
 })
-export class AdminWorkshopMessageComponent implements OnInit, OnDestroy {
-  @Input() workshop$: Observable<AdminWorkshop | undefined> = of(undefined);
-  private _sentEmail: {message: string; emailAddresses: string[]}|null = null;
+export class AdminWorkshopMessageComponent extends CleanRxjs implements OnDestroy {
+  /**
+   * Internal for {@link workshop}.
+   * @private
+   */
+  private _workshop: AdminWorkshop | null = null;
+  /**
+   * The workshop that the user is trying to send a message for.
+   */
+  @Input()
+  set workshop(workshop: AdminWorkshop | null) {
+    if (workshop) this.reset();
+    this._workshop = workshop;
+  }
+  get workshop(): AdminWorkshop | null {
+    return this._workshop;
+  }
 
+
+  /**
+   * Gets {@link workshop}, but throws an error if it is null.
+   */
+  getWorkshop(): AdminWorkshop {
+    const workshop = this.workshop;
+    if (!workshop) throw new Error(`No workshop to get.`);
+    return workshop;
+  }
+
+
+  /**
+   * Internal for {@link sentEmail}.
+   * @private
+   */
+  private _sentEmail: SentEmail | null = null;
+  /**
+   * The most recently sent email's details.
+   */
+  get sentEmail(): SentEmail | null {
+    return this._sentEmail;
+  }
+
+
+  /**
+   * The form used to edit the message to send.
+   */
   readonly form = new FormGroup({
     email: new FormControl('', Validators.required),
     editNewSignupEmail: new FormControl(false),
     newSignupEmail: new FormControl('', Validators.required)
   });
-  readonly email: FormControl = this.form.get('email') as FormControl;
-  readonly newSignupEmail: FormControl = this.form.get('newSignupEmail') as FormControl;
-  readonly editNewSignupEmail: FormControl = this.form.get('editNewSignupEmail') as FormControl;
 
-  get sentEmail(): { message: string; emailAddresses: string[] } | null {
-    return this._sentEmail;
+
+  /**
+   * The email field from {@link form}.
+   */
+  get email(): FormControl {
+    return this.getFormControl('email');
   }
 
+
+  /**
+   * The new signup email field from {@link form}.
+   */
+  get newSignupEmail(): FormControl {
+    return this.getFormControl('newSignupEmail');
+  }
+
+
+  /**
+   * The edit new signup email field from {@link form}.
+   */
+  get editNewSignupEmail(): FormControl {
+    return this.getFormControl('editNewSignupEmail');
+  }
+
+
+  /**
+   * A function to get the form control for a field from {@link form}.
+   * If the form control doesn't exist, it throws an error.
+   * @param field - The name of the field.
+   * @private
+   */
+  private getFormControl(field: 'email' | 'editNewSignupEmail' | 'newSignupEmail'): FormControl {
+    const control = this.form.get(field);
+    if (!control || !(control instanceof FormControl)) {
+      throw new Error(`No form control with name ${field}`);
+    }
+    return control;
+  }
+
+
+  /**
+   * Resets the form.
+   */
   reset(): void {
     if (this.form.pristine || this.form.disabled) {
       throw new Error(`Can't reset workshop message form.`);
     }
     this.form.reset();
     this.editNewSignupEmail.setValue(false);
-    this.workshop$.pipe(
-      take(1),
-      filter(workshop => !!workshop),
-      map(workshop => (workshop as AdminWorkshop).newSignupEmail),
-      map(newSignupEmail => this.newSignupEmail.setValue(newSignupEmail))
-    ).subscribe();
+    this.newSignupEmail.setValue(this.getWorkshop().newSignupEmail);
   }
 
-  sendEmail(): void {
-    if (this.form.pristine || this.form.invalid || this.form.disabled) {
+
+  /**
+   * Sends the email and updates the new signup email as appropriate.
+   */
+  async sendEmail(): Promise<void> {
+    if (this.form.invalid || this.form.disabled) {
       throw new Error(`Can't send workshop email.`);
     }
-    this.workshop$.pipe(
-      take(1),
-      finalize(() => {
-        this.form.markAsPristine();
-      }),
-      filter(workshop => !!workshop),
-      map(workshop => (workshop as AdminWorkshop).id),
-      switchMap(id => {
-        const sendEmail$ = this.emailService.send$(id, this.email.value);
-        let updateNewSignupEmail$: Observable<void> = of(undefined);
-        if (this.editNewSignupEmail.value && this.newSignupEmail.dirty) {
-          updateNewSignupEmail$ = this.adminWorkshopsService
-            .update$(id, {newSignupEmail: this.newSignupEmail.value});
-        }
-        return forkJoin([updateNewSignupEmail$, sendEmail$]);
-      }),
-      map(res => {
-        this._sentEmail = {message: this.email.value, emailAddresses: res[1]};
-      })
-    ).subscribe();
+    this.form.disable();
+    const workshop = this.getWorkshop();
+
+    if (this.editNewSignupEmail.value && this.newSignupEmail.dirty) {
+      await this.adminWorkshopsService
+        .update$(workshop.id, {newSignupEmail: this.newSignupEmail.value})
+        .toPromise();
+    }
+
+    return this.emailService
+      .send$(workshop.id, this.email.value)
+      .pipe(
+        map(res => {
+          this._sentEmail = {message: this.email.value, emailAddresses: res};
+        }),
+        finalize(() => {
+          this.form.enable();
+          this.reset();
+        })
+      ).toPromise();
   }
+
 
   constructor(
     private readonly adminWorkshopsService: AdminWorkshopsService,
     private readonly emailService: EmailService
   ) {
-    this.subscriptions.push(
-      this.manageNewSignupEmailEnabledState$().subscribe()
-    );
+    super();
+    this.manageNewSignupEmailEnabledState();
   }
 
-  private disableWhenLoading$(loading$: Observable<boolean>): Observable<void> {
-    return loading$.pipe(
-      map(loading => {
-        if (loading) this.form.disable();
-        else {
-          this.form.enable();
-          if (!this.editNewSignupEmail.value) this.newSignupEmail.disable();
-        }
-      })
-    );
-  }
 
-  private manageNewSignupEmailEnabledState$(): Observable<void> {
-    return this.editNewSignupEmail.valueChanges.pipe(
+  /**
+   * Enables and disabled {@link newSignupEmail} based on the value of {@link editNewSignupEmail}.
+   * @private
+   */
+  private manageNewSignupEmailEnabledState(): void {
+    this.editNewSignupEmail.valueChanges.pipe(
       map(val => {
         if (typeof val === 'boolean') {
           if (val) this.newSignupEmail.enable();
           else this.newSignupEmail.disable();
         }
-      })
-    );
+      }),
+      takeUntil(this.destroy$)
+    ).subscribe();
   }
-
-  ngOnInit(): void {
-    this.subscriptions.push(
-      this.watchNewSignupEmail$().subscribe()
-    );
-  }
-
-  private watchNewSignupEmail$(): Observable<void> {
-    return this.workshop$.pipe(
-      filter(workshop => !!workshop),
-      map(workshop => (workshop as AdminWorkshop).newSignupEmail),
-      distinctUntilChanged(),
-      map(newSignupEmail => {
-        this.newSignupEmail.reset(newSignupEmail);
-        this.editNewSignupEmail.setValue(false);
-      })
-    );
-  }
-
-  private readonly subscriptions: Subscription[] = [];
-  ngOnDestroy(): void {
-    for (const s of this.subscriptions) if (!s.closed) s.unsubscribe();
-  }
-
 }

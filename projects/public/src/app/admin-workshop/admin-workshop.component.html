@@ -29,7 +29,7 @@
     </mat-tab>
     <mat-tab label="Email">
       <div class="tab">
-        <app-admin-workshop-message [workshop$]="workshop$"></app-admin-workshop-message>
+        <app-admin-workshop-message [workshop]="workshop$ | async"></app-admin-workshop-message>
       </div>
     </mat-tab>
     <mat-tab label="Stats">
