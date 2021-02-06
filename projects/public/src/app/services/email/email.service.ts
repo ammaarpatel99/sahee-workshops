@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import {AngularFireFunctions} from '@angular/fire/functions';
 import {functions as f, PromotionalEmailParam, PromotionalEmailRes, SendEmailParam, SendEmailRes} from '@firebase-helpers';
-import {Observable} from 'rxjs';
+import {Observable, of} from 'rxjs';
 import {first, switchMap} from 'rxjs/operators';
 import {AdminWorkshopsService} from '../admin-workshops/admin-workshops.service';
+import {environment} from '../../../environments/environment';
 
 
 /**
@@ -33,7 +34,7 @@ export class EmailService {
    */
   promote$(workshopID: string, message: string): Observable<string[]> {
     return this.ifValidWorkshop$(workshopID, this._promote$({workshopID, message}),
-      `Failed send promotional email for workshop`);
+      `Failed send promotional email for workshop.`);
   }
 
 
@@ -45,7 +46,7 @@ export class EmailService {
    */
   send$(workshopID: string, message: string): Observable<string[]> {
     return this.ifValidWorkshop$(workshopID, this._send$({workshopID, message}),
-      `Failed send email about workshop`);
+      `Failed send email about workshop.`);
   }
 
 
@@ -57,12 +58,12 @@ export class EmailService {
    * @param errMessage - The error message.
    * @private
    */
-  private ifValidWorkshop$<T>(workshopID: string, obs$: Observable<T>, errMessage: string): Observable<T> {
+  private ifValidWorkshop$(workshopID: string, obs$: Observable<string[]>, errMessage: string): Observable<string[]> {
     return this.adminWorkshopsService.workshop$(workshopID).pipe(
       first(),
       switchMap(workshop => {
         if (!workshop) throw new Error(errMessage);
-        return obs$;
+        return environment.production ? obs$ : of([]);
       })
     );
   }
