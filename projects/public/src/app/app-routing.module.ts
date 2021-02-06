@@ -11,6 +11,21 @@ import {WorkshopResolver} from './guards/workshop/workshop.resolver';
 
 const routes: Routes = [
   {
+    path: '',
+    pathMatch: 'full',
+    component: WorkshopsDashboardComponent
+  },
+  {
+    path: 'unknown',
+    component: WorkshopsDashboardComponent,
+    data: {unknown: true}
+  },
+  {
+    path: 'latest',
+    canActivate: [LatestWorkshopGuard],
+    component: WorkshopComponent
+  },
+  {
     path: 'login',
     component: LoginComponent,
     canActivate: [LoginGuard]
@@ -38,35 +53,15 @@ const routes: Routes = [
     canActivateChild: [LoggedInGuard, AdminGuard]
   },
   {
-    path: '',
-    children: [
-      {
-        path: '',
-        pathMatch: 'full',
-        component: WorkshopsDashboardComponent
-      },
-      {
-        path: 'unknown',
-        component: WorkshopsDashboardComponent,
-        data: {unknown: true}
-      },
-      {
-        path: 'latest',
-        canActivate: [LatestWorkshopGuard],
-        component: WorkshopComponent
-      },
-      {
-        path: ':id',
-        component: WorkshopComponent,
-        resolve: {
-          workshop$: WorkshopResolver
-        }
-      }
-    ]
+    path: ':id',
+    component: WorkshopComponent,
+    resolve: {
+      workshop$: WorkshopResolver
+    }
   },
   {
     path: '**',
-    redirectTo: '/'
+    redirectTo: '/unknown'
   }
 ];
 
