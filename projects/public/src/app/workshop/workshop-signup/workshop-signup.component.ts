@@ -130,14 +130,19 @@ export class WorkshopSignupComponent extends CleanRxjs implements AfterViewInit,
       this.form.disabled
       || (this.form.pristine && this.registered && !unregister)
     ) throw new Error(`Can't submit registration.`);
-    if (this.registered) {
-      if (unregister) await this.unregister();
-      else await this.changeConsent();
-    } else {
-      if (this.generalEmailConsent.enabled) await this.changeGeneralConsent();
-      await this.register();
+    this.form.disable();
+    try {
+      if (this.registered) {
+        if (unregister) await this.unregister();
+        else await this.changeConsent();
+      } else {
+        if (this.generalEmailConsent.enabled) await this.changeGeneralConsent();
+        await this.register();
+      }
+      this.form.markAsPristine();
+    } finally {
+      this.form.enable();
     }
-    this.form.markAsPristine();
   }
 
 
