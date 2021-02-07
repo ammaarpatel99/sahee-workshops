@@ -25,7 +25,8 @@ export class RepairService {
    * @returns - An observable that emits once and then completes.
    */
   restoreAdmins$(): Observable<string[]> {
-    return this._restoreAdmins$().pipe(
+    throw new Error(`Restore Admins Function not available.`);
+    /*return this._restoreAdmins$().pipe(
       switchMap(newAdmins => {
         // If the current user is one of those granted admin privileges,
         // refresh id token so the website recognises their admin privileges.
@@ -39,7 +40,7 @@ export class RepairService {
           mapTo(newAdmins)
         );
       })
-    );
+    );*/
   }
 
 

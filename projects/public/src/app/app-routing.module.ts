@@ -42,10 +42,6 @@ const routes: Routes = [
     path: 'support',
     loadChildren: () => import('./support/support.module').then(m => m.SupportModule)
   },
-  /*{
-    path: 'settings',
-    loadChildren: () => import('./admin/settings/settings.module').then(m => m.SettingsModule)
-  },*/
   {
     path: 'admin',
     loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule),

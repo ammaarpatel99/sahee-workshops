@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {Observable} from 'rxjs';
 import {functions as f, MakeAdminParam, MakeAdminRes, RemoveAdminParam, RemoveAdminRes} from '@firebase-helpers';
-import {UserService} from '../user/user.service';
+import {UserService} from '../../../services/user/user.service';
 import {AngularFireFunctions} from '@angular/fire/functions';
 import {first, switchMap} from 'rxjs/operators';
 
@@ -57,13 +57,14 @@ export class ManageAdminsService {
    * @private
    */
   private switchIfAdmin$<T>(obs$: Observable<T>, errMessage: string): Observable<T> {
-    return this.userService.isAdmin$.pipe(
+    throw new Error(`Manage admins functionality not available.`);
+    /*return this.userService.isAdmin$.pipe(
       first(),
       switchMap(isAdmin => {
         if (isAdmin) return obs$;
         throw new Error(errMessage);
       })
-    );
+    );*/
   }
 
 
