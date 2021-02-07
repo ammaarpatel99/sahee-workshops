@@ -4,11 +4,8 @@ import {AdminWorkshopComponent} from './admin-workshop/admin-workshop.component'
 import {WorkshopsDashboardComponent} from '../workshops-dashboard/workshops-dashboard.component';
 import {AdminWorkshopResolver} from './guards/admin-workshop/admin-workshop.resolver';
 
+
 const routes: Routes = [
-  {
-    path: 'settings',
-    loadChildren: () => import('./settings/settings.module').then(m => m.SettingsModule)
-  },
   {
     path: '',
     pathMatch: 'full',
@@ -33,6 +30,7 @@ const routes: Routes = [
     }
   }
 ];
+
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
