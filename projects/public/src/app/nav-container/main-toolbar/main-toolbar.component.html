@@ -12,7 +12,7 @@
     <span>{{title}}</span>
   </div>
   <span class="space-filler"></span>
-  <button *ngIf="signedIn;else accountBtn"
+  <button *ngIf="!signedIn;else accountBtn"
           mat-raised-button color="accent" (click)="signIn()">
     Sign In
   </button>

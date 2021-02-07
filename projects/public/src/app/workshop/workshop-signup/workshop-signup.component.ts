@@ -1,12 +1,12 @@
 import {AfterViewInit, Component, Input, OnDestroy, ViewChild} from '@angular/core';
 import {Observable} from 'rxjs';
-import {distinctUntilChanged, map, shareReplay, take, takeUntil} from 'rxjs/operators';
+import {distinctUntilChanged, first, map, shareReplay, takeUntil} from 'rxjs/operators';
 import {FormControl, FormGroup} from '@angular/forms';
-import {AngularFireAuth} from '@angular/fire/auth';
 import {MatHorizontalStepper} from '@angular/material/stepper';
 import {ConsentService} from '../../services/consent/consent.service';
 import {UserWorkshopsService} from '../../services/user-workshops/user-workshops.service';
 import {CleanRxjs} from '../../helpers/clean-rxjs/clean-rxjs';
+import {SignedInState, UserService} from '../../services/user/user.service';
 
 
 @Component({
@@ -182,7 +182,7 @@ export class WorkshopSignupComponent extends CleanRxjs implements AfterViewInit,
    * Calls next on the stepper if the user is already signed in
    */
   async stepperNextIfAlreadySignedIn(): Promise<void> {
-    const user = await this.user$.pipe(take(1)).toPromise();
+    const user = await this.user$.pipe(first()).toPromise();
     if (!user) return;
     this.stepper.next();
   }
@@ -191,7 +191,7 @@ export class WorkshopSignupComponent extends CleanRxjs implements AfterViewInit,
   constructor(
     private readonly workshopsService: UserWorkshopsService,
     private readonly consentService: ConsentService,
-    private readonly auth: AngularFireAuth
+    private readonly userService: UserService
   ) {
     super();
     this.watchEmailConsent$();
@@ -218,21 +218,20 @@ export class WorkshopSignupComponent extends CleanRxjs implements AfterViewInit,
     );
   }
 
+  private user = false;
 
   /**
    * Provides the value for {@link user$}.
    * @private
    */
   private getUser$(): Observable<boolean> {
-    return this.auth.user.pipe(
-      map(user => !!user),
-      takeUntil(this.destroy$),
-      shareReplay(1)
+    return this.userService.userState$.pipe(
+      map(userState => userState.signedInState !== SignedInState.NO_USER)
     );
   }
 
 
   ngAfterViewInit(): void {
-    this.stepperNextIfAlreadySignedIn().then();
+    this.stepperNextIfAlreadySignedIn();
   }
 }

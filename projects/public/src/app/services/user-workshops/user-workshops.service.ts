@@ -59,11 +59,12 @@ export class UserWorkshopsService extends CleanRxjs implements OnDestroy {
           if (!user) return of(null);
           return this.firestore.doc<UserWorkshopDoc>(
             PATHS.user.workshop.doc({userID: user.uid, workshopID})
-          ).valueChanges({idField: 'id'});
+          ).valueChanges();
         }),
         map(workshop => {
           if (!workshop) return null;
-          return {...workshop, jsDate: workshop.datetime.toDate()};
+          console.log(workshop);
+          return {...workshop, jsDate: workshop.datetime.toDate(), id: workshopID};
         }),
         takeUntil(this.destroy$),
         shareReplay(1)

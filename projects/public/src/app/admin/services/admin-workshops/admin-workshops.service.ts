@@ -1,10 +1,11 @@
 import {Injectable, OnDestroy} from '@angular/core';
-import {Observable, of} from 'rxjs';
+import {forkJoin, Observable, of} from 'rxjs';
 import {AdminWorkshop, AdminWorkshopDoc, FIRESTORE_PATHS as PATHS} from '@firebase-helpers';
 import {UserService} from '../../../services/user/user.service';
 import {AngularFirestore} from '@angular/fire/firestore';
-import {first, map, shareReplay, switchMap, takeUntil} from 'rxjs/operators';
+import {filter, first, map, mapTo, shareReplay, switchMap, takeUntil} from 'rxjs/operators';
 import {CleanRxjs} from '../../../helpers/clean-rxjs/clean-rxjs';
+import {PublicWorkshopsService} from '../../../services/public-workshops/public-workshops.service';
 
 
 /**
@@ -38,11 +39,11 @@ export class AdminWorkshopsService extends CleanRxjs implements OnDestroy {
       switchMap(isAdmin => {
         if (!isAdmin) return of(null);
         return this.firestore.doc<AdminWorkshopDoc>(PATHS.workshop.doc(workshopID))
-          .valueChanges({idField: 'id'});
+          .valueChanges();
       }),
       map(workshop => {
         if (!workshop) return null;
-        return {...workshop, jsDate: workshop.datetime.toDate()};
+        return {...workshop, jsDate: workshop.datetime.toDate(), id: workshopID};
       }),
       takeUntil(this.destroy$),
       shareReplay(1)
@@ -64,9 +65,11 @@ export class AdminWorkshopsService extends CleanRxjs implements OnDestroy {
       first(),
       switchMap(isAdmin => {
         if (!isAdmin) throw new Error(`Can't create workshop as the user isn't an admin.`);
-        return this.firestore.collection<AdminWorkshopDoc>(PATHS.workshop.col).add(data);
+        const obs$ = this.firestore.collection<AdminWorkshopDoc>(PATHS.workshop.col).add(data);
+        const waitForRes$ = this.waitForCreation$();
+        return forkJoin([obs$, waitForRes$]);
       }),
-      map(doc => doc.id)
+      map(doc => doc[0].id)
     );
   }
 
@@ -104,8 +107,18 @@ export class AdminWorkshopsService extends CleanRxjs implements OnDestroy {
   }
 
 
+  private waitForCreation$(): Observable<void> {
+    return this.publicWorkshopsService.workshops$.pipe(
+      filter((value, index) => index > 0),
+      first(),
+      mapTo(undefined)
+    );
+  }
+
+
   constructor(
     private readonly userService: UserService,
-    private readonly firestore: AngularFirestore
+    private readonly firestore: AngularFirestore,
+    private readonly publicWorkshopsService: PublicWorkshopsService
   ) { super(); }
 }

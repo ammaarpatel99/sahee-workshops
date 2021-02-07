@@ -1,6 +1,6 @@
 import {firestoreFn} from '../function-builder';
 import {firestore} from 'firebase-admin';
-import {FIRESTORE_PATHS as PATHS} from '@firebase-helpers';
+import {FIRESTORE_PATHS as PATHS} from '../firebase-helpers';
 
 export * as workshop from './workshop';
 

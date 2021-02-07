@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {Resolve} from '@angular/router';
+import {ActivatedRouteSnapshot, Resolve, Router, RouterStateSnapshot} from '@angular/router';
 import {Observable} from 'rxjs';
 import {AdminWorkshop} from '@firebase-helpers';
 import {AdminWorkshopsService} from '../../services/admin-workshops/admin-workshops.service';
@@ -9,6 +9,19 @@ import {GeneralWorkshopResolver} from '../../../helpers/workshop-resolver/genera
 @Injectable({
   providedIn: 'root'
 })
-export class AdminWorkshopResolver
-  extends GeneralWorkshopResolver<AdminWorkshopsService, AdminWorkshop>
-  implements Resolve< Observable<Readonly<AdminWorkshop>> > { }
+export class AdminWorkshopResolver implements Resolve< Observable<Readonly<AdminWorkshop>> > {
+  private readonly generalWorkshopResolver =
+    new GeneralWorkshopResolver<AdminWorkshopsService, AdminWorkshop>
+    (this.router, '/admin/unknown', this.adminWorkshopsService);
+
+
+  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<Observable<Readonly<AdminWorkshop>>> {
+    return this.generalWorkshopResolver.resolve(route, state);
+  }
+
+
+  constructor(
+    private readonly router: Router,
+    private readonly adminWorkshopsService: AdminWorkshopsService
+  ) { }
+}

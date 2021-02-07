@@ -5,7 +5,7 @@ import {
   PublicWorkshopDoc,
   UserWorkshopDoc,
   FIRESTORE_PATHS as PATHS
-} from '@firebase-helpers';
+} from '../firebase-helpers';
 
 
 const firestoreFnPath = PATHS.workshop.col + '/{workshopID}';

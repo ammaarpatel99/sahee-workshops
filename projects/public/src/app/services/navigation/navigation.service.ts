@@ -31,7 +31,6 @@ const PUBLIC_ADMIN_LINKS: NavigationLinks = [
 const ADMIN_LINKS: NavigationLinks = [
   {name: 'New Workshop', link: '/admin/new'},
   {name: 'All Workshops', link: '/admin'},
-  {name: 'Settings', link: '/admin/settings'},
   {name: 'Public Site', link: '/'}
 ];
 

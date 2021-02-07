@@ -1,5 +1,5 @@
-import {ActivatedRoute, ActivatedRouteSnapshot, Resolve, Router, RouterStateSnapshot} from '@angular/router';
-import {EMPTY, from, Observable, of} from 'rxjs';
+import {ActivatedRouteSnapshot, Resolve, Router, RouterStateSnapshot} from '@angular/router';
+import {defer, EMPTY, Observable, of} from 'rxjs';
 import {mapTo, switchMap, switchMapTo, take} from 'rxjs/operators';
 
 
@@ -28,12 +28,12 @@ export class GeneralWorkshopResolver<Service extends WorkshopService<Return>, Re
 
 
   /**
-   * Used to redirect to ../unknown. It never emits and completes after the redirect.
+   * Used to redirect to {@link redirectUrl}. It never emits and completes after the redirect.
    * @private
    */
   private getRedirect$(): Observable<never> {
-    return from(
-      this.router.navigate(['..', 'unknown'], {relativeTo: this.route})
+    return defer(() =>
+      this.router.navigateByUrl(this.redirectUrl)
     ).pipe(
       switchMapTo(EMPTY)
     );
@@ -42,7 +42,7 @@ export class GeneralWorkshopResolver<Service extends WorkshopService<Return>, Re
 
   constructor(
     private readonly router: Router,
-    private readonly route: ActivatedRoute,
+    private readonly redirectUrl: string,
     private readonly service: Service
   ) { }
 }

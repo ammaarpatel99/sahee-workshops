@@ -31,7 +31,7 @@ Finally run `npm install` in the root folder of the project, as well as in the f
 
 First run `npm build` in the functions' folder.
 
-Run `firebase emulators:start` and `ng serve`. The site will be available at `http://localhost:4200` and the firebase emulators console will be at `http://localhost:5000`.
+Run `firebase emulators:start` and `ng serve`. The site will be available at `http://localhost:4200` and the firebase emulators console will be at `http://localhost:4000`.
 
 ## Build
 

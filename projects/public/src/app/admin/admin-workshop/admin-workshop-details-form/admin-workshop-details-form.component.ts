@@ -70,8 +70,8 @@ export class AdminWorkshopDetailsFormComponent {
    */
   @Input()
   set workshop(workshop: AdminWorkshop | null) {
-    this.resetWorkshopDetailsForm(true);
     this._workshop = workshop;
+    this.resetWorkshopDetailsForm(true);
   }
   get workshop(): AdminWorkshop | null {
     return this._workshop;
@@ -145,8 +145,9 @@ export class AdminWorkshopDetailsFormComponent {
       }
       this.form.reset({...this.workshop, jsDate: this.workshop.jsDate.toISOString().slice(0, -1)});
       this.editing = false;
-    } finally {
-      this.form.enable();
+    } catch (e) {
+      if (!force) this.form.enable();
+      throw e;
     }
   }
 

@@ -7,10 +7,6 @@
     "sourceMap": true,
     "strict": true,
     "target": "es2017",
-    "baseUrl": "./",
-    "paths": {
-      "@firebase-helpers": ["./src/firebase-helpers"]
-    }
   },
   "compileOnSave": true,
   "include": [

@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {AfterViewInit, Component, Input, OnInit} from '@angular/core';
 import {finalize, map, share, takeWhile} from 'rxjs/operators';
 import {Observable} from 'rxjs';
 import {PosterService} from '../../../services/poster/poster.service';
@@ -11,7 +11,7 @@ import {UploadPosterService} from '../services/email/upload-poster/upload-poster
   templateUrl: './admin-workshop-change-poster.component.html',
   styleUrls: ['./admin-workshop-change-poster.component.scss']
 })
-export class AdminWorkshopChangePosterComponent {
+export class AdminWorkshopChangePosterComponent implements OnInit {
   /**
    * A {@link FormControl} used to store and track the uploaded poster.
    */
@@ -60,11 +60,11 @@ export class AdminWorkshopChangePosterComponent {
    */
   @Input() workshopID?: string | null;
   /**
-   * The ID of the workshop, from {@link workshopID}.
+   * Gets ID of the workshop, from {@link workshopID}.
    * However if the value is falsey this will throw an error.
    * @private
    */
-  private get _workshopID(): string {
+  private getWorkshopID(): string {
     const id = this.workshopID;
     if (!id) throw new Error(`No workshop ID passed in.`);
     return id;
@@ -104,7 +104,7 @@ export class AdminWorkshopChangePosterComponent {
       throw new Error(`Can't reset poster`);
     }
 
-    const workshopID = this._workshopID;
+    const workshopID = this.getWorkshopID();
     this.poster.disable();
     this.poster.reset();
     this._posterUrl = null;
@@ -134,7 +134,7 @@ export class AdminWorkshopChangePosterComponent {
       throw new Error(`Can't submit poster.`);
     }
 
-    const workshopID = this._workshopID;
+    const workshopID = this.getWorkshopID();
     this.poster.disable();
 
     this._posterUploadStatus$ = this.uploadPosterService
@@ -156,7 +156,10 @@ export class AdminWorkshopChangePosterComponent {
   constructor(
     private readonly posterService: PosterService,
     private readonly uploadPosterService: UploadPosterService
-  ) {
+  ) {}
+
+
+  ngOnInit(): void {
     this.resetPoster();
   }
 }

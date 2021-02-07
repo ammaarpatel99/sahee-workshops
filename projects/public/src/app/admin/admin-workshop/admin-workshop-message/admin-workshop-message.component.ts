@@ -29,8 +29,8 @@ export class AdminWorkshopMessageComponent extends CleanRxjs implements OnDestro
    */
   @Input()
   set workshop(workshop: AdminWorkshop | null) {
-    if (workshop) this.reset();
     this._workshop = workshop;
+    if (workshop) this.reset();
   }
   get workshop(): AdminWorkshop | null {
     return this._workshop;
@@ -113,7 +113,7 @@ export class AdminWorkshopMessageComponent extends CleanRxjs implements OnDestro
    * Resets the form.
    */
   reset(): void {
-    if (this.form.pristine || this.form.disabled) {
+    if (this.form.disabled) {
       throw new Error(`Can't reset workshop message form.`);
     }
     this.form.reset();

@@ -5,7 +5,7 @@ import {
   WorkshopUserDoc,
   UserWorkshopDoc,
   FIRESTORE_PATHS as PATHS
-} from '@firebase-helpers';
+} from '../../firebase-helpers';
 import {sendEmail} from '../../email/send-email';
 import {firestoreFn, onCall} from '../../function-builder';
 
