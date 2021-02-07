@@ -1,7 +1,7 @@
 import { CleanRxjs } from './clean-rxjs';
 
-describe('CleanRxjs', () => {
+/*describe('CleanRxjs', () => {
   it('should create an instance', () => {
     expect(new CleanRxjs()).toBeTruthy();
   });
-});
+});*/

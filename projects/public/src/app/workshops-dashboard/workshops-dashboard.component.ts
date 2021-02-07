@@ -2,7 +2,7 @@ import {Component, OnDestroy} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs';
 import {distinctUntilChanged, map, shareReplay, takeUntil} from 'rxjs/operators';
-import {PosterService, PosterUrls} from '../services/poster-old/poster.service';
+import {PosterService, PosterUrls} from '../services/poster/poster.service';
 import {CleanRxjs} from '../helpers/clean-rxjs/clean-rxjs';
 import {PublicWorkshopsService} from '../services/public-workshops/public-workshops.service';
 import {PublicWorkshop} from '@firebase-helpers';

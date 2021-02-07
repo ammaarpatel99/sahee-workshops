@@ -7,7 +7,7 @@
       <img
         class="poster-img"
         [src]="(posterUrls$ | async)?.original || ''"
-        [srcset]="(posterUrls$ | async)?.std || ''"
+        [srcset]="(posterUrls$ | async)?.jpeg || ''"
         sizes="400px"
         alt="Workshop Poster">
     </picture>

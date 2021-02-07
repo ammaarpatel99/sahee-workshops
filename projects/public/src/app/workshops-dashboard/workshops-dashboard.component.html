@@ -38,7 +38,7 @@
         <source type="image/webp" [srcset]="(workshop.posterUrls$ | async)?.webp || ''" sizes="20em">
         <img class="poster-img"
              [src]="(workshop.posterUrls$ | async)?.original || ''"
-             [srcset]="(workshop.posterUrls$ | async)?.std || ''"
+             [srcset]="(workshop.posterUrls$ | async)?.jpeg || ''"
              sizes="20em" alt="Workshop Poster">
       </picture>
     </mat-card-content>

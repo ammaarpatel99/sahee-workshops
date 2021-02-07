@@ -5,12 +5,28 @@ import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
 import {Bucket, UploadOptions} from '@google-cloud/storage';
-import {ObjectMetadata} from 'firebase-functions/lib/providers/storage';
+
+
+type Sizes = [{width: number}, string][];
+type FileType = 'webp' | 'jpeg';
+
+
+const SIZES: Sizes = [
+  [{width: 300}, '-s'],
+  [{width: 600}, '-m'],
+  [{width: 1000}, '-l'],
+  [{width: 2000}, '-xl']
+];
+
+
+const FILE_TYPES: FileType[] = [
+  'webp',
+  'jpeg'
+];
 
 
 export const onUpload = storageFn().onFinalize(async (object, context) => {
   if (
-    object.metadata?.optimised ||
     !object.name ||
     !object.contentType?.startsWith('image/') ||
     path.basename(object.name) !== 'poster'
@@ -19,79 +35,57 @@ export const onUpload = storageFn().onFinalize(async (object, context) => {
   }
 
   const tmpPath = path.join(os.tmpdir(), 'poster');
+  const serverPath = object.name;
   const bucket = storage().bucket();
   await bucket.file(object.name).download({destination: tmpPath});
-  const genImgFn = genReactiveImgFn(object, tmpPath, bucket);
+  const img = () => sharp(tmpPath);
 
-  await Promise.all([
-    genImgFn({width: 300}, '-s'),
-    genImgFn({width: 600}, '-m'),
-    genImgFn({width: 1000}, '-l'),
-    genImgFn({width: 2000}, '-xl'),
-  ]);
+  const promises: Promise<void>[] = [];
+  promises.push(upload(bucket, img, tmpPath, serverPath, 'jpeg', false));
 
-  if (object.contentType === 'image/jpeg') {
-    await bucket.file(object.name).setMetadata({...getMeta(object).metadata});
-  } else {
-    await sharp(tmpPath).jpeg().toFile(tmpPath);
-    await bucket.upload(tmpPath, {...getMeta(object), contentType: 'image/jpeg', destination: object.name});
+  for (const [size, pathExt] of SIZES) {
+    const _img = resize(img, size);
+    for (const type of FILE_TYPES) {
+      promises.push(upload(bucket, _img, tmpPath + pathExt, serverPath + pathExt, type, true));
+    }
   }
 
+  await Promise.all(promises);
   fs.unlinkSync(tmpPath);
 });
 
 
-function genReactiveImgFn(object: ObjectMetadata, tmpPath: string, bucket: Bucket)
-  : (size: { width?: number; height?: number }, fileExt: string) => Promise<any> {
-  const meta = getMeta(object);
-  const serverPath = object.name;
-  const uploadFn = saveNormalAndWebpFn(bucket, meta);
-  const img = () => sharp(tmpPath);
-
-  return (size: {width?: number; height?: number}, fileExt: string) => {
-    const _tmpPath = tmpPath + fileExt;
-    const _serverPath = serverPath + fileExt;
-    const _img = () => img().resize({...size, withoutEnlargement: true, fit: 'inside'});
-    return uploadFn(_img, _tmpPath, _serverPath);
-  };
+function resize(img: () => sharp.Sharp, size: {height?: number; width?: number; }): () => sharp.Sharp {
+  return () => img().resize({...size, withoutEnlargement: true, fit: 'inside'});
 }
 
 
-function saveNormalAndWebpFn(bucket: Bucket, meta: UploadOptions)
-  : (img: () => sharp.Sharp, tmpPath: string, serverPath: string) => Promise<any> {
-  return async (img: () => sharp.Sharp, tmpPath: string, serverPath: string): Promise<any> => {
-    const tmpPathWebp = tmpPath + '.webp';
-    const serverPathWebp = serverPath + '.webp';
+async function upload(
+  bucket: Bucket,
+  img: () => sharp.Sharp,
+  tmpPath: string,
+  serverPath: string,
+  type: FileType,
+  cache: boolean
+): Promise<void> {
 
-    await Promise.all([
-      img().jpeg().toFile(tmpPath).then(() =>
-        bucket.upload(tmpPath, {
-          ...meta,
-          destination: serverPath,
-          contentType: 'image/jpeg',
-        })
-      ),
-      img().webp().toFile(tmpPathWebp).then(() =>
-        bucket.upload(tmpPathWebp, {
-          ...meta,
-          destination: serverPathWebp,
-          contentType: 'image/webp',
-        })
-      ),
-    ]);
-    fs.unlinkSync(tmpPath);
-    fs.unlinkSync(tmpPathWebp);
-  };
+  const _tmpPath = `${tmpPath}.${type}`;
+  const _serverPath = `${serverPath}.${type}`;
+  let image;
+  if (type === 'webp') image = img().webp();
+  else image = img().jpeg();
+  await image.toFile(_tmpPath);
+  await bucket.upload(_tmpPath, {destination: _serverPath, ...getMeta(type, cache)});
+  fs.unlinkSync(_tmpPath);
 }
 
 
-function getMeta(object: ObjectMetadata): UploadOptions {
+function getMeta(type: FileType, cache: boolean): UploadOptions {
   return {
-    contentType: object.contentType,
+    contentType: `image/${type}`,
     metadata: {
-      contentDisposition: object.contentDisposition,
-      cacheControl: object.cacheControl,
-      optimised: true,
+      contentDisposition: 'inline',
+      cacheControl: cache ? 'max-age=360' : undefined
     },
   };
 }

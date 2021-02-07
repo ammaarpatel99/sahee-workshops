@@ -1,6 +1,6 @@
 <mat-progress-bar
   mode="determinate"
-  *ngIf="(posterUploadStatus$ | async) !== null"
+  *ngIf="posterUploadStatus$"
   [value]="(posterUploadStatus$ | async) || 0"
 ></mat-progress-bar>
 <div class="select-poster">
@@ -11,10 +11,10 @@
   <mat-label>{{posterFileName || 'No file chosen'}}</mat-label>
 </div>
 <ng-container *ngIf="poster.dirty">
-  <button mat-stroked-button color="warn" (click)="resetPoster(); posterInput.value = ''" [disabled]="poster.disabled || poster.pristine">
+  <button mat-stroked-button color="warn" (click)="resetPoster(); posterInput.value = ''" [disabled]="poster.disabled">
     Reset
   </button>
-  <button mat-raised-button color="primary" (click)="submitPoster()" [disabled]="poster.invalid || poster.disabled || poster.pristine">
+  <button mat-raised-button color="primary" (click)="submitPoster();" [disabled]="poster.invalid || poster.disabled || poster.pristine">
     Submit
   </button>
 </ng-container>
