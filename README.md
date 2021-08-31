@@ -1,6 +1,7 @@
 # SaheeWorkshops
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 11.0.5.
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 11.0.5.<br/>
+**This project is no longer maintained**. Some changes are on the dev branch but they haven't been pushed to the production site.
 
 ## Development server
 
