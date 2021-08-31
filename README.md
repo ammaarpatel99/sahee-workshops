@@ -1,7 +1,9 @@
 # Sahee Workshops
 
-The purpose of this project is to provide a website for managing workshops done by Sahee Counseling.
-The main branch is the code that is deployed, and is live at `https://workshops.sahee.co.uk`.
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 11.0.5.<br/>
+**This project is no longer maintained**. Some changes are on the dev branch but they haven't been pushed to the production site.<br/>
+The purpose of this project is to provide a website for managing workshops done by Sahee Counseling.<br/>
+The main branch is the code that is deployed, and is live at `https://workshops.sahee.co.uk`.<br/>
 
 The system allows admins to create and edit workshops displayed on the site.
 Other users can register (and unregister) for workshops as well as setting and changing their consent
