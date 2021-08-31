@@ -1,0 +1,21 @@
+<mat-progress-bar
+  mode="determinate"
+  *ngIf="posterUploadStatus$"
+  [value]="(posterUploadStatus$ | async) || 0"
+></mat-progress-bar>
+<div class="select-poster">
+  <input type="file" accept="image/*" #posterInput (change)="getPosterFile($event)" hidden>
+  <button mat-raised-button (click)="posterInput.click()" [disabled]="poster.disabled">
+    Choose Poster
+  </button>
+  <mat-label>{{posterFileName || 'No file chosen'}}</mat-label>
+</div>
+<ng-container *ngIf="poster.dirty">
+  <button mat-stroked-button color="warn" (click)="resetPoster(); posterInput.value = ''" [disabled]="poster.disabled">
+    Reset
+  </button>
+  <button mat-raised-button color="primary" (click)="submitPoster();" [disabled]="poster.invalid || poster.disabled || poster.pristine">
+    Submit
+  </button>
+</ng-container>
+<img [src]="posterUrl" *ngIf="posterUrl" class="preview-poster" alt="Workshop Poster">

@@ -2,51 +2,40 @@ import { Injectable } from '@angular/core';
 import {
   CanActivate,
   CanActivateChild,
-  CanLoad,
-  Route,
-  UrlSegment,
-  ActivatedRouteSnapshot,
-  RouterStateSnapshot,
-  UrlTree,
-  Router
+  CanLoad
 } from '@angular/router';
-import {from, Observable, of} from 'rxjs';
-import {AngularFireAuth} from '@angular/fire/auth';
-import {map, switchMap, take} from 'rxjs/operators';
+import {Observable} from 'rxjs';
+import {first} from 'rxjs/operators';
+import {UserService} from '../../services/user/user.service';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class AdminGuard implements CanActivate, CanActivateChild, CanLoad {
-  canActivate(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
+  canActivate(): Observable<boolean> {
     return this.guard();
   }
-  canActivateChild(
-    childRoute: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
+  canActivateChild(): Observable<boolean> {
     return this.guard();
   }
-  canLoad(
-    route: Route,
-    segments: UrlSegment[]): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
+  canLoad(): Observable<boolean> {
     return this.guard();
   }
 
-  private guard(): Observable<true | UrlTree> {
-    return this.auth.user.pipe(
-      take(1),
-      switchMap(user => from(user?.getIdTokenResult() || of(undefined))),
-      map(tokenRes => {
-        const isAdmin = tokenRes?.claims.admin === true;
-        return isAdmin || this.router.parseUrl('/');
-      })
+
+  /**
+   * Returns an observable that emits whether the current use is an admin.
+   * @private
+   */
+  private guard(): Observable<boolean> {
+    return this.userService.isAdmin$.pipe(
+      first()
     );
   }
 
+
   constructor(
-    private readonly auth: AngularFireAuth,
-    private readonly router: Router
+    private readonly userService: UserService
   ) { }
 }

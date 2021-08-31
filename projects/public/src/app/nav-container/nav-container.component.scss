@@ -1,0 +1,27 @@
+.sidenav-container {
+  height: 100%;
+}
+
+.sidenav {
+  width: 200px;
+}
+
+.sidenav .mat-toolbar {
+  background: inherit;
+}
+
+.feedbackBtn {
+  position: fixed;
+  right: 2em;
+  bottom: 2em;
+}
+
+.email-warning {
+  height: auto;
+  text-align: center;
+  white-space: pre-wrap;
+}
+
+mat-progress-bar {
+  height: 0.4em;
+}

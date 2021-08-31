@@ -1,0 +1,53 @@
+<div class="container">
+  <ng-container *ngIf="!(workshop$ | async); else workshopTabs">
+    <mat-card [class]="containerClass$|async">
+      <app-admin-workshop-details-form [workshop]="workshop$ | async"></app-admin-workshop-details-form>
+    </mat-card>
+  </ng-container>
+
+
+  <ng-template #workshopTabs>
+    <mat-tab-group mat-stretch-tabs dynamicHeight [class]="containerClass$|async" class="mat-elevation-z4">
+      <mat-tab label="Details">
+        <ng-template matTabContent>
+          <div class="tab">
+            <app-admin-workshop-details-form [workshop]="workshop$ | async"></app-admin-workshop-details-form>
+          </div>
+        </ng-template>
+      </mat-tab>
+
+      <mat-tab label="Poster">
+        <ng-template matTabContent>
+          <div class="tab">
+            <app-admin-workshop-change-poster [workshopID]="(workshop$ | async)?.id || null"></app-admin-workshop-change-poster>
+          </div>
+        </ng-template>
+      </mat-tab>
+
+      <mat-tab label="Promotion">
+        <ng-template matTabContent>
+          <div class="tab">
+            <app-admin-workshop-promotion [workshopID]="(workshop$ | async)?.id || null"></app-admin-workshop-promotion>
+          </div>
+        </ng-template>
+      </mat-tab>
+
+      <mat-tab label="Email">
+        <ng-template matTabContent>
+          <div class="tab">
+            <app-admin-workshop-message [workshop]="workshop$ | async"></app-admin-workshop-message>
+          </div>
+        </ng-template>
+      </mat-tab>
+
+      <mat-tab label="Stats">
+        <ng-template matTabContent>
+          <div class="tab">
+            <p>Registered Users: {{(stats$ | async)?.users || 0}}/{{(stats$ | async)?.totalUsers || 0}}.</p>
+            <p>Consents for emails: {{(stats$ | async)?.consents || 0}}/{{(stats$ | async)?.users || 0}}.</p>
+          </div>
+        </ng-template>
+      </mat-tab>
+    </mat-tab-group>
+  </ng-template>
+</div>

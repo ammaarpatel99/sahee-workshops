@@ -1,0 +1,51 @@
+<div *ngIf="unknownWorkshop$ | async" class="unknown-route">
+  <h1>The workshop you were looking for couldn't be found.</h1>
+</div>
+<div class="container">
+  <mat-card *ngIf="allowNew$ | async">
+    <mat-card-header>
+      <mat-card-title>
+        Create New Workshop
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content></mat-card-content>
+    <mat-card-actions>
+      <button mat-stroked-button color="primary" [routerLink]="['./new']">Create</button>
+    </mat-card-actions>
+  </mat-card>
+
+
+  <mat-card *ngIf="!(workshops$|async)?.length">
+    <mat-card-header>
+      <mat-card-title>
+        There are currently no workshops available
+      </mat-card-title>
+    </mat-card-header>
+  </mat-card>
+
+
+  <mat-card *ngFor="let workshop of workshops$ | async" [class.future-workshop]="workshop.inFuture" >
+    <mat-card-header>
+      <mat-card-title>
+        {{workshop.name}}
+      </mat-card-title>
+      <mat-card-subtitle>
+        {{workshop.jsDate.toString()}}
+      </mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <picture>
+        <source type="image/webp" [srcset]="(workshop.posterUrls$ | async)?.webp || ''" sizes="20em">
+        <img class="poster-img"
+             [src]="(workshop.posterUrls$ | async)?.original || ''"
+             [srcset]="(workshop.posterUrls$ | async)?.jpeg || ''"
+             sizes="20em" alt="Workshop Poster">
+      </picture>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-stroked-button color="accent"
+              [routerLink]="[(unknownWorkshop$ | async) ? '../' : './', workshop.id]"
+      >View</button>
+    </mat-card-actions>
+  </mat-card>
+</div>

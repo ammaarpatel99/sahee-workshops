@@ -1,20 +1,22 @@
-import {firestoreFn} from "../function-builder";
-import {PATHS} from "../firebase-paths";
-import {firestore} from "firebase-admin";
+import {firestoreFn} from '../function-builder';
+import {firestore} from 'firebase-admin';
+import {FIRESTORE_PATHS as PATHS} from '../firebase-helpers';
 
 export * as workshop from './workshop';
 
 
-export const onDelete = firestoreFn.document(PATHS.usersCol + '/{uid}').onDelete(
+export const onDelete = firestoreFn.document(PATHS.user.col + '/{uid}').onDelete(
   async (snapshot, context) => {
-    const uid = context.params.uid as string;
+    const userID = context.params.uid as string;
+
     const userWorkshops = (
-      await firestore().collection(PATHS.userWorkshopsCol(uid)).listDocuments()
+      await firestore().collection(PATHS.user.workshop.col(userID)).listDocuments()
     ).map(doc => doc.id);
+
     const batch = firestore().batch();
     for (const workshopID of userWorkshops) {
-      batch.delete(firestore().doc(PATHS.userWorkshopDoc(uid, workshopID)))
-        .delete(firestore().doc(PATHS.workshopUserDoc(workshopID, uid)))
+      batch.delete(firestore().doc(PATHS.user.workshop.doc({userID, workshopID})))
+        .delete(firestore().doc(PATHS.workshop.user.doc({workshopID, userID})));
     }
     await batch.commit();
   }

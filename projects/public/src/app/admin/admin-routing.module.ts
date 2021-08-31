@@ -1,31 +1,21 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {AdminWorkshopComponent} from './admin-workshop/admin-workshop/admin-workshop.component';
-import {WorkshopsDashboardComponent} from '../workshops-dashboard/workshops-dashboard/workshops-dashboard.component';
-import {AdminWorkshopResolver} from '../resolvers/admin-workshop/admin-workshop.resolver';
-import {WorkshopDashboardResolver} from '../resolvers/workshop-dashboard/workshop-dashboard.resolver';
+import {AdminWorkshopComponent} from './admin-workshop/admin-workshop.component';
+import {WorkshopsDashboardComponent} from '../workshops-dashboard/workshops-dashboard.component';
+import {AdminWorkshopResolver} from './guards/admin-workshop/admin-workshop.resolver';
+
 
 const routes: Routes = [
-  {
-    path: 'settings',
-    loadChildren: () => import('./settings/settings.module').then(m => m.SettingsModule)
-  },
   {
     path: '',
     pathMatch: 'full',
     component: WorkshopsDashboardComponent,
-    data: {allowNew: true},
-    resolve: {
-      workshops$: WorkshopDashboardResolver
-    }
+    data: {allowNew: true}
   },
   {
     path: 'unknown',
     component: WorkshopsDashboardComponent,
-    data: {unknown: true, allowNew: true},
-    resolve: {
-      workshops$: WorkshopDashboardResolver
-    }
+    data: {unknown: true, allowNew: true}
   },
   {
     path: 'new',
@@ -40,6 +30,7 @@ const routes: Routes = [
     }
   }
 ];
+
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],

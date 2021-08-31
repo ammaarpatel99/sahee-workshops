@@ -1,27 +1,41 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AdminWorkshopComponent } from './admin-workshop/admin-workshop.component';
+import { AdminWorkshopComponent } from './admin-workshop.component';
 import {MatTabsModule} from '@angular/material/tabs';
-import {AdminWorkshopDetailsFormModule} from '../admin-workshop-details-form/admin-workshop-details-form.module';
 import {MatCardModule} from '@angular/material/card';
-import {AdminWorkshopChangePosterModule} from '../admin-workshop-change-poster/admin-workshop-change-poster.module';
-import {AdminWorkshopPromotionModule} from '../admin-workshop-promotion/admin-workshop-promotion.module';
-import {AdminWorkshopMessageModule} from '../admin-workshop-message/admin-workshop-message.module';
 import {MatButtonModule} from '@angular/material/button';
+import {MatInputModule} from '@angular/material/input';
+import {ReactiveFormsModule} from '@angular/forms';
+import {AdminWorkshopPromotionComponent} from './admin-workshop-promotion/admin-workshop-promotion.component';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import {AdminWorkshopMessageComponent} from './admin-workshop-message/admin-workshop-message.component';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
+import {AdminWorkshopDetailsFormComponent} from './admin-workshop-details-form/admin-workshop-details-form.component';
+import {AdminWorkshopChangePosterComponent} from './admin-workshop-change-poster/admin-workshop-change-poster.component';
+import {MatIconModule} from '@angular/material/icon';
 
 
 
 @NgModule({
-  declarations: [AdminWorkshopComponent],
+  declarations: [
+    AdminWorkshopComponent,
+    AdminWorkshopPromotionComponent,
+    AdminWorkshopMessageComponent,
+    AdminWorkshopDetailsFormComponent,
+    AdminWorkshopChangePosterComponent
+  ],
   imports: [
     CommonModule,
-    AdminWorkshopDetailsFormModule,
-    AdminWorkshopChangePosterModule,
-    AdminWorkshopPromotionModule,
-    AdminWorkshopMessageModule,
     MatCardModule,
     MatTabsModule,
-    MatButtonModule
+    MatButtonModule,
+    MatInputModule,
+    ReactiveFormsModule,
+    MatSlideToggleModule,
+    MatTooltipModule,
+    MatProgressBarModule,
+    MatIconModule
   ],
   exports: [AdminWorkshopComponent]
 })

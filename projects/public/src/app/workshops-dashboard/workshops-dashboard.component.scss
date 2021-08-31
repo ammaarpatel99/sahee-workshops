@@ -1,0 +1,43 @@
+@import "../../themes/public";
+@import "future-workshop-theme";
+
+.unknown-route {
+  margin-top: 2em;
+  width: 100%;
+  text-align: center;
+}
+
+.container {
+  margin: 1em;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+}
+
+@include future-workshop-theme($public-light-theme);
+
+mat-card {
+  width: 20em;
+  margin: 1em;
+  display: flex;
+  flex-direction: column;
+  mat-card-content {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+mat-card-actions {
+  display: flex;
+  justify-content: space-evenly;
+  button {
+    flex-grow: 1;
+  }
+}
+
+.poster-img {
+  max-height: 28em;
+  max-width: 100%;
+}

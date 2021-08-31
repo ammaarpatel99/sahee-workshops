@@ -1,0 +1,29 @@
+.space-filler {
+  flex: 1 0 auto;
+}
+
+
+.title-container {
+  height: 100%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+
+.mat-toolbar.mat-primary {
+  position: sticky;
+  top: 0;
+  z-index: 10000;
+  img {
+    height: 60%;
+    margin-right: 0.5em;
+  }
+}
+
+
+.email-warning {
+  height: auto;
+  text-align: center;
+  white-space: pre-wrap;
+}

@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NavContainerComponent } from './nav-container/nav-container.component';
+import { NavContainerComponent } from './nav-container.component';
 import { LayoutModule } from '@angular/cdk/layout';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,11 +10,12 @@ import { MatListModule } from '@angular/material/list';
 import {RouterModule} from '@angular/router';
 import {NgxAuthFirebaseUIModule} from 'ngx-auth-firebaseui';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
+import { MainToolbarComponent } from './main-toolbar/main-toolbar.component';
 
 
 
 @NgModule({
-  declarations: [NavContainerComponent],
+  declarations: [NavContainerComponent, MainToolbarComponent],
   imports: [
     CommonModule,
     LayoutModule,

@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AccountComponent } from './account/account.component';
+import { AccountComponent } from './account.component';
 import {MatExpansionModule} from '@angular/material/expansion';
 import {NgxAuthFirebaseUIModule} from 'ngx-auth-firebaseui';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';

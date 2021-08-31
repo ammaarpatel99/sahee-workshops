@@ -1,0 +1,41 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="form">
+  <h1>{{workshop ? 'Edit Details' : 'Create Workshop'}}</h1>
+
+
+  <mat-form-field *ngFor="let field of displayFields" [appearance]="getFormFieldAppearance(field.name)">
+    <mat-label>{{field.title}}</mat-label>
+
+    <ng-container *ngIf="field.type === 'text-area'; else fieldInput">
+      <textarea matInput [formControlName]="field.name" [required]="field.required"></textarea>
+    </ng-container>
+
+    <ng-template #fieldInput>
+      <input matInput [formControlName]="field.name" [required]="field.required" [type]="field.type" autocomplete="off">
+    </ng-template>
+
+    <mat-error *ngIf="getFormControl(field.name).invalid">{{getFieldErrorMessage(field.name)}}</mat-error>
+
+    <mat-icon matSuffix [matTooltip]="field.tooltip" matTooltipPosition="after" >info_outline</mat-icon>
+  </mat-form-field>
+
+
+  <div class="form-actions">
+    <ng-container *ngIf="!editing; else formActions">
+      <button mat-flat-button color="warn" type="reset" (click)="delete()">
+        Delete
+      </button>
+      <button mat-stroked-button color="primary" (click)="editing = true">
+        Edit
+      </button>
+    </ng-container>
+
+    <ng-template #formActions>
+      <button mat-stroked-button color="warn" type="reset" (click)="resetWorkshopDetailsForm()" [disabled]="form.disabled">
+        Reset
+      </button>
+      <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || form.disabled || form.pristine">
+        Submit
+      </button>
+    </ng-template>
+  </div>
+</form>
